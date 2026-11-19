@@ -638,6 +638,26 @@
     });
     themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
+    let activeCardBox = null;
+    function bindCardListeners() {
+      const cards = document.querySelectorAll('.entry-card, .project-item, .pub-item, .skill-card');
+      cards.forEach(card => {
+        card.addEventListener('mouseenter', () => {
+          const rect = card.getBoundingClientRect();
+          activeCardBox = {
+            left: rect.left,
+            top: rect.top,
+            right: rect.right,
+            bottom: rect.bottom
+          };
+        });
+        card.addEventListener('mouseleave', () => {
+          activeCardBox = null;
+        });
+      });
+    }
+    bindCardListeners();
+
     var lastTime = performance.now();
 
     function render(now) {
@@ -885,6 +905,27 @@
             ctx.lineWidth = 0.85;
           }
         }
+
+        // Crystal Flow Expansion: Energetic Constellation Rays to Hovered Content Cards
+        if (activeCardBox) {
+          var cNearX = Math.max(activeCardBox.left, Math.min(p1.x, activeCardBox.right));
+          var cNearY = Math.max(activeCardBox.top, Math.min(p1.y, activeCardBox.bottom));
+          var cdx = p1.x - cNearX;
+          var cdy = p1.y - cNearY;
+          var cardDistSq = cdx * cdx + cdy * cdy;
+          var cardLinkDist = 125;
+          if (cardDistSq < cardLinkDist * cardLinkDist) {
+            var cDist = Math.sqrt(cardDistSq);
+            var cardRayAlpha = (1 - cDist / cardLinkDist) * (isDark ? 0.36 : 0.22);
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(cNearX, cNearY);
+            ctx.strokeStyle = 'rgba(' + secR + ', ' + secG + ', ' + secB + ', ' + cardRayAlpha + ')';
+            ctx.lineWidth = 1.0;
+            ctx.stroke();
+            ctx.lineWidth = 0.85;
+          }
+        }
       }
     }
 
@@ -997,13 +1038,158 @@
     });
   }
 
+  // 10. Dennis Snellenberg Magnetic Button Physics
+  function initMagneticButtons() {
+    if (window.matchMedia('(hover: none)').matches) return;
+    const magneticEls = document.querySelectorAll('.pill-link, .btn-cv-sm, #theme-toggle, .visitor-counter-pill, .btn-submit, .filter-btn');
+
+    magneticEls.forEach(el => {
+      const strength = 0.35;
+      const textStrength = 0.18;
+      const innerText = el.querySelector('span, svg, .btn-text') || null;
+
+      el.addEventListener('mouseenter', () => {
+        el.style.transition = 'transform 0.12s cubic-bezier(0.22, 1, 0.36, 1)';
+      });
+
+      el.addEventListener('mousemove', (e) => {
+        const rect = el.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const dx = (e.clientX - centerX) * strength;
+        const dy = (e.clientY - centerY) * strength;
+
+        el.style.transform = `translate(${dx}px, ${dy}px)`;
+        if (innerText) {
+          innerText.style.transform = `translate(${dx * textStrength}px, ${dy * textStrength}px)`;
+        }
+      });
+
+      el.addEventListener('mouseleave', () => {
+        el.style.transition = 'transform 0.45s cubic-bezier(0.25, 1, 0.5, 1)';
+        el.style.transform = 'translate(0px, 0px)';
+        if (innerText) {
+          innerText.style.transition = 'transform 0.45s cubic-bezier(0.25, 1, 0.5, 1)';
+          innerText.style.transform = 'translate(0px, 0px)';
+        }
+      });
+    });
+  }
+
+  // 11. Jon Barron Style Publication Visual Abstract Floater
+  const pubAbstractData = [
+    {
+      tag: 'Journal Article · J. Alloys & Compounds',
+      caption: 'Dy³⁺ Doped Li-Sr-Borate Phosphor thermoluminescence emission spectra & glow curve for precision radiation dosimetry.',
+      svg: '<svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 100 Q 70 98 100 80 T 140 25 T 180 85 T 260 100" stroke="#10B981" stroke-width="2.2" stroke-linecap="round" fill="none"/><path d="M20 100 Q 70 98 100 80 T 140 25 T 180 85 T 260 100 L 260 105 L 20 105 Z" fill="#10B981" opacity="0.12"/><circle cx="140" cy="25" r="4.5" fill="#10B981"/><text x="140" y="16" fill="currentColor" font-size="10" font-weight="700" text-anchor="middle">TL Peak 210°C</text><line x1="20" y1="105" x2="260" y2="105" stroke="currentColor" stroke-width="1" opacity="0.3"/><line x1="20" y1="15" x2="20" y2="105" stroke="currentColor" stroke-width="1" opacity="0.3"/><text x="240" y="116" fill="currentColor" font-size="9" opacity="0.6">Temp (°C)</text></svg>'
+    },
+    {
+      tag: 'Journal Article · BioResources',
+      caption: 'Superhydrophobic water-repellent jute fabric functionalization (contact angle θ = 142°) for sustainable packaging.',
+      svg: '<svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="30" y1="90" x2="250" y2="90" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0.7"/><path d="M100 90 C 100 45, 180 45, 180 90 Z" fill="#10B981" opacity="0.22" stroke="#10B981" stroke-width="2"/><path d="M140 90 L 165 65" stroke="#10B981" stroke-width="1.8" stroke-dasharray="3 3"/><circle cx="140" cy="68" r="3" fill="#10B981"/><text x="140" y="52" fill="#10B981" font-size="11" font-weight="800" text-anchor="middle">θ = 142°</text><text x="140" y="110" fill="currentColor" font-size="10" font-weight="600" text-anchor="middle" opacity="0.7">Functionalized Jute Substrate</text></svg>'
+    },
+    {
+      tag: 'Book Chapter · Elsevier (Woodhead)',
+      caption: 'Self-healing polymer nanocomposites: autonomous microcapsule rupture & supramolecular reversible bonding mechanism.',
+      svg: '<svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="30" y="30" width="95" height="60" rx="6" stroke="currentColor" stroke-width="1.5" fill="currentColor" opacity="0.08"/><line x1="80" y1="30" x2="80" y2="90" stroke="#EF4444" stroke-width="2" stroke-dasharray="2 2"/><text x="77" y="64" fill="#EF4444" font-size="10" font-weight="700" text-anchor="middle">Crack</text><path d="M135 60 L 155 60" stroke="#10B981" stroke-width="2"/><rect x="165" y="30" width="95" height="60" rx="6" stroke="#10B981" stroke-width="1.8" fill="#10B981" opacity="0.18"/><text x="212" y="64" fill="#10B981" font-size="10" font-weight="800" text-anchor="middle">Healed (96%)</text></svg>'
+    },
+    {
+      tag: 'Proceedings · ICEEICT 2024',
+      caption: 'Autonomous inspection robot & cognitive mapping architecture for radioactive contamination screening.',
+      svg: '<svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="140" cy="60" r="46" stroke="#10B981" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.5"/><circle cx="140" cy="60" r="28" stroke="#10B981" stroke-width="1.5" opacity="0.8"/><circle cx="140" cy="60" r="8" fill="#10B981"/><circle cx="85" cy="40" r="5" fill="#EF4444" opacity="0.8"/><circle cx="195" cy="75" r="4" fill="#F59E0B" opacity="0.8"/><text x="140" y="112" fill="currentColor" font-size="10" font-weight="600" text-anchor="middle" opacity="0.8">Dosimetric Radiation Heat-Map</text></svg>'
+    },
+    {
+      tag: 'Proceedings · NCST 2024',
+      caption: 'Gamma-ray energy spectrometry with High Purity Germanium (HPGe) detector for 226Ra, 232Th, and 40K.',
+      svg: '<svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M30 100 L 70 95 L 90 35 L 105 95 L 145 92 L 160 25 L 175 92 L 210 90 L 220 50 L 230 90 L 260 90" stroke="#10B981" stroke-width="2" fill="none"/><text x="90" y="26" fill="#10B981" font-size="9" font-weight="700" text-anchor="middle">²²⁶Ra</text><text x="160" y="16" fill="#10B981" font-size="9" font-weight="700" text-anchor="middle">²³²Th</text><text x="220" y="42" fill="#10B981" font-size="9" font-weight="700" text-anchor="middle">⁴⁰K</text><line x1="30" y1="102" x2="260" y2="102" stroke="currentColor" stroke-width="1" opacity="0.3"/></svg>'
+    },
+    {
+      tag: 'Proceedings · 2nd ICSEE 2024',
+      caption: 'Advanced Cost-Effective Surface Functionalization Strategies for Packaging Jute Fabrics.',
+      svg: '<svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="40" y="40" width="200" height="40" rx="8" fill="currentColor" opacity="0.08" stroke="currentColor" stroke-width="1.5"/><circle cx="70" cy="60" r="10" fill="#10B981" opacity="0.7"/><circle cx="120" cy="60" r="10" fill="#10B981" opacity="0.7"/><circle cx="170" cy="60" r="10" fill="#10B981" opacity="0.7"/><circle cx="210" cy="60" r="10" fill="#10B981" opacity="0.7"/><text x="140" y="105" fill="currentColor" font-size="10" font-weight="600" text-anchor="middle" opacity="0.8">Nano-Barrier Layer Matrix</text></svg>'
+    },
+    {
+      tag: 'Proceedings · ICREST 2025',
+      caption: 'Biodegradable and Graphene Nanoplatelet reinforced bioplastics for sustainable packaging.',
+      svg: '<svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="140,20 175,40 175,80 140,100 105,80 105,40" stroke="#10B981" stroke-width="2" fill="#10B981" opacity="0.2"/><polygon points="190,45 220,62 220,95 190,112 160,95 160,62" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.4"/><text x="140" y="65" fill="#10B981" font-size="11" font-weight="800" text-anchor="middle">GNP Hexagon</text></svg>'
+    },
+    {
+      tag: 'Presentation · 2nd ICSEE 2024',
+      caption: 'Dosimetric and structural characterization of Lithium Strontium Borate Phosphor.',
+      svg: '<svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="140" cy="60" r="38" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 3"/><circle cx="140" cy="60" r="14" fill="#10B981"/><circle cx="110" cy="45" r="7" fill="currentColor" opacity="0.7"/><circle cx="170" cy="75" r="7" fill="currentColor" opacity="0.7"/><text x="140" y="112" fill="currentColor" font-size="10" font-weight="600" text-anchor="middle">XRD Lattice Peak Match</text></svg>'
+    },
+    {
+      tag: 'Presentation · ICGET 2024',
+      caption: 'Radioactive Substance Screening and Nuclear Inspection Robotics Presentation.',
+      svg: '<svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="50" y="30" width="180" height="60" rx="10" stroke="#10B981" stroke-width="1.8" fill="currentColor" opacity="0.08"/><path d="M70 60 L 100 45 L 140 68 L 180 40 L 210 60" stroke="#10B981" stroke-width="2" fill="none"/><text x="140" y="108" fill="currentColor" font-size="10" font-weight="600" text-anchor="middle">Autonomous Telemetry Mesh</text></svg>'
+    },
+    {
+      tag: 'Presentation · 8th ICPE 2024',
+      caption: 'Development of Water-Repellent Functionalization for Biodegradable Jute Fabrics.',
+      svg: '<svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="140" cy="55" r="32" fill="#10B981" opacity="0.25" stroke="#10B981" stroke-width="2"/><path d="M125 55 L 135 65 L 155 45" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><text x="140" y="106" fill="currentColor" font-size="10" font-weight="700" text-anchor="middle">Eco-Friendly Barrier Verified</text></svg>'
+    }
+  ];
+
+  function initPublicationPreviews() {
+    const floater = document.getElementById('pub-preview-floater');
+    const tagEl = document.getElementById('preview-tag');
+    const diagramEl = document.getElementById('pub-preview-diagram');
+    const captionEl = document.getElementById('pub-preview-caption');
+    if (!floater || !tagEl || !diagramEl || !captionEl) return;
+    if (window.matchMedia('(max-width: 860px)').matches) return;
+
+    const pubItems = document.querySelectorAll('.pub-item');
+
+    pubItems.forEach((item, index) => {
+      const data = pubAbstractData[index] || pubAbstractData[0];
+
+      item.addEventListener('mouseenter', (e) => {
+        tagEl.textContent = data.tag;
+        diagramEl.innerHTML = data.svg;
+        captionEl.textContent = data.caption;
+        floater.classList.add('is-visible');
+        updatePosition(e);
+      });
+
+      item.addEventListener('mousemove', (e) => {
+        updatePosition(e);
+      });
+
+      item.addEventListener('mouseleave', () => {
+        floater.classList.remove('is-visible');
+      });
+    });
+
+    function updatePosition(e) {
+      const floaterWidth = 290;
+      const floaterHeight = 220;
+      let x = e.clientX + 22;
+      let y = e.clientY - 40;
+
+      if (x + floaterWidth > window.innerWidth - 16) {
+        x = e.clientX - floaterWidth - 22;
+      }
+      if (y + floaterHeight > window.innerHeight - 16) {
+        y = window.innerHeight - floaterHeight - 16;
+      }
+      if (y < 70) y = 70;
+
+      floater.style.left = `${x}px`;
+      floater.style.top = `${y}px`;
+    }
+  }
+
   if (document.readyState === 'loading') {
     window.addEventListener('DOMContentLoaded', function () {
       initVisitorCounter();
       initContactForm();
+      initMagneticButtons();
+      initPublicationPreviews();
     });
   } else {
     initVisitorCounter();
     initContactForm();
+    initMagneticButtons();
+    initPublicationPreviews();
   }
 })();

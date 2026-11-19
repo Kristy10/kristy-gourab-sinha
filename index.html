@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="styles.css?v=original" />
+  <link rel="stylesheet" href="styles.css?v=features" />
 </head>
 <body>
   <!-- Dynamic Full-Page Particle Flow Canvas -->
@@ -1050,10 +1050,20 @@
     </div>
   </footer>
 
+  <!-- Jon Barron Style Publication Preview Floater -->
+  <div id="pub-preview-floater" class="pub-preview-floater" aria-hidden="true">
+    <div class="pub-preview-header">
+      <span class="preview-badge">Visual Abstract</span>
+      <span id="preview-tag" class="preview-tag">Journal Article</span>
+    </div>
+    <div id="pub-preview-diagram" class="pub-preview-diagram"></div>
+    <div id="pub-preview-caption" class="pub-preview-caption"></div>
+  </div>
+
   <!-- Minimal Toast Notification -->
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="script.js?v=quantumflow"></script>
+  <script src="script.js?v=features"></script>
 </body>
 </html>

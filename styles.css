@@ -805,6 +805,105 @@ button {
 }
 
 /* ==========================================================================
+   Jon Barron Style Publication Visual Abstract Floater
+   ========================================================================== */
+.pub-preview-floater {
+  position: fixed;
+  z-index: 999;
+  width: 290px;
+  background: var(--bg-card-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.22), 0 0 24px -6px var(--accent-soft);
+  padding: 14px;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.92) translateY(8px);
+  transition: opacity 0.22s var(--ease-out), transform 0.22s var(--ease-out);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pub-preview-floater.is-visible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+.pub-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.preview-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-accent);
+  background-color: var(--accent-soft);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+}
+
+.preview-tag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.pub-preview-diagram {
+  width: 100%;
+  height: 124px;
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pub-preview-diagram svg {
+  width: 100%;
+  height: 100%;
+}
+
+.pub-preview-caption {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+@media (max-width: 860px) {
+  .pub-preview-floater {
+    display: none !important;
+  }
+}
+
+/* Dynamic Interactive Card Tactile Lift & Energy Glow */
+.entry-card,
+.project-item,
+.pub-item,
+.skill-card {
+  position: relative;
+  transition: border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.entry-card:hover,
+.project-item:hover,
+.pub-item:hover,
+.skill-card:hover {
+  border-color: var(--accent-border);
+  box-shadow: 0 10px 28px -8px var(--accent-soft);
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================
    Skills, Training & Leadership
    ========================================================================== */
 
