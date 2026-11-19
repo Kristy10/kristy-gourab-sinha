@@ -23,8 +23,6 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Scroll Flow Progress Indicator -->
-  <div id="scroll-flow-bar" class="scroll-flow-bar" aria-hidden="true"></div>
   <!-- Dynamic Full-Page Particle Flow Canvas -->
   <canvas id="bg-particle-canvas" aria-hidden="true"></canvas>
 
@@ -48,12 +46,16 @@
       </nav>
 
             <div class="nav-actions">
-        <div class="visitor-counter-pill" title="Dynamic Live Site Explorations · Real-time Telemetry" aria-label="Live visitors counter">
-          <span class="visitor-dot" aria-hidden="true"></span>
-          <span id="visitor-count" class="visitor-count tabular-nums">287</span>
-          <span class="visitor-badge">LIVE</span>
+        <div class="visitor-counter-pill" title="Dynamic Page Visitors · Live Telemetry">
+          <svg class="visitor-icon-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+          <span class="visitor-dot"></span>
+          <span class="visitor-label">Live Visitors:</span>
+          <span id="visitor-count" class="visitor-count tabular-nums">Loading...</span>
         </div>
-        <button id="theme-toggle"  class="theme-toggle" aria-label="Toggle color theme" title="Toggle Light / Dark theme">
+        <button id="theme-toggle" class="theme-toggle" aria-label="Toggle color theme" title="Toggle Light / Dark theme">
           <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
           </svg>
@@ -73,29 +75,7 @@
           <span>CV</span>
           <span class="arrow-up-right">&#8599;</span>
         </a>
-        <button id="mobile-menu-toggle" class="mobile-menu-btn" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobile-nav">
-          <span class="hamburger-bar"></span>
-          <span class="hamburger-bar"></span>
-          <span class="hamburger-bar"></span>
-        </button>
       </div>
-    </div>
-    <!-- Mobile Navigation Drawer -->
-    <div id="mobile-nav" class="mobile-nav-drawer" aria-hidden="true">
-      <nav class="mobile-nav-links">
-        <a href="#experience" class="mobile-nav-link">Experience</a>
-        <a href="#education" class="mobile-nav-link">Education</a>
-        <a href="#projects" class="mobile-nav-link">Projects</a>
-        <a href="#publications" class="mobile-nav-link">Publications</a>
-        <a href="#skills" class="mobile-nav-link">Skills</a>
-        <a href="#awards" class="mobile-nav-link">Awards</a>
-        <a href="#references" class="mobile-nav-link">References</a>
-        <a href="#contact" class="mobile-nav-link">Contact</a>
-        <a href="Kristy_Gourab_Sinha_CV.pdf" class="mobile-nav-cv" download>
-          <span>Download CV (PDF)</span>
-          <span class="arrow-up-right">&#8599;</span>
-        </a>
-      </nav>
     </div>
   </header>
 
@@ -239,7 +219,7 @@
                 <path d="M6 14h6"/>
               </svg>
             </div>
-            <span class="metric-value" data-target="7">07</span>
+            <span class="metric-value">07</span>
           </div>
           <span class="metric-label">Peer-Reviewed Publications</span>
         </div>
@@ -252,7 +232,7 @@
                 <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(-30 12 12)"/>
               </svg>
             </div>
-            <span class="metric-value" data-target="6">06</span>
+            <span class="metric-value">06</span>
           </div>
           <span class="metric-label">Funded Research Projects &amp; Thesis</span>
         </div>
@@ -267,7 +247,7 @@
                 <circle cx="12" cy="7" r="3"/>
               </svg>
             </div>
-            <span class="metric-value" data-target="3">03</span>
+            <span class="metric-value">03</span>
           </div>
           <span class="metric-label">International Conference Talks</span>
         </div>
@@ -282,7 +262,7 @@
                 <path d="M18 4H6v7a6 6 0 0 0 12 0V4Z"/>
               </svg>
             </div>
-            <span class="metric-value" data-target="11">11</span>
+            <span class="metric-value">11</span>
           </div>
           <span class="metric-label">National &amp; Global Honors</span>
         </div>
@@ -1147,8 +1127,8 @@
             <div style="display: flex; flex-direction: column; gap: 4px;">
         <span>&copy; 2026 Kristy Gourab Sinha. All rights reserved.</span>
         <div class="footer-visitor">
-          <span class="visitor-dot" aria-hidden="true"></span>
-          <span><strong id="footer-visitor-count" class="tabular-nums">287</strong> Live Explorations</span>
+          <span class="visitor-dot"></span>
+          <span>Live Page Visitors: <strong id="footer-visitor-count" class="tabular-nums">Loading...</strong></span>
         </div>
       </div>
       <div class="footer-links">
