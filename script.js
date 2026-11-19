@@ -295,33 +295,33 @@
     function updateColors() {
       const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
       if (isDark) {
-        facetMaterial.color.set(0x0e2b20);
-        facetMaterial.emissive.set(0x052a1e);
-        facetMaterial.emissiveIntensity = 0.4;
-        wireMaterial.color.set(0x5ce1b6);
+        facetMaterial.color.set(0x0e1715);
+        facetMaterial.emissive.set(0x052019);
+        facetMaterial.emissiveIntensity = 0.42;
+        wireMaterial.color.set(0x4eeda8);
         wireMaterial.opacity = 0.65;
-        nodeMaterial.color.set(0x5ce1b6);
-        coreMaterial.color.set(0x164e3c);
-        coreMaterial.emissive.set(0x5ce1b6);
-        coreMaterial.emissiveIntensity = 0.25;
-        coreWire.material.color.set(0x5ce1b6);
-        particleMaterial.color.set(0x5ce1b6);
-        pointLight1.color.set(0x5ce1b6);
-        pointLight2.color.set(0x34d399);
+        nodeMaterial.color.set(0x4eeda8);
+        coreMaterial.color.set(0x132822);
+        coreMaterial.emissive.set(0x4eeda8);
+        coreMaterial.emissiveIntensity = 0.28;
+        coreWire.material.color.set(0x4eeda8);
+        particleMaterial.color.set(0x4eeda8);
+        pointLight1.color.set(0x4eeda8);
+        pointLight2.color.set(0x38bdf8);
       } else {
-        facetMaterial.color.set(0xd5ede3);
-        facetMaterial.emissive.set(0x0f4c3a);
-        facetMaterial.emissiveIntensity = 0.15;
-        wireMaterial.color.set(0x0f4c3a);
-        wireMaterial.opacity = 0.4;
-        nodeMaterial.color.set(0x0f4c3a);
-        coreMaterial.color.set(0x2d6a4f);
-        coreMaterial.emissive.set(0x0f4c3a);
-        coreMaterial.emissiveIntensity = 0.1;
-        coreWire.material.color.set(0x0f4c3a);
-        particleMaterial.color.set(0x0f4c3a);
-        pointLight1.color.set(0x0f4c3a);
-        pointLight2.color.set(0x10b981);
+        facetMaterial.color.set(0xe0f2fe);
+        facetMaterial.emissive.set(0x059669);
+        facetMaterial.emissiveIntensity = 0.12;
+        wireMaterial.color.set(0x059669);
+        wireMaterial.opacity = 0.45;
+        nodeMaterial.color.set(0x059669);
+        coreMaterial.color.set(0xd1fae5);
+        coreMaterial.emissive.set(0x059669);
+        coreMaterial.emissiveIntensity = 0.15;
+        coreWire.material.color.set(0x059669);
+        particleMaterial.color.set(0x059669);
+        pointLight1.color.set(0x059669);
+        pointLight2.color.set(0x0284c7);
       }
     }
     updateColors();
@@ -512,12 +512,12 @@
 
     // Multi-tone color palette for richer particle visuals
     var colorPalette = [
-      { name: 'emerald',  dR: 92,  dG: 225, dB: 182, lR: 15,  lG: 118, lB: 80  },
-      { name: 'cyan',     dR: 72,  dG: 202, dB: 228, lR: 14,  lG: 116, lB: 144 },
-      { name: 'gold',     dR: 250, dG: 204, dB: 90,  lR: 180, lG: 130, lB: 20  },
-      { name: 'violet',   dR: 162, dG: 130, dB: 246, lR: 100, lG: 60,  lB: 180 },
-      { name: 'rose',     dR: 244, dG: 114, dB: 182, lR: 190, lG: 50,  lB: 100 },
-      { name: 'teal',     dR: 52,  dG: 211, dB: 153, lR: 16,  lG: 155, lB: 110 }
+      { name: 'emerald',  dR: 78,  dG: 237, dB: 168, lR: 5,   lG: 150, lB: 105 },
+      { name: 'cyan',     dR: 56,  dG: 189, dB: 248, lR: 2,   lG: 132, lB: 199 },
+      { name: 'gold',     dR: 251, dG: 191, dB: 36,  lR: 217, lG: 119, lB: 6   },
+      { name: 'violet',   dR: 167, dG: 139, dB: 250, lR: 124, lG: 58,  lB: 237 },
+      { name: 'rose',     dR: 251, dG: 113, dB: 133, lR: 225, lG: 29,  lB: 72  },
+      { name: 'teal',     dR: 45,  dG: 212, dB: 191, lR: 13,  lG: 148, lB: 136 }
     ];
 
     const particles = [];
@@ -681,18 +681,18 @@
       ctx.clearRect(0, 0, width, height);
 
       // Theme-adaptive radiant glow color spectrum (primary emerald + secondary teal)
-      var prR = isDark ? 92 : 15;
-      var prG = isDark ? 225 : 76;
-      var prB = isDark ? 182 : 58;
+      var prR = isDark ? 78 : 5;
+      var prG = isDark ? 237 : 150;
+      var prB = isDark ? 168 : 105;
 
-      var secR = isDark ? 56 : 16;
-      var secG = isDark ? 189 : 185;
-      var secB = isDark ? 248 : 129;
+      var secR = isDark ? 56 : 2;
+      var secG = isDark ? 189 : 132;
+      var secB = isDark ? 248 : 199;
 
       // Tertiary warm accent (gold)
-      var terR = isDark ? 250 : 180;
-      var terG = isDark ? 204 : 130;
-      var terB = isDark ? 90 : 20;
+      var terR = isDark ? 251 : 217;
+      var terG = isDark ? 191 : 119;
+      var terB = isDark ? 36 : 6;
 
       var time = now * 0.0012;
 
