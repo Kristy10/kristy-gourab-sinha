@@ -146,12 +146,12 @@
     const stage = document.getElementById('crystal-stage');
     if (!canvas || !stage) return;
 
-    // Scene & Camera
+    // Scene & Perspective Camera
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(40, stage.clientWidth / stage.clientHeight, 0.1, 100);
     camera.position.z = 6.2;
 
-    // High performance WebGL Renderer
+    // High performance WebGL Renderer with retina resolution
     const renderer = new THREE.WebGLRenderer({
       canvas: canvas,
       alpha: true,
@@ -161,7 +161,7 @@
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setSize(stage.clientWidth, stage.clientHeight);
 
-    // Master Group
+    // Master Group (contains all rotating crystal elements)
     const masterGroup = new THREE.Group();
     scene.add(masterGroup);
 
@@ -170,14 +170,14 @@
 
     const facetMaterial = new THREE.MeshPhysicalMaterial({
       flatShading: true,
-      roughness: 0.15,
-      metalness: 0.1,
-      transmission: 0.65,
-      ior: 1.52,
+      roughness: 0.1,
+      metalness: 0.15,
+      transmission: 0.7,
+      ior: 1.62,
       transparent: true,
-      opacity: 0.85,
+      opacity: 0.88,
       clearcoat: 1.0,
-      clearcoatRoughness: 0.1
+      clearcoatRoughness: 0.05
     });
 
     const crystalMesh = new THREE.Mesh(icosaGeometry, facetMaterial);
@@ -187,7 +187,7 @@
     const wireGeometry = new THREE.WireframeGeometry(icosaGeometry);
     const wireMaterial = new THREE.LineBasicMaterial({
       transparent: true,
-      opacity: 0.55,
+      opacity: 0.6,
       linewidth: 1
     });
     const wireMesh = new THREE.LineSegments(wireGeometry, wireMaterial);
@@ -212,24 +212,66 @@
     }
     masterGroup.add(nodeGroup);
 
-    // Inner Concentric Unit Cell (Octahedron Core)
+    // Inner Concentric Unit Cell (Octahedron Quantum Core)
     const coreGeometry = new THREE.OctahedronGeometry(0.95, 0);
     const coreMaterial = new THREE.MeshStandardMaterial({
       flatShading: true,
-      roughness: 0.3,
-      metalness: 0.8,
+      roughness: 0.25,
+      metalness: 0.85,
       transparent: true,
-      opacity: 0.68
+      opacity: 0.72
     });
     const coreMesh = new THREE.Mesh(coreGeometry, coreMaterial);
     const coreWire = new THREE.LineSegments(
       new THREE.WireframeGeometry(coreGeometry),
-      new THREE.LineBasicMaterial({ transparent: true, opacity: 0.7 })
+      new THREE.LineBasicMaterial({ transparent: true, opacity: 0.75 })
     );
     coreMesh.add(coreWire);
     masterGroup.add(coreMesh);
 
-    // Ambient Quantum Particle Field
+    // Atomic Orbital Electron Rings (Nuclear & Quantum Physics)
+    const orbitGroup = new THREE.Group();
+    const ringMaterial = new THREE.LineBasicMaterial({
+      transparent: true,
+      opacity: 0.45,
+      linewidth: 1.2
+    });
+    const electronGeom = new THREE.SphereGeometry(0.055, 16, 16);
+    const electronMaterial = new THREE.MeshBasicMaterial();
+
+    const ringConfigs = [
+      { rot: [0.85, 0.25, 0.4], speed: 0.022, radius: 2.38 },
+      { rot: [-0.75, 0.85, -0.35], speed: -0.026, radius: 2.52 },
+      { rot: [0.28, -0.92, 0.75], speed: 0.032, radius: 2.66 }
+    ];
+
+    const orbitalElectrons = [];
+    ringConfigs.forEach(function (cfg) {
+      const ringCurve = new THREE.BufferGeometry();
+      const pts = [];
+      const segs = 80;
+      for (let i = 0; i <= segs; i++) {
+        const a = (i / segs) * Math.PI * 2;
+        pts.push(new THREE.Vector3(Math.cos(a) * cfg.radius, Math.sin(a) * cfg.radius, 0));
+      }
+      ringCurve.setFromPoints(pts);
+      const ringLine = new THREE.Line(ringCurve, ringMaterial);
+      ringLine.rotation.set(cfg.rot[0], cfg.rot[1], cfg.rot[2]);
+      orbitGroup.add(ringLine);
+
+      const eMesh = new THREE.Mesh(electronGeom, electronMaterial);
+      orbitGroup.add(eMesh);
+      orbitalElectrons.push({
+        mesh: eMesh,
+        rot: cfg.rot,
+        speed: cfg.speed,
+        radius: cfg.radius,
+        angle: Math.random() * Math.PI * 2
+      });
+    });
+    masterGroup.add(orbitGroup);
+
+    // Ambient Quantum Particle Swarm
     const particleCount = 42;
     const particleGroup = new THREE.Group();
     const particleGeom = new THREE.SphereGeometry(0.028, 8, 8);
@@ -255,20 +297,20 @@
     }
     masterGroup.add(particleGroup);
 
-    // Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+    // Realistic Lighting Setup
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
     scene.add(ambientLight);
 
-    const pointLight1 = new THREE.PointLight(0x5ce1b6, 2.5, 25);
-    pointLight1.position.set(3, 4, 4);
+    const pointLight1 = new THREE.PointLight(0x5ce1b6, 2.6, 25);
+    pointLight1.position.set(3.5, 4.5, 4.5);
     scene.add(pointLight1);
 
-    const pointLight2 = new THREE.PointLight(0x10b981, 1.8, 25);
-    pointLight2.position.set(-4, -3, -2);
+    const pointLight2 = new THREE.PointLight(0x10b981, 1.9, 25);
+    pointLight2.position.set(-4, -3.5, -2);
     scene.add(pointLight2);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.45);
-    dirLight.position.set(0, 5, 3);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    dirLight.position.set(0, 6, 3.5);
     scene.add(dirLight);
 
     // Dynamic Theme Color Synchronization
@@ -277,14 +319,16 @@
       if (isDark) {
         facetMaterial.color.set(0x0e2b20);
         facetMaterial.emissive.set(0x052a1e);
-        facetMaterial.emissiveIntensity = 0.4;
+        facetMaterial.emissiveIntensity = 0.45;
         wireMaterial.color.set(0x5ce1b6);
         wireMaterial.opacity = 0.65;
         nodeMaterial.color.set(0x5ce1b6);
         coreMaterial.color.set(0x164e3c);
         coreMaterial.emissive.set(0x5ce1b6);
-        coreMaterial.emissiveIntensity = 0.25;
+        coreMaterial.emissiveIntensity = 0.3;
         coreWire.material.color.set(0x5ce1b6);
+        ringMaterial.color.set(0x5ce1b6);
+        electronMaterial.color.set(0x5ce1b6);
         particleMaterial.color.set(0x5ce1b6);
         pointLight1.color.set(0x5ce1b6);
         pointLight2.color.set(0x34d399);
@@ -293,12 +337,14 @@
         facetMaterial.emissive.set(0x0f4c3a);
         facetMaterial.emissiveIntensity = 0.15;
         wireMaterial.color.set(0x0f4c3a);
-        wireMaterial.opacity = 0.4;
+        wireMaterial.opacity = 0.45;
         nodeMaterial.color.set(0x0f4c3a);
         coreMaterial.color.set(0x2d6a4f);
         coreMaterial.emissive.set(0x0f4c3a);
-        coreMaterial.emissiveIntensity = 0.1;
+        coreMaterial.emissiveIntensity = 0.12;
         coreWire.material.color.set(0x0f4c3a);
+        ringMaterial.color.set(0x0f4c3a);
+        electronMaterial.color.set(0x0f4c3a);
         particleMaterial.color.set(0x0f4c3a);
         pointLight1.color.set(0x0f4c3a);
         pointLight2.color.set(0x10b981);
@@ -312,7 +358,53 @@
       attributeFilter: ['data-theme']
     });
 
-    // User Interaction (Drag / Tilt / Pulse)
+    // User Interaction & Control Toolbar
+    let autoSpin = true;
+    let wireframeMode = 0; // 0 = hybrid (crystal + wireframe), 1 = crystal only, 2 = wireframe only
+
+    const spinBtn = document.getElementById('crystal-btn-spin');
+    const pulseBtn = document.getElementById('crystal-btn-pulse');
+    const wireBtn = document.getElementById('crystal-btn-wire');
+
+    if (spinBtn) {
+      spinBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        autoSpin = !autoSpin;
+        spinBtn.classList.toggle('active', autoSpin);
+      });
+    }
+
+    if (pulseBtn) {
+      pulseBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        triggerPulse();
+      });
+    }
+
+    if (wireBtn) {
+      wireBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        wireframeMode = (wireframeMode + 1) % 3;
+        if (wireframeMode === 0) {
+          crystalMesh.visible = true;
+          wireMesh.visible = true;
+          nodeGroup.visible = true;
+          wireBtn.classList.remove('active');
+        } else if (wireframeMode === 1) {
+          crystalMesh.visible = true;
+          wireMesh.visible = false;
+          nodeGroup.visible = false;
+          wireBtn.classList.remove('active');
+        } else {
+          crystalMesh.visible = false;
+          wireMesh.visible = true;
+          nodeGroup.visible = true;
+          wireBtn.classList.add('active');
+        }
+      });
+    }
+
+    // Drag, Tilt & Momentum State
     let isDragging = false;
     let prevPointer = { x: 0, y: 0 };
     let dragStart = { x: 0, y: 0 };
@@ -324,13 +416,14 @@
     let lightFlash = 0;
 
     function triggerPulse() {
-      pulseScale = 1.25;
-      lightFlash = 2.0;
-      rotVelocity.y += (Math.random() - 0.5) * 0.08;
-      rotVelocity.x += (Math.random() - 0.5) * 0.08;
+      pulseScale = 1.28;
+      lightFlash = 2.4;
+      rotVelocity.y += (Math.random() - 0.5) * 0.1;
+      rotVelocity.x += (Math.random() - 0.5) * 0.1;
     }
 
     stage.addEventListener('pointerdown', function(e) {
+      if (e.target.closest('.crystal-controls')) return;
       isDragging = true;
       prevPointer = { x: e.clientX, y: e.clientY };
       dragStart = { x: e.clientX, y: e.clientY };
@@ -365,6 +458,12 @@
     window.addEventListener('pointerup', endDrag);
     window.addEventListener('pointercancel', endDrag);
 
+    // Smooth Scroll Wheel / Pinch Zoom
+    stage.addEventListener('wheel', function(e) {
+      e.preventDefault();
+      camera.position.z = Math.max(4.2, Math.min(8.8, camera.position.z + e.deltaY * 0.0035));
+    }, { passive: false });
+
     // Responsive Canvas Resize
     function onResize() {
       const w = stage.clientWidth;
@@ -385,15 +484,32 @@
       const elapsed = clock.getElapsedTime();
 
       // Inertia & Continuous gentle ambient rotation
-      masterGroup.rotation.y += rotVelocity.y + 0.0045;
-      masterGroup.rotation.x += rotVelocity.x + 0.002;
+      if (autoSpin) {
+        masterGroup.rotation.y += rotVelocity.y + 0.0048;
+        masterGroup.rotation.x += rotVelocity.x + 0.0022;
+      } else {
+        masterGroup.rotation.y += rotVelocity.y;
+        masterGroup.rotation.x += rotVelocity.x;
+      }
 
       rotVelocity.x *= 0.94;
       rotVelocity.y *= 0.94;
 
       // Inner Core Counter-Rotation
-      coreMesh.rotation.y -= 0.012;
-      coreMesh.rotation.z += 0.008;
+      coreMesh.rotation.y -= 0.014;
+      coreMesh.rotation.z += 0.009;
+
+      // Orbiting Electrons Animation
+      for (let k = 0; k < orbitalElectrons.length; k++) {
+        const oe = orbitalElectrons[k];
+        oe.angle += oe.speed;
+        const localX = Math.cos(oe.angle) * oe.radius;
+        const localY = Math.sin(oe.angle) * oe.radius;
+        const pos = new THREE.Vector3(localX, localY, 0);
+        const euler = new THREE.Euler(oe.rot[0], oe.rot[1], oe.rot[2]);
+        pos.applyEuler(euler);
+        oe.mesh.position.copy(pos);
+      }
 
       // Subtle parallax tilt towards cursor
       const targetTiltX = mouseNorm.y * 0.22;
@@ -403,17 +519,17 @@
       // Harmonic floating oscillation
       masterGroup.position.y = Math.sin(elapsed * 1.5) * 0.12 - (targetTiltX * 0.4);
 
-      // Light highlight follower
-      pointLight1.position.x = 3 + mouseNorm.x * 2.5;
-      pointLight1.position.y = 4 - mouseNorm.y * 2.5;
+      // Light highlight follower (creates realistic facet reflections)
+      pointLight1.position.x = 3.5 + mouseNorm.x * 2.8;
+      pointLight1.position.y = 4.5 - mouseNorm.y * 2.8;
 
-      // Elastic Spring Pulse on Click
+      // Elastic Spring Pulse on Click/Trigger
       pulseScale += (targetScale - pulseScale) * 0.08;
       masterGroup.scale.set(pulseScale, pulseScale, pulseScale);
 
       // Light flash decay
       if (lightFlash > 0) {
-        pointLight1.intensity = 2.5 + lightFlash;
+        pointLight1.intensity = 2.6 + lightFlash;
         lightFlash *= 0.9;
         if (lightFlash < 0.02) lightFlash = 0;
       }
@@ -436,6 +552,7 @@
   } else {
     initCrystalAnimation();
   }
+
 
   // 7. Full-Website Dynamic Particle Flow System
   function initGlobalParticleFlow() {
