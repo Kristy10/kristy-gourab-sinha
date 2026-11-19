@@ -547,6 +547,59 @@
   }
 
   // Initialize Crystal Animation
+
+  // Reactive Click on Telemetry Visitor Pill
+  var pill = document.getElementById('visitor-pill');
+  if (pill) {
+    pill.addEventListener('click', function() {
+      var countEl = document.getElementById('visitor-count');
+      var num = countEl ? countEl.textContent : '301';
+      if (typeof showToast === 'function') {
+        showToast('Real-time Telemetry: ' + num + ' researchers explored this portfolio');
+      }
+      pill.style.transform = 'scale(0.93)';
+      setTimeout(function() { pill.style.transform = ''; }, 180);
+    });
+  }
+
+  // Dynamic Metric Counters Count-Up
+  function initMetricCounters() {
+    var metricEls = document.querySelectorAll('.metric-value[data-target]');
+    if (!metricEls.length) return;
+
+    var animated = false;
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting && !animated) {
+          animated = true;
+          metricEls.forEach(function(el) {
+            var target = parseInt(el.getAttribute('data-target'), 10);
+            if (isNaN(target)) return;
+            var duration = 1100;
+            var startTime = performance.now();
+            function countStep(now) {
+              var elapsed = now - startTime;
+              var progress = Math.min(elapsed / duration, 1);
+              var ease = 1 - Math.pow(1 - progress, 3);
+              var current = Math.floor(ease * target);
+              el.textContent = current < 10 ? '0' + current : '' + current;
+              if (progress < 1) {
+                requestAnimationFrame(countStep);
+              } else {
+                el.textContent = target < 10 ? '0' + target : '' + target;
+              }
+            }
+            requestAnimationFrame(countStep);
+          });
+          observer.disconnect();
+        }
+      });
+    }, { threshold: 0.2 });
+
+    var grid = document.querySelector('.metrics-grid');
+    if (grid) observer.observe(grid);
+  }
+
   if (document.readyState === 'loading') {
     window.addEventListener('DOMContentLoaded', initCrystalAnimation);
   } else {
@@ -603,6 +656,28 @@
       mouse.active = true;
     });
     window.addEventListener('mouseleave', function() {
+      mouse.active = false;
+      mouse.x = -9999;
+      mouse.y = -9999;
+    });
+
+    window.addEventListener('touchstart', function(e) {
+      if (e.touches && e.touches[0]) {
+        mouse.x = e.touches[0].clientX;
+        mouse.y = e.touches[0].clientY;
+        mouse.active = true;
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchmove', function(e) {
+      if (e.touches && e.touches[0]) {
+        mouse.x = e.touches[0].clientX;
+        mouse.y = e.touches[0].clientY;
+        mouse.active = true;
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchend', function() {
       mouse.active = false;
       mouse.x = -9999;
       mouse.y = -9999;
@@ -712,6 +787,59 @@
     }
 
     render(performance.now());
+  }
+
+
+  // Reactive Click on Telemetry Visitor Pill
+  var pill = document.getElementById('visitor-pill');
+  if (pill) {
+    pill.addEventListener('click', function() {
+      var countEl = document.getElementById('visitor-count');
+      var num = countEl ? countEl.textContent : '301';
+      if (typeof showToast === 'function') {
+        showToast('Real-time Telemetry: ' + num + ' researchers explored this portfolio');
+      }
+      pill.style.transform = 'scale(0.93)';
+      setTimeout(function() { pill.style.transform = ''; }, 180);
+    });
+  }
+
+  // Dynamic Metric Counters Count-Up
+  function initMetricCounters() {
+    var metricEls = document.querySelectorAll('.metric-value[data-target]');
+    if (!metricEls.length) return;
+
+    var animated = false;
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting && !animated) {
+          animated = true;
+          metricEls.forEach(function(el) {
+            var target = parseInt(el.getAttribute('data-target'), 10);
+            if (isNaN(target)) return;
+            var duration = 1100;
+            var startTime = performance.now();
+            function countStep(now) {
+              var elapsed = now - startTime;
+              var progress = Math.min(elapsed / duration, 1);
+              var ease = 1 - Math.pow(1 - progress, 3);
+              var current = Math.floor(ease * target);
+              el.textContent = current < 10 ? '0' + current : '' + current;
+              if (progress < 1) {
+                requestAnimationFrame(countStep);
+              } else {
+                el.textContent = target < 10 ? '0' + target : '' + target;
+              }
+            }
+            requestAnimationFrame(countStep);
+          });
+          observer.disconnect();
+        }
+      });
+    }, { threshold: 0.2 });
+
+    var grid = document.querySelector('.metrics-grid');
+    if (grid) observer.observe(grid);
   }
 
   if (document.readyState === 'loading') {
@@ -837,13 +965,68 @@
     });
   }
 
+
+  // Reactive Click on Telemetry Visitor Pill
+  var pill = document.getElementById('visitor-pill');
+  if (pill) {
+    pill.addEventListener('click', function() {
+      var countEl = document.getElementById('visitor-count');
+      var num = countEl ? countEl.textContent : '301';
+      if (typeof showToast === 'function') {
+        showToast('Real-time Telemetry: ' + num + ' researchers explored this portfolio');
+      }
+      pill.style.transform = 'scale(0.93)';
+      setTimeout(function() { pill.style.transform = ''; }, 180);
+    });
+  }
+
+  // Dynamic Metric Counters Count-Up
+  function initMetricCounters() {
+    var metricEls = document.querySelectorAll('.metric-value[data-target]');
+    if (!metricEls.length) return;
+
+    var animated = false;
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting && !animated) {
+          animated = true;
+          metricEls.forEach(function(el) {
+            var target = parseInt(el.getAttribute('data-target'), 10);
+            if (isNaN(target)) return;
+            var duration = 1100;
+            var startTime = performance.now();
+            function countStep(now) {
+              var elapsed = now - startTime;
+              var progress = Math.min(elapsed / duration, 1);
+              var ease = 1 - Math.pow(1 - progress, 3);
+              var current = Math.floor(ease * target);
+              el.textContent = current < 10 ? '0' + current : '' + current;
+              if (progress < 1) {
+                requestAnimationFrame(countStep);
+              } else {
+                el.textContent = target < 10 ? '0' + target : '' + target;
+              }
+            }
+            requestAnimationFrame(countStep);
+          });
+          observer.disconnect();
+        }
+      });
+    }, { threshold: 0.2 });
+
+    var grid = document.querySelector('.metrics-grid');
+    if (grid) observer.observe(grid);
+  }
+
   if (document.readyState === 'loading') {
     window.addEventListener('DOMContentLoaded', function () {
       initVisitorCounter();
       initContactForm();
+      initMetricCounters();
     });
   } else {
     initVisitorCounter();
     initContactForm();
+      initMetricCounters();
   }
 })();
