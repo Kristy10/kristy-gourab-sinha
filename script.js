@@ -134,7 +134,16 @@
     });
   });
 
-  // 6. Interactive 3D Crystal Lattice Animation (Three.js)
+  // 6. Interactive 3D Crystal Lattice Animation (Three.js) & Synchronized Particle Flow Bridge
+  const crystalBridge = {
+    center: { x: -9999, y: -9999 },
+    radius: 120,
+    isInteracting: false,
+    spinIntensity: 0,
+    emitBurst: null,
+    emitStream: null
+  };
+
   function initCrystalAnimation() {
     if (typeof THREE === 'undefined') {
       console.warn('Three.js not loaded yet, retrying...');
@@ -145,6 +154,17 @@
     const canvas = document.getElementById('crystal-canvas');
     const stage = document.getElementById('crystal-stage');
     if (!canvas || !stage) return;
+
+    // Realtime Screen Coordinates for Crystal Bridge
+    function updateCrystalScreenPosition() {
+      const rect = stage.getBoundingClientRect();
+      crystalBridge.center.x = rect.left + rect.width / 2;
+      crystalBridge.center.y = rect.top + rect.height / 2;
+      crystalBridge.radius = Math.min(rect.width, rect.height) * 0.42;
+    }
+    updateCrystalScreenPosition();
+    window.addEventListener('resize', updateCrystalScreenPosition);
+    window.addEventListener('scroll', updateCrystalScreenPosition, { passive: true });
 
     // Scene & Camera
     const scene = new THREE.Scene();
@@ -324,10 +344,16 @@
     let lightFlash = 0;
 
     function triggerPulse() {
-      pulseScale = 1.25;
-      lightFlash = 2.0;
-      rotVelocity.y += (Math.random() - 0.5) * 0.08;
-      rotVelocity.x += (Math.random() - 0.5) * 0.08;
+      pulseScale = 1.28;
+      lightFlash = 2.8;
+      rotVelocity.y += (Math.random() - 0.5) * 0.14;
+      rotVelocity.x += (Math.random() - 0.5) * 0.14;
+
+      // Trigger quantum burst into background particle flow
+      if (typeof crystalBridge.emitBurst === 'function') {
+        updateCrystalScreenPosition();
+        crystalBridge.emitBurst(crystalBridge.center.x, crystalBridge.center.y, 22, 3.8);
+      }
     }
 
     stage.addEventListener('pointerdown', function(e) {
@@ -373,6 +399,7 @@
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
+      updateCrystalScreenPosition();
     }
     window.addEventListener('resize', onResize);
 
@@ -387,6 +414,22 @@
       // Inertia & Continuous gentle ambient rotation
       masterGroup.rotation.y += rotVelocity.y + 0.0045;
       masterGroup.rotation.x += rotVelocity.x + 0.002;
+
+      const spinSpeed = Math.hypot(rotVelocity.x, rotVelocity.y);
+      crystalBridge.spinIntensity = spinSpeed;
+      crystalBridge.isInteracting = isDragging;
+
+      // When crystal rotates, emit synchronized radiant quantum sparks from crystal perimeter
+      if ((isDragging || spinSpeed > 0.006) && typeof crystalBridge.emitStream === 'function') {
+        const angle = masterGroup.rotation.y + (Math.random() - 0.5) * 1.8;
+        const rad = crystalBridge.radius * (0.65 + Math.random() * 0.35);
+        const sx = crystalBridge.center.x + Math.cos(angle) * rad;
+        const sy = crystalBridge.center.y + Math.sin(angle) * rad;
+        const speed = 2.0 + spinSpeed * 65;
+        const vx = Math.cos(angle) * speed + (rotVelocity.y * 120);
+        const vy = Math.sin(angle) * speed - (rotVelocity.x * 120);
+        crystalBridge.emitStream(sx, sy, vx, vy, isDragging ? 1.0 : 0.7);
+      }
 
       rotVelocity.x *= 0.94;
       rotVelocity.y *= 0.94;
@@ -411,11 +454,13 @@
       pulseScale += (targetScale - pulseScale) * 0.08;
       masterGroup.scale.set(pulseScale, pulseScale, pulseScale);
 
-      // Light flash decay
+      // Light flash and spin-reactive glow
       if (lightFlash > 0) {
         pointLight1.intensity = 2.5 + lightFlash;
         lightFlash *= 0.9;
         if (lightFlash < 0.02) lightFlash = 0;
+      } else if (spinSpeed > 0.008) {
+        pointLight1.intensity = 2.5 + Math.min(spinSpeed * 40, 2.0);
       }
 
       // Orbital Particle Swarm
@@ -437,7 +482,7 @@
     initCrystalAnimation();
   }
 
-  // 7. Full-Website Dynamic Particle Flow System (Fluid Streamlines & Vortex Dynamics)
+  // 7. Full-Website Dynamic Particle Flow System (Fluid Streamlines, Vortex Dynamics & Crystal Bridge)
   function initGlobalParticleFlow() {
     const canvas = document.getElementById('bg-particle-canvas');
     if (!canvas) return;
@@ -481,6 +526,57 @@
         flowSeed: Math.random() * 1000
       });
     }
+
+    // High-Energy Particles Emitted from Crystal
+    const emittedSparks = [];
+    const MAX_SPARKS = 36;
+
+    crystalBridge.emitBurst = function(cx, cy, count, strength) {
+      shockwaves.push({
+        x: cx,
+        y: cy,
+        radius: 10,
+        maxRadius: Math.max(width, height) * 0.42,
+        strength: strength || 3.2,
+        alpha: 0.85
+      });
+
+      const n = count || 20;
+      for (let i = 0; i < n; i++) {
+        if (emittedSparks.length >= MAX_SPARKS) emittedSparks.shift();
+        const ang = (i / n) * Math.PI * 2 + (Math.random() - 0.5) * 0.35;
+        const spd = 3.2 + Math.random() * 5.2;
+        emittedSparks.push({
+          x: cx + Math.cos(ang) * (crystalBridge.radius * 0.5),
+          y: cy + Math.sin(ang) * (crystalBridge.radius * 0.5),
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          radius: 1.8 + Math.random() * 1.8,
+          life: 1.0,
+          decay: 0.012 + Math.random() * 0.014,
+          colorType: Math.random() > 0.5 ? 'secondary' : 'primary',
+          trail: []
+        });
+      }
+    };
+
+    let streamThrottle = 0;
+    crystalBridge.emitStream = function(sx, sy, vx, vy, intensity) {
+      streamThrottle++;
+      if (streamThrottle % 2 !== 0) return;
+      if (emittedSparks.length >= MAX_SPARKS) emittedSparks.shift();
+      emittedSparks.push({
+        x: sx,
+        y: sy,
+        vx: vx * 0.85,
+        vy: vy * 0.85,
+        radius: 1.4 + Math.random() * 1.6,
+        life: 1.0,
+        decay: 0.015 + Math.random() * 0.018,
+        colorType: Math.random() > 0.55 ? 'secondary' : 'primary',
+        trail: []
+      });
+    };
 
     const mouse = { x: -9999, y: -9999, active: false, vx: 0, vy: 0, lastX: 0, lastY: 0 };
     const shockwaves = [];
@@ -553,14 +649,14 @@
 
       ctx.clearRect(0, 0, width, height);
 
-      // Theme-adaptive primary & accent glow colors
-      var prR = isDark ? 92 : 16;
-      var prG = isDark ? 225 : 85;
-      var prB = isDark ? 182 : 65;
+      // Theme-adaptive radiant glow color spectrum
+      var prR = isDark ? 92 : 15;
+      var prG = isDark ? 225 : 76;
+      var prB = isDark ? 182 : 58;
 
-      var secR = isDark ? 56 : 14;
-      var secG = isDark ? 189 : 116;
-      var secB = isDark ? 248 : 144;
+      var secR = isDark ? 56 : 16;
+      var secG = isDark ? 189 : 185;
+      var secB = isDark ? 248 : 129;
 
       var time = now * 0.0012;
 
@@ -575,9 +671,66 @@
         }
         ctx.beginPath();
         ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
-        ctx.lineWidth = 1.2;
-        ctx.strokeStyle = 'rgba(' + prR + ', ' + prG + ', ' + prB + ', ' + (sw.alpha * 0.35) + ')';
+        ctx.lineWidth = 1.3;
+        ctx.strokeStyle = 'rgba(' + prR + ', ' + prG + ', ' + prB + ', ' + (sw.alpha * 0.38) + ')';
         ctx.stroke();
+      }
+
+      // Update & draw High-Energy Crystal Emitted Sparks
+      for (var eIdx = emittedSparks.length - 1; eIdx >= 0; eIdx--) {
+        var spk = emittedSparks[eIdx];
+        spk.trail.push({ x: spk.x, y: spk.y });
+        if (spk.trail.length > 5) spk.trail.shift();
+
+        spk.x += spk.vx;
+        spk.y += spk.vy;
+        spk.vx *= 0.965;
+        spk.vy *= 0.965;
+        spk.life -= spk.decay;
+
+        if (spk.life <= 0) {
+          emittedSparks.splice(eIdx, 1);
+          continue;
+        }
+
+        // Draw spark tail stream
+        if (spk.trail.length > 1) {
+          ctx.beginPath();
+          ctx.moveTo(spk.trail[0].x, spk.trail[0].y);
+          for (var t = 1; t < spk.trail.length; t++) {
+            ctx.lineTo(spk.trail[t].x, spk.trail[t].y);
+          }
+          ctx.lineTo(spk.x, spk.y);
+          var trailCol = spk.colorType === 'secondary'
+            ? 'rgba(' + secR + ', ' + secG + ', ' + secB + ', ' + (spk.life * 0.45) + ')'
+            : 'rgba(' + prR + ', ' + prG + ', ' + prB + ', ' + (spk.life * 0.5) + ')';
+          ctx.strokeStyle = trailCol;
+          ctx.lineWidth = spk.radius * 0.95;
+          ctx.stroke();
+        }
+
+        // Draw spark radiant blooming glow
+        var sparkGrad = ctx.createRadialGradient(spk.x, spk.y, 0, spk.x, spk.y, spk.radius * 3.6);
+        if (isDark) {
+          sparkGrad.addColorStop(0, 'rgba(255, 255, 255, ' + (spk.life * 0.95) + ')');
+          sparkGrad.addColorStop(0.35, 'rgba(' + prR + ', ' + prG + ', ' + prB + ', ' + (spk.life * 0.75) + ')');
+          sparkGrad.addColorStop(1, 'rgba(' + prR + ', ' + prG + ', ' + prB + ', 0)');
+        } else {
+          sparkGrad.addColorStop(0, 'rgba(' + prR + ', ' + prG + ', ' + prB + ', ' + (spk.life * 0.85) + ')');
+          sparkGrad.addColorStop(0.5, 'rgba(' + secR + ', ' + secG + ', ' + secB + ', ' + (spk.life * 0.45) + ')');
+          sparkGrad.addColorStop(1, 'rgba(' + secR + ', ' + secG + ', ' + secB + ', 0)');
+        }
+        ctx.beginPath();
+        ctx.arc(spk.x, spk.y, spk.radius * 3.6, 0, Math.PI * 2);
+        ctx.fillStyle = sparkGrad;
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(spk.x, spk.y, spk.radius, 0, Math.PI * 2);
+        ctx.fillStyle = isDark
+          ? 'rgba(255, 255, 255, ' + spk.life + ')'
+          : 'rgba(' + prR + ', ' + prG + ', ' + prB + ', ' + spk.life + ')';
+        ctx.fill();
       }
 
       // 1. Update and Draw Fluid Particles
@@ -588,6 +741,29 @@
         var flowAngle = Math.sin(p.x * 0.0016 + time * 0.6) * Math.cos(p.y * 0.0016 + time * 0.5) * Math.PI * 2;
         p.vx += Math.cos(flowAngle) * 0.038;
         p.vy += (Math.sin(flowAngle) * 0.038) - 0.012; // Natural upward buoyancy drift
+
+        // Synchronized Crystal Vortex & Laminar Deflection
+        if (crystalBridge.center.x > 0) {
+          var cdx = p.x - crystalBridge.center.x;
+          var cdy = p.y - crystalBridge.center.y;
+          var cDistSq = cdx * cdx + cdy * cdy;
+          var cInfluenceRadius = crystalBridge.radius * 2.2;
+          if (cDistSq < cInfluenceRadius * cInfluenceRadius && cDistSq > 0) {
+            var cDist = Math.sqrt(cDistSq);
+            var cNormX = cdx / cDist;
+            var cNormY = cdy / cDist;
+            var cProx = (1 - cDist / cInfluenceRadius);
+
+            if (crystalBridge.isInteracting || crystalBridge.spinIntensity > 0.005) {
+              var swirlForce = (crystalBridge.spinIntensity * 45 + 0.35) * cProx;
+              p.vx += -cNormY * swirlForce;
+              p.vy += cNormX * swirlForce;
+            } else {
+              p.vx += cNormX * cProx * 0.35;
+              p.vy += cNormY * cProx * 0.35;
+            }
+          }
+        }
 
         // Interactive Fluid Vortex Dynamics with Mouse/Touch
         if (mouse.active) {
@@ -601,11 +777,9 @@
             var normY = dy / dist;
             var prox = (1 - dist / mouseRadius);
 
-            // Radial gentle repulsion
             p.vx += normX * prox * 1.4;
             p.vy += normY * prox * 1.4;
 
-            // Tangential Vortex Swirl (fluid rotation around cursor)
             p.vx += -normY * prox * 0.95;
             p.vy += normX * prox * 0.95;
           }
@@ -644,13 +818,19 @@
         var alpha = Math.min(p.baseAlpha * pulse, 0.9);
         var r = p.radius * pulse;
 
-        // Draw Soft Glow Halo for Foreground Atoms
-        if (p.depth > 0.65 && isDark) {
-          var glowGrad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 2.8);
-          glowGrad.addColorStop(0, 'rgba(' + prR + ', ' + prG + ', ' + prB + ', ' + (alpha * 0.45) + ')');
-          glowGrad.addColorStop(1, 'rgba(' + prR + ', ' + prG + ', ' + prB + ', 0)');
+        // Draw Soft Glow Halo for Foreground Atoms (Theme-Synchronized)
+        if (p.depth > 0.65) {
+          var glowRadius = r * (isDark ? 3.0 : 2.4);
+          var glowGrad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glowRadius);
+          if (isDark) {
+            glowGrad.addColorStop(0, 'rgba(' + prR + ', ' + prG + ', ' + prB + ', ' + (alpha * 0.48) + ')');
+            glowGrad.addColorStop(1, 'rgba(' + prR + ', ' + prG + ', ' + prB + ', 0)');
+          } else {
+            glowGrad.addColorStop(0, 'rgba(' + secR + ', ' + secG + ', ' + secB + ', ' + (alpha * 0.28) + ')');
+            glowGrad.addColorStop(1, 'rgba(' + secR + ', ' + secG + ', ' + secB + ', 0)');
+          }
           ctx.beginPath();
-          ctx.arc(p.x, p.y, r * 2.8, 0, Math.PI * 2);
+          ctx.arc(p.x, p.y, glowRadius, 0, Math.PI * 2);
           ctx.fillStyle = glowGrad;
           ctx.fill();
         }
@@ -678,7 +858,7 @@
 
           if (ldistSq < linkDistSq) {
             var ldist = Math.sqrt(ldistSq);
-            var lineAlpha = (1 - ldist / linkDistance) * (isDark ? 0.24 : 0.14);
+            var lineAlpha = (1 - ldist / linkDistance) * (isDark ? 0.26 : 0.16);
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(p2.x, p2.y);
@@ -695,7 +875,7 @@
           var mouseLinkDist = 145;
           if (mdistSq < mouseLinkDist * mouseLinkDist) {
             var mdist = Math.sqrt(mdistSq);
-            var mAlpha = (1 - mdist / mouseLinkDist) * (isDark ? 0.42 : 0.28);
+            var mAlpha = (1 - mdist / mouseLinkDist) * (isDark ? 0.45 : 0.32);
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(mouse.x, mouse.y);
