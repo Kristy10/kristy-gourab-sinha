@@ -510,6 +510,16 @@
     const linkDistance = isMobile ? 95 : 135;
     const linkDistSq = linkDistance * linkDistance;
 
+    // Multi-tone color palette for richer particle visuals
+    var colorPalette = [
+      { name: 'emerald',  dR: 92,  dG: 225, dB: 182, lR: 15,  lG: 118, lB: 80  },
+      { name: 'cyan',     dR: 72,  dG: 202, dB: 228, lR: 14,  lG: 116, lB: 144 },
+      { name: 'gold',     dR: 250, dG: 204, dB: 90,  lR: 180, lG: 130, lB: 20  },
+      { name: 'violet',   dR: 162, dG: 130, dB: 246, lR: 100, lG: 60,  lB: 180 },
+      { name: 'rose',     dR: 244, dG: 114, dB: 182, lR: 190, lG: 50,  lB: 100 },
+      { name: 'teal',     dR: 52,  dG: 211, dB: 153, lR: 16,  lG: 155, lB: 110 }
+    ];
+
     const particles = [];
     for (let i = 0; i < particleCount; i++) {
       const depth = Math.random();
@@ -523,7 +533,8 @@
         baseAlpha: 0.25 + depth * 0.5,
         phase: Math.random() * Math.PI * 2,
         pulseSpeed: 0.02 + Math.random() * 0.035,
-        flowSeed: Math.random() * 1000
+        flowSeed: Math.random() * 1000,
+        colorIdx: Math.floor(Math.random() * colorPalette.length)
       });
     }
 
@@ -554,7 +565,7 @@
           radius: 1.8 + Math.random() * 1.8,
           life: 1.0,
           decay: 0.012 + Math.random() * 0.014,
-          colorType: Math.random() > 0.5 ? 'secondary' : 'primary',
+          colorType: ['primary', 'secondary', 'tertiary'][Math.floor(Math.random() * 3)],
           trail: []
         });
       }
@@ -573,7 +584,7 @@
         radius: 1.4 + Math.random() * 1.6,
         life: 1.0,
         decay: 0.015 + Math.random() * 0.018,
-        colorType: Math.random() > 0.55 ? 'secondary' : 'primary',
+        colorType: ['primary', 'secondary', 'tertiary'][Math.floor(Math.random() * 3)],
         trail: []
       });
     };
@@ -669,7 +680,7 @@
 
       ctx.clearRect(0, 0, width, height);
 
-      // Theme-adaptive radiant glow color spectrum
+      // Theme-adaptive radiant glow color spectrum (primary emerald + secondary teal)
       var prR = isDark ? 92 : 15;
       var prG = isDark ? 225 : 76;
       var prB = isDark ? 182 : 58;
@@ -677,6 +688,11 @@
       var secR = isDark ? 56 : 16;
       var secG = isDark ? 189 : 185;
       var secB = isDark ? 248 : 129;
+
+      // Tertiary warm accent (gold)
+      var terR = isDark ? 250 : 180;
+      var terG = isDark ? 204 : 130;
+      var terB = isDark ? 90 : 20;
 
       var time = now * 0.0012;
 
@@ -721,24 +737,27 @@
             ctx.lineTo(spk.trail[t].x, spk.trail[t].y);
           }
           ctx.lineTo(spk.x, spk.y);
-          var trailCol = spk.colorType === 'secondary'
-            ? 'rgba(' + secR + ', ' + secG + ', ' + secB + ', ' + (spk.life * 0.45) + ')'
-            : 'rgba(' + prR + ', ' + prG + ', ' + prB + ', ' + (spk.life * 0.5) + ')';
-          ctx.strokeStyle = trailCol;
+          var sR = spk.colorType === 'tertiary' ? terR : (spk.colorType === 'secondary' ? secR : prR);
+          var sG = spk.colorType === 'tertiary' ? terG : (spk.colorType === 'secondary' ? secG : prG);
+          var sB = spk.colorType === 'tertiary' ? terB : (spk.colorType === 'secondary' ? secB : prB);
+          ctx.strokeStyle = 'rgba(' + sR + ', ' + sG + ', ' + sB + ', ' + (spk.life * 0.5) + ')';
           ctx.lineWidth = spk.radius * 0.95;
           ctx.stroke();
         }
 
         // Draw spark radiant blooming glow
+        var sR2 = spk.colorType === 'tertiary' ? terR : (spk.colorType === 'secondary' ? secR : prR);
+        var sG2 = spk.colorType === 'tertiary' ? terG : (spk.colorType === 'secondary' ? secG : prG);
+        var sB2 = spk.colorType === 'tertiary' ? terB : (spk.colorType === 'secondary' ? secB : prB);
         var sparkGrad = ctx.createRadialGradient(spk.x, spk.y, 0, spk.x, spk.y, spk.radius * 3.6);
         if (isDark) {
           sparkGrad.addColorStop(0, 'rgba(255, 255, 255, ' + (spk.life * 0.95) + ')');
-          sparkGrad.addColorStop(0.35, 'rgba(' + prR + ', ' + prG + ', ' + prB + ', ' + (spk.life * 0.75) + ')');
-          sparkGrad.addColorStop(1, 'rgba(' + prR + ', ' + prG + ', ' + prB + ', 0)');
+          sparkGrad.addColorStop(0.35, 'rgba(' + sR2 + ', ' + sG2 + ', ' + sB2 + ', ' + (spk.life * 0.75) + ')');
+          sparkGrad.addColorStop(1, 'rgba(' + sR2 + ', ' + sG2 + ', ' + sB2 + ', 0)');
         } else {
-          sparkGrad.addColorStop(0, 'rgba(' + prR + ', ' + prG + ', ' + prB + ', ' + (spk.life * 0.85) + ')');
-          sparkGrad.addColorStop(0.5, 'rgba(' + secR + ', ' + secG + ', ' + secB + ', ' + (spk.life * 0.45) + ')');
-          sparkGrad.addColorStop(1, 'rgba(' + secR + ', ' + secG + ', ' + secB + ', 0)');
+          sparkGrad.addColorStop(0, 'rgba(' + sR2 + ', ' + sG2 + ', ' + sB2 + ', ' + (spk.life * 0.85) + ')');
+          sparkGrad.addColorStop(0.5, 'rgba(' + sR2 + ', ' + sG2 + ', ' + sB2 + ', ' + (spk.life * 0.4) + ')');
+          sparkGrad.addColorStop(1, 'rgba(' + sR2 + ', ' + sG2 + ', ' + sB2 + ', 0)');
         }
         ctx.beginPath();
         ctx.arc(spk.x, spk.y, spk.radius * 3.6, 0, Math.PI * 2);
@@ -838,17 +857,19 @@
         var alpha = Math.min(p.baseAlpha * pulse, 0.9);
         var r = p.radius * pulse;
 
+        // Per-particle color from multi-tone palette
+        var pc = colorPalette[p.colorIdx];
+        var pR = isDark ? pc.dR : pc.lR;
+        var pG = isDark ? pc.dG : pc.lG;
+        var pB = isDark ? pc.dB : pc.lB;
+
         // Draw Soft Glow Halo for Foreground Atoms (Theme-Synchronized)
         if (p.depth > 0.65) {
-          var glowRadius = r * (isDark ? 3.0 : 2.4);
+          var glowRadius = r * (isDark ? 3.2 : 2.6);
           var glowGrad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glowRadius);
-          if (isDark) {
-            glowGrad.addColorStop(0, 'rgba(' + prR + ', ' + prG + ', ' + prB + ', ' + (alpha * 0.48) + ')');
-            glowGrad.addColorStop(1, 'rgba(' + prR + ', ' + prG + ', ' + prB + ', 0)');
-          } else {
-            glowGrad.addColorStop(0, 'rgba(' + secR + ', ' + secG + ', ' + secB + ', ' + (alpha * 0.28) + ')');
-            glowGrad.addColorStop(1, 'rgba(' + secR + ', ' + secG + ', ' + secB + ', 0)');
-          }
+          glowGrad.addColorStop(0, 'rgba(' + pR + ', ' + pG + ', ' + pB + ', ' + (alpha * 0.52) + ')');
+          glowGrad.addColorStop(0.5, 'rgba(' + pR + ', ' + pG + ', ' + pB + ', ' + (alpha * 0.15) + ')');
+          glowGrad.addColorStop(1, 'rgba(' + pR + ', ' + pG + ', ' + pB + ', 0)');
           ctx.beginPath();
           ctx.arc(p.x, p.y, glowRadius, 0, Math.PI * 2);
           ctx.fillStyle = glowGrad;
@@ -858,11 +879,7 @@
         // Core Particle Atom
         ctx.beginPath();
         ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
-        var useSec = p.depth > 0.85;
-        var curR = useSec ? secR : prR;
-        var curG = useSec ? secG : prG;
-        var curB = useSec ? secB : prB;
-        ctx.fillStyle = 'rgba(' + curR + ', ' + curG + ', ' + curB + ', ' + alpha + ')';
+        ctx.fillStyle = 'rgba(' + pR + ', ' + pG + ', ' + pB + ', ' + alpha + ')';
         ctx.fill();
       }
 
@@ -870,6 +887,10 @@
       ctx.lineWidth = 0.85;
       for (var j = 0; j < particleCount; j++) {
         var p1 = particles[j];
+        var pc1 = colorPalette[p1.colorIdx];
+        var lnR = isDark ? pc1.dR : pc1.lR;
+        var lnG = isDark ? pc1.dG : pc1.lG;
+        var lnB = isDark ? pc1.dB : pc1.lB;
         for (var k = j + 1; k < particleCount; k++) {
           var p2 = particles[k];
           var ldx = p1.x - p2.x;
@@ -878,11 +899,11 @@
 
           if (ldistSq < linkDistSq) {
             var ldist = Math.sqrt(ldistSq);
-            var lineAlpha = (1 - ldist / linkDistance) * (isDark ? 0.26 : 0.16);
+            var lineAlpha = (1 - ldist / linkDistance) * (isDark ? 0.28 : 0.18);
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = 'rgba(' + prR + ', ' + prG + ', ' + prB + ', ' + lineAlpha + ')';
+            ctx.strokeStyle = 'rgba(' + lnR + ', ' + lnG + ', ' + lnB + ', ' + lineAlpha + ')';
             ctx.stroke();
           }
         }
