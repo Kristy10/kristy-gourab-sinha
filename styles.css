@@ -75,9 +75,6 @@ html {
   scroll-padding-top: 88px;
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
 }
 
 body {
@@ -91,10 +88,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color var(--transition-base), color var(--transition-base);
-  width: 100%;
-  max-width: 100%;
   overflow-x: hidden;
-  position: relative;
 }
 
 ::selection {
@@ -1060,8 +1054,8 @@ button {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   pointer-events: none;
   z-index: 0;
   opacity: 0.75;
@@ -1476,7 +1470,7 @@ button {
   }
   .crystal-stage {
     max-width: 100%;
-    height: 360px;
+    height: 380px;
   }
 }
 
@@ -1501,7 +1495,7 @@ button {
 
   .metrics-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    gap: 20px;
   }
 
   .skills-grid,
@@ -1512,183 +1506,17 @@ button {
   .nav-links {
     display: none;
   }
-
-  .nav-container {
-    padding: 0 16px;
-    gap: 10px;
-  }
 }
 
-@media (max-width: 600px) {
-  .site-header {
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
-  }
-
-  .nav-container {
-    padding: 0 12px;
-    gap: 8px;
-    height: 56px;
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .brand {
-    font-size: 0.88rem;
-    gap: 6px;
-    min-width: 0;
-    flex-shrink: 1;
-  }
-
-  .brand span:last-child {
-    max-width: 135px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .nav-actions {
-    gap: 6px;
-    flex-shrink: 0;
-  }
-
-  .visitor-counter-pill {
-    padding: 4px 8px;
-    font-size: 0.72rem;
-    gap: 5px;
-  }
-
-  .btn-cv-sm {
-    padding: 5px 10px;
-    font-size: 0.75rem;
-    gap: 4px;
-  }
-
-  .theme-toggle {
-    width: 32px;
-    height: 32px;
-  }
-
-  .theme-toggle svg {
-    width: 14px;
-    height: 14px;
-  }
-
-  .main-container {
-    padding: 0 14px 64px;
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
-  }
-
+@media (max-width: 540px) {
   .hero {
-    padding: 32px 0 24px;
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
-  }
-
-  .hero-eyebrow {
-    font-size: 0.72rem;
-    padding: 4px 10px;
-    gap: 6px;
-    line-height: 1.35;
-    white-space: normal;
-    text-align: left;
-    max-width: 100%;
-    margin-bottom: 16px;
-  }
-
-  .hero-title {
-    font-size: clamp(1.85rem, 6.8vw, 2.75rem);
-    word-break: break-word;
-    overflow-wrap: break-word;
-    line-height: 1.12;
-    margin-bottom: 14px;
-  }
-
-  .hero-subtitle {
-    font-size: 0.95rem;
-    line-height: 1.5;
-    word-break: break-word;
-    margin-bottom: 16px;
-  }
-
-  .hero-bio {
-    font-size: 0.9rem;
-    line-height: 1.65;
-    word-break: break-word;
-    margin-bottom: 24px;
-    gap: 12px;
-  }
-
-  .hero-links {
-    width: 100%;
-    gap: 8px;
-    margin-bottom: 28px;
-  }
-
-  .pill-link {
-    max-width: 100%;
-    font-size: 0.8rem;
-    padding: 7px 12px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .pill-link span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 220px;
-  }
-
-  .crystal-stage {
-    width: 100%;
-    max-width: 100%;
-    height: 290px;
-    border-radius: 16px;
-    touch-action: pan-y;
-  }
-
-  .metrics-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    padding-top: 24px;
-  }
-
-  .metric-value {
-    font-size: 1.6rem;
-  }
-
-  .metric-label {
-    font-size: 0.75rem;
-    line-height: 1.35;
-  }
-
-  .section-block {
-    padding: 36px 0;
-    gap: 20px;
-  }
-
-  .section-title {
-    font-size: 1.15rem;
-  }
-
-  .entry-card,
-  .project-item,
-  .pub-item {
-    padding: 16px 14px;
-    word-break: break-word;
-    overflow-wrap: break-word;
+    padding: 48px 0 40px;
   }
 
   .entry-header,
   .compact-row {
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
   }
 
   .pub-item {
@@ -1696,54 +1524,8 @@ button {
     gap: 8px;
   }
 
-  .pub-actions {
-    gap: 8px;
-  }
-
-  .contact-box {
-    padding: 20px 14px;
-    gap: 20px;
-  }
-
-  .btn-submit {
-    width: 100%;
-    justify-content: center;
-  }
-
   .footer-inner {
     flex-direction: column;
     text-align: center;
-    gap: 14px;
-  }
-}
-
-@media (max-width: 390px) {
-  .brand span:last-child {
-    max-width: 105px;
-  }
-
-  .visitor-label {
-    display: none;
-  }
-
-  .visitor-counter-pill {
-    padding: 4px 6px;
-    gap: 4px;
-  }
-
-  .metrics-grid {
-    gap: 8px;
-  }
-
-  .metric-value {
-    font-size: 1.45rem;
-  }
-
-  .metric-label {
-    font-size: 0.72rem;
-  }
-
-  .pill-link span {
-    max-width: 180px;
   }
 }
