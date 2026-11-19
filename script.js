@@ -437,7 +437,7 @@
     initCrystalAnimation();
   }
 
-  // 7. Full-Website Dynamic Particle Flow System
+  // 7. Full-Website Dynamic Particle Flow System (Fluid Streamlines & Vortex Dynamics)
   function initGlobalParticleFlow() {
     const canvas = document.getElementById('bg-particle-canvas');
     if (!canvas) return;
@@ -452,7 +452,7 @@
     function resize() {
       width = window.innerWidth;
       height = window.innerHeight;
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       canvas.width = width * dpr;
       canvas.height = height * dpr;
       ctx.scale(dpr, dpr);
@@ -461,34 +461,79 @@
     window.addEventListener('resize', resize);
 
     const isMobile = window.innerWidth < 768;
-    const particleCount = isMobile ? 38 : 72;
-    const linkDistance = isMobile ? 85 : 120;
+    const particleCount = isMobile ? 48 : 95;
+    const linkDistance = isMobile ? 95 : 135;
     const linkDistSq = linkDistance * linkDistance;
 
     const particles = [];
     for (let i = 0; i < particleCount; i++) {
+      const depth = Math.random();
       particles.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.42,
-        vy: (Math.random() - 0.5) * 0.42 - 0.08,
-        radius: 1.2 + Math.random() * 1.6,
-        baseAlpha: 0.28 + Math.random() * 0.45,
+        vx: (Math.random() - 0.5) * 0.8,
+        vy: (Math.random() - 0.5) * 0.8 - 0.25,
+        radius: depth > 0.7 ? (2.0 + Math.random() * 1.6) : (1.0 + Math.random() * 1.2),
+        depth: depth,
+        baseAlpha: 0.25 + depth * 0.5,
         phase: Math.random() * Math.PI * 2,
-        pulseSpeed: 0.015 + Math.random() * 0.02
+        pulseSpeed: 0.02 + Math.random() * 0.035,
+        flowSeed: Math.random() * 1000
       });
     }
 
-    const mouse = { x: -9999, y: -9999, active: false };
-    window.addEventListener('mousemove', function(e) {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
+    const mouse = { x: -9999, y: -9999, active: false, vx: 0, vy: 0, lastX: 0, lastY: 0 };
+    const shockwaves = [];
+
+    function updateMousePos(x, y) {
+      mouse.vx = x - mouse.lastX;
+      mouse.vy = y - mouse.lastY;
+      mouse.lastX = x;
+      mouse.lastY = y;
+      mouse.x = x;
+      mouse.y = y;
       mouse.active = true;
+    }
+
+    window.addEventListener('mousemove', function(e) {
+      updateMousePos(e.clientX, e.clientY);
     });
+
     window.addEventListener('mouseleave', function() {
       mouse.active = false;
       mouse.x = -9999;
       mouse.y = -9999;
+    });
+
+    // Touch support for fluid mobile interaction
+    window.addEventListener('touchstart', function(e) {
+      if (e.touches && e.touches[0]) {
+        updateMousePos(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchmove', function(e) {
+      if (e.touches && e.touches[0]) {
+        updateMousePos(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchend', function() {
+      mouse.active = false;
+      mouse.x = -9999;
+      mouse.y = -9999;
+    });
+
+    // Kinetic ripple shockwave on click / tap
+    window.addEventListener('click', function(e) {
+      shockwaves.push({
+        x: e.clientX,
+        y: e.clientY,
+        radius: 0,
+        maxRadius: isMobile ? 120 : 180,
+        strength: 2.8,
+        alpha: 0.6
+      });
     });
 
     var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -503,60 +548,126 @@
       requestAnimationFrame(render);
       if (document.hidden) return;
 
-      var dt = Math.min((now - lastTime) / 1000, 0.1);
+      var dt = Math.min((now - lastTime) / 1000, 0.08);
       lastTime = now;
 
       ctx.clearRect(0, 0, width, height);
 
-      var particleR = isDark ? 92 : 15;
-      var particleG = isDark ? 225 : 76;
-      var particleB = isDark ? 182 : 58;
+      // Theme-adaptive primary & accent glow colors
+      var prR = isDark ? 92 : 16;
+      var prG = isDark ? 225 : 85;
+      var prB = isDark ? 182 : 65;
 
-      var time = now * 0.001;
+      var secR = isDark ? 56 : 14;
+      var secG = isDark ? 189 : 116;
+      var secB = isDark ? 248 : 144;
 
-      // Update & Draw particles
+      var time = now * 0.0012;
+
+      // Update & draw shockwaves
+      for (var s = shockwaves.length - 1; s >= 0; s--) {
+        var sw = shockwaves[s];
+        sw.radius += 240 * dt;
+        sw.alpha *= 0.94;
+        if (sw.radius > sw.maxRadius || sw.alpha < 0.02) {
+          shockwaves.splice(s, 1);
+          continue;
+        }
+        ctx.beginPath();
+        ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
+        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = 'rgba(' + prR + ', ' + prG + ', ' + prB + ', ' + (sw.alpha * 0.35) + ')';
+        ctx.stroke();
+      }
+
+      // 1. Update and Draw Fluid Particles
       for (var i = 0; i < particleCount; i++) {
         var p = particles[i];
 
-        p.vx += Math.cos(time * 0.5 + p.y * 0.003) * 0.008;
-        p.vy += Math.sin(time * 0.5 + p.x * 0.003) * 0.008;
+        // Harmonic Curvature Flow Field (Fluid Streamlines)
+        var flowAngle = Math.sin(p.x * 0.0016 + time * 0.6) * Math.cos(p.y * 0.0016 + time * 0.5) * Math.PI * 2;
+        p.vx += Math.cos(flowAngle) * 0.038;
+        p.vy += (Math.sin(flowAngle) * 0.038) - 0.012; // Natural upward buoyancy drift
 
-        p.vx *= 0.985;
-        p.vy *= 0.985;
-
-        p.x += p.vx;
-        p.y += p.vy;
-
-        if (p.x < -10) p.x = width + 10;
-        else if (p.x > width + 10) p.x = -10;
-        if (p.y < -10) p.y = height + 10;
-        else if (p.y > height + 10) p.y = -10;
-
+        // Interactive Fluid Vortex Dynamics with Mouse/Touch
         if (mouse.active) {
           var dx = p.x - mouse.x;
           var dy = p.y - mouse.y;
           var distSq = dx * dx + dy * dy;
-          var mouseRadius = 140;
+          var mouseRadius = 160;
           if (distSq < mouseRadius * mouseRadius && distSq > 0) {
             var dist = Math.sqrt(distSq);
-            var force = (1 - dist / mouseRadius) * 0.65;
-            p.vx += (dx / dist) * force;
-            p.vy += (dy / dist) * force;
+            var normX = dx / dist;
+            var normY = dy / dist;
+            var prox = (1 - dist / mouseRadius);
+
+            // Radial gentle repulsion
+            p.vx += normX * prox * 1.4;
+            p.vy += normY * prox * 1.4;
+
+            // Tangential Vortex Swirl (fluid rotation around cursor)
+            p.vx += -normY * prox * 0.95;
+            p.vy += normX * prox * 0.95;
           }
         }
 
-        p.phase += p.pulseSpeed;
-        var pulse = 0.85 + Math.sin(p.phase) * 0.15;
-        var currentAlpha = p.baseAlpha * pulse;
+        // Apply Shockwave impulses
+        for (var swIdx = 0; swIdx < shockwaves.length; swIdx++) {
+          var w = shockwaves[swIdx];
+          var swDx = p.x - w.x;
+          var swDy = p.y - w.y;
+          var swDist = Math.sqrt(swDx * swDx + swDy * swDy);
+          var swDiff = Math.abs(swDist - w.radius);
+          if (swDiff < 30 && swDist > 0) {
+            var waveForce = (1 - swDiff / 30) * w.strength * w.alpha;
+            p.vx += (swDx / swDist) * waveForce * 0.7;
+            p.vy += (swDy / swDist) * waveForce * 0.7;
+          }
+        }
 
+        // Viscous Fluid Damping
+        p.vx *= 0.965;
+        p.vy *= 0.965;
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Smooth Toroidal Screen Wrapping
+        if (p.x < -20) p.x = width + 20;
+        else if (p.x > width + 20) p.x = -20;
+        if (p.y < -20) p.y = height + 20;
+        else if (p.y > height + 20) p.y = -20;
+
+        // Particle Breathing Pulse
+        p.phase += p.pulseSpeed;
+        var pulse = 0.82 + Math.sin(p.phase) * 0.28;
+        var alpha = Math.min(p.baseAlpha * pulse, 0.9);
+        var r = p.radius * pulse;
+
+        // Draw Soft Glow Halo for Foreground Atoms
+        if (p.depth > 0.65 && isDark) {
+          var glowGrad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 2.8);
+          glowGrad.addColorStop(0, 'rgba(' + prR + ', ' + prG + ', ' + prB + ', ' + (alpha * 0.45) + ')');
+          glowGrad.addColorStop(1, 'rgba(' + prR + ', ' + prG + ', ' + prB + ', 0)');
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, r * 2.8, 0, Math.PI * 2);
+          ctx.fillStyle = glowGrad;
+          ctx.fill();
+        }
+
+        // Core Particle Atom
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius * pulse, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(' + particleR + ', ' + particleG + ', ' + particleB + ', ' + currentAlpha + ')';
+        ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+        var useSec = p.depth > 0.85;
+        var curR = useSec ? secR : prR;
+        var curG = useSec ? secG : prG;
+        var curB = useSec ? secB : prB;
+        ctx.fillStyle = 'rgba(' + curR + ', ' + curG + ', ' + curB + ', ' + alpha + ')';
         ctx.fill();
       }
 
-      // Draw dynamic connecting lines
-      ctx.lineWidth = 0.8;
+      // 2. Draw Interconnecting Molecular Bond Constellation Lines
+      ctx.lineWidth = 0.85;
       for (var j = 0; j < particleCount; j++) {
         var p1 = particles[j];
         for (var k = j + 1; k < particleCount; k++) {
@@ -567,28 +678,31 @@
 
           if (ldistSq < linkDistSq) {
             var ldist = Math.sqrt(ldistSq);
-            var lineAlpha = (1 - ldist / linkDistance) * (isDark ? 0.18 : 0.12);
+            var lineAlpha = (1 - ldist / linkDistance) * (isDark ? 0.24 : 0.14);
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = 'rgba(' + particleR + ', ' + particleG + ', ' + particleB + ', ' + lineAlpha + ')';
+            ctx.strokeStyle = 'rgba(' + prR + ', ' + prG + ', ' + prB + ', ' + lineAlpha + ')';
             ctx.stroke();
           }
         }
 
+        // Active Magnetic Beam to Cursor / Touch
         if (mouse.active) {
           var mdx = p1.x - mouse.x;
           var mdy = p1.y - mouse.y;
           var mdistSq = mdx * mdx + mdy * mdy;
-          var mouseLinkDist = 130;
+          var mouseLinkDist = 145;
           if (mdistSq < mouseLinkDist * mouseLinkDist) {
             var mdist = Math.sqrt(mdistSq);
-            var mAlpha = (1 - mdist / mouseLinkDist) * (isDark ? 0.28 : 0.18);
+            var mAlpha = (1 - mdist / mouseLinkDist) * (isDark ? 0.42 : 0.28);
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(mouse.x, mouse.y);
-            ctx.strokeStyle = 'rgba(' + particleR + ', ' + particleG + ', ' + particleB + ', ' + mAlpha + ')';
+            ctx.strokeStyle = 'rgba(' + prR + ', ' + prG + ', ' + prB + ', ' + mAlpha + ')';
+            ctx.lineWidth = 1.1;
             ctx.stroke();
+            ctx.lineWidth = 0.85;
           }
         }
       }
