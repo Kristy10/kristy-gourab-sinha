@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 220" width="400" height="220" style="background:#091410;font-family:sans-serif;">
+  <defs>
+    <pattern id="camGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#182e24" stroke-width="0.8"/>
+    </pattern>
+  </defs>
+  <rect width="400" height="220" fill="url(#camGrid)" />
+  
+  <!-- Camera HUD Crosshair -->
+  <line x1="200" y1="20" x2="200" y2="40" stroke="#5ce1b6" stroke-width="1.2" opacity="0.6"/>
+  <line x1="200" y1="180" x2="200" y2="200" stroke="#5ce1b6" stroke-width="1.2" opacity="0.6"/>
+  <line x1="20" y1="110" x2="40" y2="110" stroke="#5ce1b6" stroke-width="1.2" opacity="0.6"/>
+  <line x1="360" y1="110" x2="380" y2="110" stroke="#5ce1b6" stroke-width="1.2" opacity="0.6"/>
+  
+  <!-- YOLO Detection Box 1: Threat Object -->
+  <rect x="130" y="60" width="140" height="95" rx="4" fill="rgba(239, 68, 68, 0.12)" stroke="#ef4444" stroke-width="2"/>
+  <rect x="130" y="42" width="125" height="18" rx="3" fill="#ef4444"/>
+  <text x="135" y="55" fill="#ffffff" font-size="10" font-weight="800">THREAT: 98.4% (YOLOv8)</text>
+  
+  <!-- Target Reticle in Bounding Box -->
+  <circle cx="200" cy="107" r="14" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <circle cx="200" cy="107" r="3" fill="#ef4444"/>
+  
+  <!-- Status Badges -->
+  <rect x="15" y="15" width="130" height="24" rx="4" fill="#14261f" stroke="#285241" stroke-width="1"/>
+  <text x="22" y="31" fill="#5ce1b6" font-size="10" font-weight="700">● LIVE CAM 04 · NPP PERIMETER</text>
+  
+  <rect x="270" y="15" width="115" height="24" rx="4" fill="#2d1212" stroke="#682121" stroke-width="1"/>
+  <text x="278" y="31" fill="#f87171" font-size="10" font-weight="700">ALERT: CLASS 1 TRG</text>
+  
+  <text x="200" y="200" fill="#a6aaa7" font-size="10" font-weight="600" text-anchor="middle">PECCII 2026 · Real-Time Neural Threat Assessment Framework</text>
+</svg>

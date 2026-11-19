@@ -805,18 +805,34 @@ button {
 }
 
 /* ==========================================================================
-   Jon Barron Style Publication Visual Abstract Floater
+   Dennis Snellenberg Style Scroll Progress Indicator Hairline
+   ========================================================================== */
+#scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2.5px;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), #10b981, #5ce1b6);
+  z-index: 1001;
+  pointer-events: none;
+  box-shadow: 0 0 10px var(--accent);
+  transition: width 0.08s ease-out;
+}
+
+/* ==========================================================================
+   Jon Barron Style Publication Visual Abstract Floater with Real DOI Figures
    ========================================================================== */
 .pub-preview-floater {
   position: fixed;
   z-index: 999;
-  width: 290px;
+  width: 330px;
   background: var(--bg-card-glass);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--accent-border);
   border-radius: var(--radius-md);
-  box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.22), 0 0 24px -6px var(--accent-soft);
+  box-shadow: 0 20px 48px -12px rgba(0, 0, 0, 0.28), 0 0 30px -8px var(--accent-soft);
   padding: 14px;
   pointer-events: none;
   opacity: 0;
@@ -836,6 +852,7 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
 }
 
 .preview-badge {
@@ -847,17 +864,22 @@ button {
   background-color: var(--accent-soft);
   padding: 2px 8px;
   border-radius: var(--radius-pill);
+  border: 1px solid var(--accent-border);
+  white-space: nowrap;
 }
 
 .preview-tag {
   font-size: 0.72rem;
   font-weight: 600;
   color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .pub-preview-diagram {
   width: 100%;
-  height: 124px;
+  height: 156px;
   border-radius: var(--radius-sm);
   background-color: var(--bg-subtle);
   border: 1px solid var(--border-subtle);
@@ -865,18 +887,33 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+}
+
+.pub-preview-diagram img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  transition: transform 0.35s var(--ease-out);
+}
+
+.pub-preview-floater:hover .pub-preview-diagram img {
+  transform: scale(1.05);
 }
 
 .pub-preview-diagram svg {
   width: 100%;
   height: 100%;
+  display: block;
 }
 
 .pub-preview-caption {
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--text-secondary);
-  line-height: 1.4;
+  line-height: 1.42;
 }
 
 @media (max-width: 860px) {
@@ -885,22 +922,51 @@ button {
   }
 }
 
-/* Dynamic Interactive Card Tactile Lift & Energy Glow */
+/* ==========================================================================
+   jhey.dev 3D Tilt Cards with Dynamic Specular Glare & Tactile Lift
+   ========================================================================== */
 .entry-card,
 .project-item,
 .pub-item,
-.skill-card {
+.skill-card,
+.ref-card {
   position: relative;
-  transition: border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: border-color var(--transition-fast), transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), box-shadow var(--transition-fast);
+}
+
+.entry-card::after,
+.project-item::after,
+.pub-item::after,
+.skill-card::after,
+.ref-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle 280px at var(--mouse-x, -500px) var(--mouse-y, -500px), var(--accent-soft), transparent 75%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: 2;
+}
+
+.entry-card:hover::after,
+.project-item:hover::after,
+.pub-item:hover::after,
+.skill-card:hover::after,
+.ref-card:hover::after {
+  opacity: 1;
 }
 
 .entry-card:hover,
 .project-item:hover,
 .pub-item:hover,
-.skill-card:hover {
+.skill-card:hover,
+.ref-card:hover {
   border-color: var(--accent-border);
-  box-shadow: 0 10px 28px -8px var(--accent-soft);
-  transform: translateY(-2px);
+  box-shadow: 0 14px 34px -10px var(--accent-soft);
 }
 
 /* ==========================================================================
@@ -1243,6 +1309,14 @@ button {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  gap: 12px;
+}
+
+.crystal-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 
 .crystal-pill {
@@ -1262,6 +1336,49 @@ button {
   padding: 5px 12px;
   border-radius: var(--radius-pill);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.crystal-switcher {
+  display: inline-flex;
+  align-self: center;
+  gap: 4px;
+  background-color: var(--bg-nav);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  padding: 3px;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  pointer-events: auto;
+  z-index: 10;
+}
+
+.crystal-switch-btn {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.crystal-switch-btn:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-subtle);
+}
+
+.crystal-switch-btn.active {
+  background-color: var(--accent);
+  color: #ffffff;
+  box-shadow: 0 0 10px var(--accent-border);
+}
+
+[data-theme="dark"] .crystal-switch-btn.active {
+  color: #0b0c0b;
 }
 
 .crystal-dot {

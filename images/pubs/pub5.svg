@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 220" width="400" height="220" style="background:#0c1713;font-family:sans-serif;">
+  <defs>
+    <linearGradient id="streamGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#5ce1b6" stop-opacity="0.2"/>
+      <stop offset="50%" stop-color="#34d399" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#0284c7" stop-opacity="0.4"/>
+    </linearGradient>
+  </defs>
+  <!-- Streamlines -->
+  <path d="M 10 60 C 100 50, 160 30, 240 40 C 300 50, 360 80, 390 90" fill="none" stroke="url(#streamGrad)" stroke-width="1.8"/>
+  <path d="M 10 80 C 90 70, 150 45, 230 55 C 290 65, 350 95, 390 105" fill="none" stroke="url(#streamGrad)" stroke-width="2.2"/>
+  <path d="M 10 100 C 80 95, 140 70, 210 85 C 270 100, 340 120, 390 125" fill="none" stroke="url(#streamGrad)" stroke-width="1.5"/>
+  <path d="M 10 140 C 100 140, 160 160, 240 155 C 300 150, 350 140, 390 135" fill="none" stroke="url(#streamGrad)" stroke-width="1.8"/>
+  <path d="M 10 160 C 100 165, 180 180, 260 175 C 320 170, 360 155, 390 150" fill="none" stroke="url(#streamGrad)" stroke-width="1.5"/>
+  
+  <!-- NACA 23018 Airfoil Profile -->
+  <path d="M 90 115 C 90 85, 160 70, 240 85 C 310 100, 350 120, 360 125 C 340 130, 280 145, 200 145 C 130 145, 90 135, 90 115 Z" fill="#1b3a2e" stroke="#5ce1b6" stroke-width="2"/>
+  
+  <!-- Rotating Cylinders -->
+  <circle cx="130" cy="98" r="9" fill="#10b981" stroke="#fff" stroke-width="1.5"/>
+  <path d="M 125 93 A 6 6 0 0 1 135 93" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+  <circle cx="280" cy="108" r="7" fill="#10b981" stroke="#fff" stroke-width="1.5"/>
+  
+  <text x="130" y="80" fill="#5ce1b6" font-size="9" font-weight="700" text-anchor="middle">Leading Cylinder (MSBC)</text>
+  <text x="280" y="94" fill="#5ce1b6" font-size="9" font-weight="700" text-anchor="middle">Trailing Cylinder</text>
+  
+  <rect x="15" y="15" width="135" height="26" rx="6" fill="#14261f" stroke="#285241" stroke-width="1"/>
+  <text x="25" y="32" fill="#5ce1b6" font-size="10" font-weight="700">AIP Conf. Proc. 2026</text>
+  <text x="200" y="205" fill="#a6aaa7" font-size="10" font-weight="600" text-anchor="middle">NACA 23018 CFD Velocity Streamlines &amp; Boundary-Layer Control</text>
+</svg>

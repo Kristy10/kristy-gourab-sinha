@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 220" width="400" height="220" style="background:#0d1512;font-family:sans-serif;">
+  <defs>
+    <radialGradient id="radHeat" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ef4444" stop-opacity="0.8"/>
+      <stop offset="50%" stop-color="#f59e0b" stop-opacity="0.5"/>
+      <stop offset="85%" stop-color="#10b981" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#22332a" stroke-width="0.8"/>
+    </pattern>
+  </defs>
+  <rect width="400" height="220" fill="url(#grid)" />
+  <circle cx="200" cy="110" r="85" fill="url(#radHeat)" />
+  <circle cx="200" cy="110" r="70" fill="none" stroke="#5ce1b6" stroke-width="1" stroke-dasharray="4 4" opacity="0.6"/>
+  <circle cx="200" cy="110" r="45" fill="none" stroke="#5ce1b6" stroke-width="1.2" opacity="0.8"/>
+  <circle cx="200" cy="110" r="8" fill="#5ce1b6"/>
+  
+  <!-- Robot Track Path -->
+  <path d="M 60 170 Q 120 180 160 140 T 200 110 T 260 80 T 340 70" fill="none" stroke="#34d399" stroke-width="2.2" stroke-dasharray="6 3"/>
+  <circle cx="340" cy="70" r="5" fill="#34d399"/>
+  <text x="340" y="58" fill="#34d399" font-size="10" font-weight="700" text-anchor="middle">UGV Position</text>
+  
+  <!-- Radiation Hotspot -->
+  <circle cx="150" cy="85" r="6" fill="#ef4444"/>
+  <text x="150" y="74" fill="#f87171" font-size="10" font-weight="700" text-anchor="middle">Hotspot (84 µSv/h)</text>
+  
+  <rect x="15" y="15" width="140" height="28" rx="6" fill="#14261f" stroke="#285241" stroke-width="1"/>
+  <text x="25" y="33" fill="#5ce1b6" font-size="10" font-weight="700">IOS Press · Transdisc. Eng.</text>
+  <text x="200" y="202" fill="#a6aaa7" font-size="10" font-weight="600" text-anchor="middle">Autonomous Telemetric Ground Survey Mesh</text>
+</svg>

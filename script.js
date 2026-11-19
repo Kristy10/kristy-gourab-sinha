@@ -186,7 +186,7 @@
     scene.add(masterGroup);
 
     // Primary Faceted Crystal (Icosahedron - 20 Facets)
-    const icosaGeometry = new THREE.IcosahedronGeometry(1.85, 0);
+    let currentLatticeGeom = new THREE.IcosahedronGeometry(1.85, 0);
 
     const facetMaterial = new THREE.MeshPhysicalMaterial({
       flatShading: true,
@@ -200,11 +200,11 @@
       clearcoatRoughness: 0.1
     });
 
-    const crystalMesh = new THREE.Mesh(icosaGeometry, facetMaterial);
+    const crystalMesh = new THREE.Mesh(currentLatticeGeom, facetMaterial);
     masterGroup.add(crystalMesh);
 
     // Wireframe Crystallography Lattice Lines
-    const wireGeometry = new THREE.WireframeGeometry(icosaGeometry);
+    let wireGeometry = new THREE.WireframeGeometry(currentLatticeGeom);
     const wireMaterial = new THREE.LineBasicMaterial({
       transparent: true,
       opacity: 0.55,
@@ -218,22 +218,28 @@
     const nodeMaterial = new THREE.MeshBasicMaterial();
     const nodeGroup = new THREE.Group();
 
-    const posAttr = icosaGeometry.attributes.position;
-    const vertexSet = [];
-    for (let i = 0; i < posAttr.count; i++) {
-      const v = new THREE.Vector3().fromBufferAttribute(posAttr, i);
-      const exists = vertexSet.some(function(existing) { return existing.distanceTo(v) < 0.05; });
-      if (!exists) {
-        vertexSet.push(v);
-        const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
-        node.position.copy(v);
-        nodeGroup.add(node);
+    function rebuildNodes(geometry) {
+      while (nodeGroup.children.length > 0) {
+        nodeGroup.remove(nodeGroup.children[0]);
+      }
+      const posAttr = geometry.attributes.position;
+      const vertexSet = [];
+      for (let i = 0; i < posAttr.count; i++) {
+        const v = new THREE.Vector3().fromBufferAttribute(posAttr, i);
+        const exists = vertexSet.some(function(existing) { return existing.distanceTo(v) < 0.05; });
+        if (!exists) {
+          vertexSet.push(v);
+          const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
+          node.position.copy(v);
+          nodeGroup.add(node);
+        }
       }
     }
+    rebuildNodes(currentLatticeGeom);
     masterGroup.add(nodeGroup);
 
     // Inner Concentric Unit Cell (Octahedron Core)
-    const coreGeometry = new THREE.OctahedronGeometry(0.95, 0);
+    let coreGeometry = new THREE.OctahedronGeometry(0.95, 0);
     const coreMaterial = new THREE.MeshStandardMaterial({
       flatShading: true,
       roughness: 0.3,
@@ -242,12 +248,70 @@
       opacity: 0.68
     });
     const coreMesh = new THREE.Mesh(coreGeometry, coreMaterial);
-    const coreWire = new THREE.LineSegments(
+    let coreWire = new THREE.LineSegments(
       new THREE.WireframeGeometry(coreGeometry),
       new THREE.LineBasicMaterial({ transparent: true, opacity: 0.7 })
     );
     coreMesh.add(coreWire);
     masterGroup.add(coreMesh);
+
+    // Interactive Lattice Switcher (Keenan Crane & Nicky Case style)
+    const latticeConfigs = {
+      dysprosium: {
+        label: 'Dy:LiSrB Phosphor · Orthorhombic',
+        geom: () => new THREE.IcosahedronGeometry(1.85, 0),
+        coreGeom: () => new THREE.OctahedronGeometry(0.95, 0)
+      },
+      fcc: {
+        label: 'Austenitic Steel · Face-Centered Cubic (FCC)',
+        geom: () => new THREE.BoxGeometry(2.1, 2.1, 2.1),
+        coreGeom: () => new THREE.OctahedronGeometry(1.05, 0)
+      },
+      hcp: {
+        label: 'Zircaloy Cladding · Hexagonal Close-Packed (HCP)',
+        geom: () => new THREE.CylinderGeometry(1.4, 1.4, 2.2, 6),
+        coreGeom: () => new THREE.CylinderGeometry(0.7, 0.7, 1.2, 6)
+      }
+    };
+
+    function setLattice(type) {
+      const config = latticeConfigs[type] || latticeConfigs.dysprosium;
+      const newGeom = config.geom();
+      const newCoreGeom = config.coreGeom();
+
+      crystalMesh.geometry.dispose();
+      crystalMesh.geometry = newGeom;
+
+      wireMesh.geometry.dispose();
+      wireMesh.geometry = new THREE.WireframeGeometry(newGeom);
+
+      coreMesh.geometry.dispose();
+      coreMesh.geometry = newCoreGeom;
+
+      coreWire.geometry.dispose();
+      coreWire.geometry = new THREE.WireframeGeometry(newCoreGeom);
+
+      rebuildNodes(newGeom);
+
+      const labelEl = document.getElementById('crystal-lattice-label');
+      if (labelEl) labelEl.textContent = config.label;
+
+      const btns = stage.querySelectorAll('.crystal-switch-btn');
+      btns.forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-lattice') === type);
+      });
+
+      triggerPulse();
+    }
+
+    const switchBtns = stage.querySelectorAll('.crystal-switch-btn');
+    switchBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const type = btn.getAttribute('data-lattice');
+        setLattice(type);
+      });
+    });
 
     // Ambient Quantum Particle Field
     const particleCount = 42;
@@ -1076,66 +1140,77 @@
     });
   }
 
-  // 11. Jon Barron Style Publication Visual Abstract Floater
+  // 11. Jon Barron Style Publication Visual Abstract Floater with Official DOI Figures
   const pubAbstractData = [
     {
+      badge: 'Official DOI Figure',
       tag: 'Journal Article · J. Alloys & Compounds',
-      caption: 'Dy³⁺ Doped Li-Sr-Borate Phosphor thermoluminescence emission spectra & glow curve for precision radiation dosimetry.',
-      svg: '<svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 100 Q 70 98 100 80 T 140 25 T 180 85 T 260 100" stroke="#10B981" stroke-width="2.2" stroke-linecap="round" fill="none"/><path d="M20 100 Q 70 98 100 80 T 140 25 T 180 85 T 260 100 L 260 105 L 20 105 Z" fill="#10B981" opacity="0.12"/><circle cx="140" cy="25" r="4.5" fill="#10B981"/><text x="140" y="16" fill="currentColor" font-size="10" font-weight="700" text-anchor="middle">TL Peak 210°C</text><line x1="20" y1="105" x2="260" y2="105" stroke="currentColor" stroke-width="1" opacity="0.3"/><line x1="20" y1="15" x2="20" y2="105" stroke="currentColor" stroke-width="1" opacity="0.3"/><text x="240" y="116" fill="currentColor" font-size="9" opacity="0.6">Temp (°C)</text></svg>'
+      caption: 'Official published Figure 2: Thermoluminescence (TL) glow curve of Dy³⁺-doped LiSrB phosphor across radiation doses (0.5–10 Gy) with peak dosimetry at ~210°C.',
+      img: 'images/pubs/pub1.jpg'
     },
     {
+      badge: 'Official DOI Figure',
       tag: 'Journal Article · BioResources',
-      caption: 'Superhydrophobic water-repellent jute fabric functionalization (contact angle θ = 142°) for sustainable packaging.',
-      svg: '<svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="30" y1="90" x2="250" y2="90" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0.7"/><path d="M100 90 C 100 45, 180 45, 180 90 Z" fill="#10B981" opacity="0.22" stroke="#10B981" stroke-width="2"/><path d="M140 90 L 165 65" stroke="#10B981" stroke-width="1.8" stroke-dasharray="3 3"/><circle cx="140" cy="68" r="3" fill="#10B981"/><text x="140" y="52" fill="#10B981" font-size="11" font-weight="800" text-anchor="middle">θ = 142°</text><text x="140" y="110" fill="currentColor" font-size="10" font-weight="600" text-anchor="middle" opacity="0.7">Functionalized Jute Substrate</text></svg>'
+      caption: 'Official published Figure 4 & 5: Water droplet contact angle (θ = 142°) on treated vs untreated eco-friendly functionalized jute fabric for sustainable packaging.',
+      img: 'images/pubs/pub2.jpg'
     },
     {
+      badge: 'Official DOI Figure',
       tag: 'Book Chapter · Elsevier (Woodhead)',
-      caption: 'Self-healing polymer nanocomposites: autonomous microcapsule rupture & supramolecular reversible bonding mechanism.',
-      svg: '<svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="30" y="30" width="95" height="60" rx="6" stroke="currentColor" stroke-width="1.5" fill="currentColor" opacity="0.08"/><line x1="80" y1="30" x2="80" y2="90" stroke="#EF4444" stroke-width="2" stroke-dasharray="2 2"/><text x="77" y="64" fill="#EF4444" font-size="10" font-weight="700" text-anchor="middle">Crack</text><path d="M135 60 L 155 60" stroke="#10B981" stroke-width="2"/><rect x="165" y="30" width="95" height="60" rx="6" stroke="#10B981" stroke-width="1.8" fill="#10B981" opacity="0.18"/><text x="212" y="64" fill="#10B981" font-size="10" font-weight="800" text-anchor="middle">Healed (96%)</text></svg>'
+      caption: 'Official published Figure 16.1: Supramolecular reversible bonding & autonomous microcapsule rupture healing in smart polymer nanocomposites.',
+      img: 'images/pubs/pub3.jpg'
     },
     {
-      tag: 'Proceedings · ICEEICT 2024',
-      caption: 'Autonomous inspection robot & cognitive mapping architecture for radioactive contamination screening.',
-      svg: '<svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="140" cy="60" r="46" stroke="#10B981" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.5"/><circle cx="140" cy="60" r="28" stroke="#10B981" stroke-width="1.5" opacity="0.8"/><circle cx="140" cy="60" r="8" fill="#10B981"/><circle cx="85" cy="40" r="5" fill="#EF4444" opacity="0.8"/><circle cx="195" cy="75" r="4" fill="#F59E0B" opacity="0.8"/><text x="140" y="112" fill="currentColor" font-size="10" font-weight="600" text-anchor="middle" opacity="0.8">Dosimetric Radiation Heat-Map</text></svg>'
+      badge: 'Telemetry & Heat-Map',
+      tag: 'Proceedings · IOS Press 2025',
+      caption: 'Autonomous high-tech radiological mechanism inspection robot telemetry & dosimetric radiation contamination heat-map.',
+      img: 'images/pubs/pub4.svg'
     },
     {
-      tag: 'Proceedings · NCST 2024',
-      caption: 'Gamma-ray energy spectrometry with High Purity Germanium (HPGe) detector for 226Ra, 232Th, and 40K.',
-      svg: '<svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M30 100 L 70 95 L 90 35 L 105 95 L 145 92 L 160 25 L 175 92 L 210 90 L 220 50 L 230 90 L 260 90" stroke="#10B981" stroke-width="2" fill="none"/><text x="90" y="26" fill="#10B981" font-size="9" font-weight="700" text-anchor="middle">²²⁶Ra</text><text x="160" y="16" fill="#10B981" font-size="9" font-weight="700" text-anchor="middle">²³²Th</text><text x="220" y="42" fill="#10B981" font-size="9" font-weight="700" text-anchor="middle">⁴⁰K</text><line x1="30" y1="102" x2="260" y2="102" stroke="currentColor" stroke-width="1" opacity="0.3"/></svg>'
+      badge: 'CFD Streamlines',
+      tag: 'Proceedings · AIP Conf. Proc. 2026',
+      caption: 'NACA 23018 airfoil velocity streamlines and moving surface boundary-layer control (MSBC) using rotating cylinders.',
+      img: 'images/pubs/pub5.svg'
     },
     {
-      tag: 'Proceedings · 2nd ICSEE 2024',
-      caption: 'Advanced Cost-Effective Surface Functionalization Strategies for Packaging Jute Fabrics.',
-      svg: '<svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="40" y="40" width="200" height="40" rx="8" fill="currentColor" opacity="0.08" stroke="currentColor" stroke-width="1.5"/><circle cx="70" cy="60" r="10" fill="#10B981" opacity="0.7"/><circle cx="120" cy="60" r="10" fill="#10B981" opacity="0.7"/><circle cx="170" cy="60" r="10" fill="#10B981" opacity="0.7"/><circle cx="210" cy="60" r="10" fill="#10B981" opacity="0.7"/><text x="140" y="105" fill="currentColor" font-size="10" font-weight="600" text-anchor="middle" opacity="0.8">Nano-Barrier Layer Matrix</text></svg>'
+      badge: 'Boundary-Layer Control',
+      tag: 'Proceedings · AIP Conf. Proc. 2026',
+      caption: 'Aerodynamic lift/drag optimization of NACA 23018 with double rotating cylinders at multiple Reynolds numbers.',
+      img: 'images/pubs/pub5.svg'
     },
     {
-      tag: 'Proceedings · ICREST 2025',
-      caption: 'Biodegradable and Graphene Nanoplatelet reinforced bioplastics for sustainable packaging.',
-      svg: '<svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="140,20 175,40 175,80 140,100 105,80 105,40" stroke="#10B981" stroke-width="2" fill="#10B981" opacity="0.2"/><polygon points="190,45 220,62 220,95 190,112 160,95 160,62" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.4"/><text x="140" y="65" fill="#10B981" font-size="11" font-weight="800" text-anchor="middle">GNP Hexagon</text></svg>'
+      badge: 'Real-Time Neural Detection',
+      tag: 'Conference Paper · PECCII 2026',
+      caption: 'Enhanced YOLOv8 framework for real-time weapon detection and perimeter security threat assessment in nuclear power plant perimeters.',
+      img: 'images/pubs/pub7.svg'
     },
     {
-      tag: 'Presentation · 2nd ICSEE 2024',
-      caption: 'Dosimetric and structural characterization of Lithium Strontium Borate Phosphor.',
-      svg: '<svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="140" cy="60" r="38" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 3"/><circle cx="140" cy="60" r="14" fill="#10B981"/><circle cx="110" cy="45" r="7" fill="currentColor" opacity="0.7"/><circle cx="170" cy="75" r="7" fill="currentColor" opacity="0.7"/><text x="140" y="112" fill="currentColor" font-size="10" font-weight="600" text-anchor="middle">XRD Lattice Peak Match</text></svg>'
+      badge: 'Presentation Abstract',
+      tag: 'Paper Presentation · PECCII 2026',
+      caption: 'YOLOv8 framework for real-time neural threat classification and nuclear power plant perimeter surveillance.',
+      img: 'images/pubs/pub7.svg'
     },
     {
-      tag: 'Presentation · ICGET 2024',
-      caption: 'Radioactive Substance Screening and Nuclear Inspection Robotics Presentation.',
-      svg: '<svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="50" y="30" width="180" height="60" rx="10" stroke="#10B981" stroke-width="1.8" fill="currentColor" opacity="0.08"/><path d="M70 60 L 100 45 L 140 68 L 180 40 L 210 60" stroke="#10B981" stroke-width="2" fill="none"/><text x="140" y="108" fill="currentColor" font-size="10" font-weight="600" text-anchor="middle">Autonomous Telemetry Mesh</text></svg>'
+      badge: 'Computer Vision',
+      tag: 'Paper Presentation · ISMEE 2024',
+      caption: 'Deep convolutional neural network for automated defect detection & crack segmentation on steel structures in nuclear facilities.',
+      svg: '<svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="30" y="25" width="220" height="70" rx="8" fill="#14261f" stroke="#5ce1b6" stroke-width="1.5"/><line x1="100" y1="35" x2="160" y2="85" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/><rect x="85" y="25" width="90" height="70" rx="4" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3 3"/><text x="140" y="20" fill="#ef4444" font-size="10" font-weight="700" text-anchor="middle">Defect Region (97.8% Confidence)</text><text x="140" y="110" fill="#a6aaa7" font-size="9" text-anchor="middle">CNN Feature Extraction: Conv2D + MaxPool</text></svg>'
     },
     {
-      tag: 'Presentation · 8th ICPE 2024',
-      caption: 'Development of Water-Repellent Functionalization for Biodegradable Jute Fabrics.',
-      svg: '<svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="140" cy="55" r="32" fill="#10B981" opacity="0.25" stroke="#10B981" stroke-width="2"/><path d="M125 55 L 135 65 L 155 45" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><text x="140" y="106" fill="currentColor" font-size="10" font-weight="700" text-anchor="middle">Eco-Friendly Barrier Verified</text></svg>'
+      badge: 'Radiological Robotics',
+      tag: 'Paper Presentation · ICEP 2022',
+      caption: 'Artificial Neural Network based nuclear facility inspection robot and computerized ground survey system.',
+      svg: '<svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="140" cy="55" r="42" fill="none" stroke="#5ce1b6" stroke-width="1.5" stroke-dasharray="4 4"/><circle cx="140" cy="55" r="26" fill="none" stroke="#34d399" stroke-width="1.8"/><circle cx="140" cy="55" r="8" fill="#5ce1b6"/><line x1="60" y1="95" x2="220" y2="95" stroke="#5ce1b6" stroke-width="1" stroke-dasharray="2 2"/><text x="140" y="112" fill="#5ce1b6" font-size="10" font-weight="700" text-anchor="middle">ANN Ground Exploration Telemetry</text></svg>'
     }
   ];
 
   function initPublicationPreviews() {
     const floater = document.getElementById('pub-preview-floater');
+    const badgeEl = document.getElementById('preview-badge');
     const tagEl = document.getElementById('preview-tag');
     const diagramEl = document.getElementById('pub-preview-diagram');
     const captionEl = document.getElementById('pub-preview-caption');
-    if (!floater || !tagEl || !diagramEl || !captionEl) return;
+    if (!floater || !diagramEl || !captionEl) return;
     if (window.matchMedia('(max-width: 860px)').matches) return;
 
     const pubItems = document.querySelectorAll('.pub-item');
@@ -1144,8 +1219,13 @@
       const data = pubAbstractData[index] || pubAbstractData[0];
 
       item.addEventListener('mouseenter', (e) => {
-        tagEl.textContent = data.tag;
-        diagramEl.innerHTML = data.svg;
+        if (badgeEl && data.badge) badgeEl.textContent = data.badge;
+        if (tagEl && data.tag) tagEl.textContent = data.tag;
+        if (data.img) {
+          diagramEl.innerHTML = `<img src="${data.img}" alt="${data.tag}" class="pub-preview-img" loading="eager" />`;
+        } else if (data.svg) {
+          diagramEl.innerHTML = data.svg;
+        }
         captionEl.textContent = data.caption;
         floater.classList.add('is-visible');
         updatePosition(e);
@@ -1161,10 +1241,10 @@
     });
 
     function updatePosition(e) {
-      const floaterWidth = 290;
-      const floaterHeight = 220;
+      const floaterWidth = 330;
+      const floaterHeight = 250;
       let x = e.clientX + 22;
-      let y = e.clientY - 40;
+      let y = e.clientY - 50;
 
       if (x + floaterWidth > window.innerWidth - 16) {
         x = e.clientX - floaterWidth - 22;
@@ -1179,17 +1259,102 @@
     }
   }
 
-  if (document.readyState === 'loading') {
-    window.addEventListener('DOMContentLoaded', function () {
-      initVisitorCounter();
-      initContactForm();
-      initMagneticButtons();
-      initPublicationPreviews();
+  // 12. Dennis Snellenberg Top Scroll Progress Hairline
+  function initScrollProgress() {
+    const bar = document.getElementById('scroll-progress');
+    if (!bar) return;
+    function updateProgress() {
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? (scrollY / docHeight) * 100 : 0;
+      bar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+    }
+    window.addEventListener('scroll', updateProgress, { passive: true });
+    updateProgress();
+  }
+
+  // 13. jhey.dev 3D Tilt Cards with Dynamic Specular Glare
+  function init3DTiltCards() {
+    if (window.matchMedia('(hover: none)').matches) return;
+    const cards = document.querySelectorAll('.entry-card, .project-item, .pub-item, .skill-card, .ref-card');
+
+    cards.forEach((card) => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+
+        const rotX = ((y - centerY) / centerY) * -3.2;
+        const rotY = ((x - centerX) / centerX) * 3.2;
+
+        card.style.transform = `perspective(1000px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) translateY(-2px)`;
+        card.style.setProperty('--mouse-x', `${x}px`);
+        card.style.setProperty('--mouse-y', `${y}px`);
+      });
+
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)';
+      });
     });
-  } else {
+  }
+
+  // 14. Victor Dibia Animated Metrics Count-Up
+  function initMetricCounters() {
+    const metricValues = document.querySelectorAll('.metric-value');
+    if (!metricValues.length || !('IntersectionObserver' in window)) return;
+
+    let hasAnimated = false;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !hasAnimated) {
+            hasAnimated = true;
+            metricValues.forEach((el) => {
+              const target = parseInt(el.textContent.trim(), 10);
+              if (isNaN(target)) return;
+              const duration = 1200;
+              const startTime = performance.now();
+
+              function countStep(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const current = Math.round(eased * target);
+                el.textContent = current < 10 ? `0${current}` : `${current}`;
+                if (progress < 1) {
+                  requestAnimationFrame(countStep);
+                } else {
+                  el.textContent = target < 10 ? `0${target}` : `${target}`;
+                }
+              }
+              requestAnimationFrame(countStep);
+            });
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0.25 }
+    );
+
+    const metricsContainer = document.querySelector('.metrics-grid');
+    if (metricsContainer) observer.observe(metricsContainer);
+  }
+
+  function initAllFeatures() {
     initVisitorCounter();
     initContactForm();
     initMagneticButtons();
     initPublicationPreviews();
+    initScrollProgress();
+    init3DTiltCards();
+    initMetricCounters();
+  }
+
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', initAllFeatures);
+  } else {
+    initAllFeatures();
   }
 })();
