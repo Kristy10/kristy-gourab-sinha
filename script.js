@@ -608,6 +608,29 @@
       mouse.y = -9999;
     });
 
+    // Touch support for mobile flow
+    window.addEventListener('touchstart', function(e) {
+      if (e.touches && e.touches[0]) {
+        mouse.x = e.touches[0].clientX;
+        mouse.y = e.touches[0].clientY;
+        mouse.active = true;
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchmove', function(e) {
+      if (e.touches && e.touches[0]) {
+        mouse.x = e.touches[0].clientX;
+        mouse.y = e.touches[0].clientY;
+        mouse.active = true;
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchend', function() {
+      mouse.active = false;
+      mouse.x = -9999;
+      mouse.y = -9999;
+    });
+
     var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     var themeObs = new MutationObserver(function() {
       isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -820,13 +843,127 @@
     });
   }
 
+
+  // 10. Scroll Flow Progress Bar
+  function initScrollFlowBar() {
+    var bar = document.getElementById('scroll-flow-bar');
+    if (!bar) return;
+    function updateFlow() {
+      var winScroll = document.documentElement.scrollTop || document.body.scrollTop;
+      var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      var scrolled = height > 0 ? (winScroll / height) * 100 : 0;
+      bar.style.width = scrolled + '%';
+    }
+    window.addEventListener('scroll', updateFlow, { passive: true });
+    updateFlow();
+  }
+
+  // 11. Dynamic Metric Counters (Smooth Flow Count-Up)
+  function initMetricCounters() {
+    var metricEls = document.querySelectorAll('.metric-value[data-target]');
+    if (!metricEls.length) return;
+
+    var hasAnimated = false;
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting && !hasAnimated) {
+          hasAnimated = true;
+          metricEls.forEach(function(el) {
+            var target = parseInt(el.getAttribute('data-target'), 10);
+            if (isNaN(target)) return;
+            var duration = 1200;
+            var startTime = performance.now();
+            function countTick(now) {
+              var elapsed = now - startTime;
+              var progress = Math.min(elapsed / duration, 1);
+              var ease = 1 - Math.pow(1 - progress, 3);
+              var current = Math.floor(ease * target);
+              el.textContent = current < 10 ? '0' + current : '' + current;
+              if (progress < 1) {
+                requestAnimationFrame(countTick);
+              } else {
+                el.textContent = target < 10 ? '0' + target : '' + target;
+              }
+            }
+            requestAnimationFrame(countTick);
+          });
+          observer.disconnect();
+        }
+      });
+    }, { threshold: 0.25 });
+
+    var grid = document.querySelector('.metrics-grid');
+    if (grid) observer.observe(grid);
+  }
+
+  // 12. Interactive Card Cursor Light Flow
+  function initCardGlowFlow() {
+    var cards = document.querySelectorAll('.project-item, .pub-item, .entry-card, .skill-card, .compact-row, .contact-box');
+    cards.forEach(function(card) {
+      card.addEventListener('mousemove', function(e) {
+        var rect = card.getBoundingClientRect();
+        var x = e.clientX - rect.left;
+        var y = e.clientY - rect.top;
+        card.style.setProperty('--mouse-x', x + 'px');
+        card.style.setProperty('--mouse-y', y + 'px');
+      });
+    });
+  }
+
+  // 13. Mobile Navigation Drawer Controller
+  function initMobileNav() {
+    var toggleBtn = document.getElementById('mobile-menu-toggle');
+    var drawer = document.getElementById('mobile-nav');
+    if (!toggleBtn || !drawer) return;
+
+    function toggleNav(forceClose) {
+      var isOpen = forceClose ? false : !drawer.classList.contains('is-open');
+      drawer.classList.toggle('is-open', isOpen);
+      toggleBtn.classList.toggle('is-active', isOpen);
+      toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      drawer.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+    }
+
+    toggleBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      toggleNav();
+    });
+
+    var links = drawer.querySelectorAll('a');
+    links.forEach(function(link) {
+      link.addEventListener('click', function() {
+        toggleNav(true);
+      });
+    });
+
+    document.addEventListener('click', function(e) {
+      if (drawer.classList.contains('is-open') && !drawer.contains(e.target) && !toggleBtn.contains(e.target)) {
+        toggleNav(true);
+      }
+    });
+
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 860 && drawer.classList.contains('is-open')) {
+        toggleNav(true);
+      }
+    });
+  }
+
   if (document.readyState === 'loading') {
     window.addEventListener('DOMContentLoaded', function () {
       initVisitorCounter();
       initContactForm();
+      initScrollFlowBar();
+      initMetricCounters();
+      initCardGlowFlow();
+      initMobileNav();
     });
   } else {
     initVisitorCounter();
     initContactForm();
+    initScrollFlowBar();
+    initMetricCounters();
+    initCardGlowFlow();
+    initMobileNav();
   }
 })();
