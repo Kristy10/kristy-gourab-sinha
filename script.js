@@ -186,7 +186,7 @@
     scene.add(masterGroup);
 
     // Primary Faceted Crystal (Icosahedron - 20 Facets)
-    let currentLatticeGeom = new THREE.IcosahedronGeometry(1.85, 0);
+    const icosaGeometry = new THREE.IcosahedronGeometry(1.85, 0);
 
     const facetMaterial = new THREE.MeshPhysicalMaterial({
       flatShading: true,
@@ -200,11 +200,11 @@
       clearcoatRoughness: 0.1
     });
 
-    const crystalMesh = new THREE.Mesh(currentLatticeGeom, facetMaterial);
+    const crystalMesh = new THREE.Mesh(icosaGeometry, facetMaterial);
     masterGroup.add(crystalMesh);
 
     // Wireframe Crystallography Lattice Lines
-    let wireGeometry = new THREE.WireframeGeometry(currentLatticeGeom);
+    const wireGeometry = new THREE.WireframeGeometry(icosaGeometry);
     const wireMaterial = new THREE.LineBasicMaterial({
       transparent: true,
       opacity: 0.55,
@@ -218,28 +218,22 @@
     const nodeMaterial = new THREE.MeshBasicMaterial();
     const nodeGroup = new THREE.Group();
 
-    function rebuildNodes(geometry) {
-      while (nodeGroup.children.length > 0) {
-        nodeGroup.remove(nodeGroup.children[0]);
-      }
-      const posAttr = geometry.attributes.position;
-      const vertexSet = [];
-      for (let i = 0; i < posAttr.count; i++) {
-        const v = new THREE.Vector3().fromBufferAttribute(posAttr, i);
-        const exists = vertexSet.some(function(existing) { return existing.distanceTo(v) < 0.05; });
-        if (!exists) {
-          vertexSet.push(v);
-          const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
-          node.position.copy(v);
-          nodeGroup.add(node);
-        }
+    const posAttr = icosaGeometry.attributes.position;
+    const vertexSet = [];
+    for (let i = 0; i < posAttr.count; i++) {
+      const v = new THREE.Vector3().fromBufferAttribute(posAttr, i);
+      const exists = vertexSet.some(function(existing) { return existing.distanceTo(v) < 0.05; });
+      if (!exists) {
+        vertexSet.push(v);
+        const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
+        node.position.copy(v);
+        nodeGroup.add(node);
       }
     }
-    rebuildNodes(currentLatticeGeom);
     masterGroup.add(nodeGroup);
 
     // Inner Concentric Unit Cell (Octahedron Core)
-    let coreGeometry = new THREE.OctahedronGeometry(0.95, 0);
+    const coreGeometry = new THREE.OctahedronGeometry(0.95, 0);
     const coreMaterial = new THREE.MeshStandardMaterial({
       flatShading: true,
       roughness: 0.3,
@@ -248,70 +242,12 @@
       opacity: 0.68
     });
     const coreMesh = new THREE.Mesh(coreGeometry, coreMaterial);
-    let coreWire = new THREE.LineSegments(
+    const coreWire = new THREE.LineSegments(
       new THREE.WireframeGeometry(coreGeometry),
       new THREE.LineBasicMaterial({ transparent: true, opacity: 0.7 })
     );
     coreMesh.add(coreWire);
     masterGroup.add(coreMesh);
-
-    // Interactive Lattice Switcher (Keenan Crane & Nicky Case style)
-    const latticeConfigs = {
-      dysprosium: {
-        label: 'Dy:LiSrB Phosphor · Orthorhombic',
-        geom: () => new THREE.IcosahedronGeometry(1.85, 0),
-        coreGeom: () => new THREE.OctahedronGeometry(0.95, 0)
-      },
-      fcc: {
-        label: 'Austenitic Steel · Face-Centered Cubic (FCC)',
-        geom: () => new THREE.BoxGeometry(2.1, 2.1, 2.1),
-        coreGeom: () => new THREE.OctahedronGeometry(1.05, 0)
-      },
-      hcp: {
-        label: 'Zircaloy Cladding · Hexagonal Close-Packed (HCP)',
-        geom: () => new THREE.CylinderGeometry(1.4, 1.4, 2.2, 6),
-        coreGeom: () => new THREE.CylinderGeometry(0.7, 0.7, 1.2, 6)
-      }
-    };
-
-    function setLattice(type) {
-      const config = latticeConfigs[type] || latticeConfigs.dysprosium;
-      const newGeom = config.geom();
-      const newCoreGeom = config.coreGeom();
-
-      crystalMesh.geometry.dispose();
-      crystalMesh.geometry = newGeom;
-
-      wireMesh.geometry.dispose();
-      wireMesh.geometry = new THREE.WireframeGeometry(newGeom);
-
-      coreMesh.geometry.dispose();
-      coreMesh.geometry = newCoreGeom;
-
-      coreWire.geometry.dispose();
-      coreWire.geometry = new THREE.WireframeGeometry(newCoreGeom);
-
-      rebuildNodes(newGeom);
-
-      const labelEl = document.getElementById('crystal-lattice-label');
-      if (labelEl) labelEl.textContent = config.label;
-
-      const btns = stage.querySelectorAll('.crystal-switch-btn');
-      btns.forEach(b => {
-        b.classList.toggle('active', b.getAttribute('data-lattice') === type);
-      });
-
-      triggerPulse();
-    }
-
-    const switchBtns = stage.querySelectorAll('.crystal-switch-btn');
-    switchBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const type = btn.getAttribute('data-lattice');
-        setLattice(type);
-      });
-    });
 
     // Ambient Quantum Particle Field
     const particleCount = 42;
@@ -1140,125 +1076,6 @@
     });
   }
 
-  // 11. Jon Barron Style Publication Visual Abstract Floater with Official DOI Figures
-  const pubAbstractData = [
-    {
-      badge: 'Official DOI Figure',
-      tag: 'Journal Article · J. Alloys & Compounds',
-      caption: 'Official published Figure 2: Thermoluminescence (TL) glow curve of Dy³⁺-doped LiSrB phosphor across radiation doses (0.5–10 Gy) with peak dosimetry at ~210°C.',
-      img: 'images/pubs/pub1.jpg'
-    },
-    {
-      badge: 'Official DOI Figure',
-      tag: 'Journal Article · BioResources',
-      caption: 'Official published Figure 4 & 5: Water droplet contact angle (θ = 142°) on treated vs untreated eco-friendly functionalized jute fabric for sustainable packaging.',
-      img: 'images/pubs/pub2.jpg'
-    },
-    {
-      badge: 'Official DOI Figure',
-      tag: 'Book Chapter · Elsevier (Woodhead)',
-      caption: 'Official published Figure 16.1: Supramolecular reversible bonding & autonomous microcapsule rupture healing in smart polymer nanocomposites.',
-      img: 'images/pubs/pub3.jpg'
-    },
-    {
-      badge: 'Telemetry & Heat-Map',
-      tag: 'Proceedings · IOS Press 2025',
-      caption: 'Autonomous high-tech radiological mechanism inspection robot telemetry & dosimetric radiation contamination heat-map.',
-      img: 'images/pubs/pub4.svg'
-    },
-    {
-      badge: 'CFD Streamlines',
-      tag: 'Proceedings · AIP Conf. Proc. 2026',
-      caption: 'NACA 23018 airfoil velocity streamlines and moving surface boundary-layer control (MSBC) using rotating cylinders.',
-      img: 'images/pubs/pub5.svg'
-    },
-    {
-      badge: 'Boundary-Layer Control',
-      tag: 'Proceedings · AIP Conf. Proc. 2026',
-      caption: 'Aerodynamic lift/drag optimization of NACA 23018 with double rotating cylinders at multiple Reynolds numbers.',
-      img: 'images/pubs/pub5.svg'
-    },
-    {
-      badge: 'Real-Time Neural Detection',
-      tag: 'Conference Paper · PECCII 2026',
-      caption: 'Enhanced YOLOv8 framework for real-time weapon detection and perimeter security threat assessment in nuclear power plant perimeters.',
-      img: 'images/pubs/pub7.svg'
-    },
-    {
-      badge: 'Presentation Abstract',
-      tag: 'Paper Presentation · PECCII 2026',
-      caption: 'YOLOv8 framework for real-time neural threat classification and nuclear power plant perimeter surveillance.',
-      img: 'images/pubs/pub7.svg'
-    },
-    {
-      badge: 'Computer Vision',
-      tag: 'Paper Presentation · ISMEE 2024',
-      caption: 'Deep convolutional neural network for automated defect detection & crack segmentation on steel structures in nuclear facilities.',
-      svg: '<svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="30" y="25" width="220" height="70" rx="8" fill="#14261f" stroke="#5ce1b6" stroke-width="1.5"/><line x1="100" y1="35" x2="160" y2="85" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/><rect x="85" y="25" width="90" height="70" rx="4" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3 3"/><text x="140" y="20" fill="#ef4444" font-size="10" font-weight="700" text-anchor="middle">Defect Region (97.8% Confidence)</text><text x="140" y="110" fill="#a6aaa7" font-size="9" text-anchor="middle">CNN Feature Extraction: Conv2D + MaxPool</text></svg>'
-    },
-    {
-      badge: 'Radiological Robotics',
-      tag: 'Paper Presentation · ICEP 2022',
-      caption: 'Artificial Neural Network based nuclear facility inspection robot and computerized ground survey system.',
-      svg: '<svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="140" cy="55" r="42" fill="none" stroke="#5ce1b6" stroke-width="1.5" stroke-dasharray="4 4"/><circle cx="140" cy="55" r="26" fill="none" stroke="#34d399" stroke-width="1.8"/><circle cx="140" cy="55" r="8" fill="#5ce1b6"/><line x1="60" y1="95" x2="220" y2="95" stroke="#5ce1b6" stroke-width="1" stroke-dasharray="2 2"/><text x="140" y="112" fill="#5ce1b6" font-size="10" font-weight="700" text-anchor="middle">ANN Ground Exploration Telemetry</text></svg>'
-    }
-  ];
-
-  function initPublicationPreviews() {
-    const floater = document.getElementById('pub-preview-floater');
-    const badgeEl = document.getElementById('preview-badge');
-    const tagEl = document.getElementById('preview-tag');
-    const diagramEl = document.getElementById('pub-preview-diagram');
-    const captionEl = document.getElementById('pub-preview-caption');
-    if (!floater || !diagramEl || !captionEl) return;
-    if (window.matchMedia('(max-width: 860px)').matches) return;
-
-    const pubItems = document.querySelectorAll('.pub-item');
-
-    pubItems.forEach((item, index) => {
-      const data = pubAbstractData[index] || pubAbstractData[0];
-
-      item.addEventListener('mouseenter', (e) => {
-        if (badgeEl && data.badge) badgeEl.textContent = data.badge;
-        if (tagEl && data.tag) tagEl.textContent = data.tag;
-        if (data.img) {
-          diagramEl.innerHTML = `<img src="${data.img}" alt="${data.tag}" class="pub-preview-img" loading="eager" />`;
-        } else if (data.svg) {
-          diagramEl.innerHTML = data.svg;
-        }
-        captionEl.textContent = data.caption;
-        floater.classList.add('is-visible');
-        updatePosition(e);
-      });
-
-      item.addEventListener('mousemove', (e) => {
-        updatePosition(e);
-      });
-
-      item.addEventListener('mouseleave', () => {
-        floater.classList.remove('is-visible');
-      });
-    });
-
-    function updatePosition(e) {
-      const floaterWidth = 330;
-      const floaterHeight = 250;
-      let x = e.clientX + 22;
-      let y = e.clientY - 50;
-
-      if (x + floaterWidth > window.innerWidth - 16) {
-        x = e.clientX - floaterWidth - 22;
-      }
-      if (y + floaterHeight > window.innerHeight - 16) {
-        y = window.innerHeight - floaterHeight - 16;
-      }
-      if (y < 70) y = 70;
-
-      floater.style.left = `${x}px`;
-      floater.style.top = `${y}px`;
-    }
-  }
-
   // 12. Dennis Snellenberg Top Scroll Progress Hairline
   function initScrollProgress() {
     const bar = document.getElementById('scroll-progress');
@@ -1346,7 +1163,6 @@
     initVisitorCounter();
     initContactForm();
     initMagneticButtons();
-    initPublicationPreviews();
     initScrollProgress();
     init3DTiltCards();
     initMetricCounters();

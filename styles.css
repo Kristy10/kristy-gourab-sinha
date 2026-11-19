@@ -262,41 +262,46 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-accent);
-  background-color: var(--accent-soft);
+  background: var(--bg-card-glass);
   border: 1px solid var(--accent-border);
-  padding: 5px 12px;
+  padding: 6px 14px;
   border-radius: var(--radius-pill);
-  margin-bottom: 22px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 14px -4px var(--accent-soft);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .status-pulse {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background-color: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+  animation: pulse-dot 2.2s infinite ease-in-out;
 }
 
 .hero-title {
-  font-size: clamp(2.25rem, 4.8vw, 3.6rem);
+  font-size: clamp(2.35rem, 5vw, 3.75rem);
   font-weight: 800;
-  line-height: 1.08;
-  letter-spacing: -0.035em;
+  line-height: 1.06;
+  letter-spacing: -0.04em;
   color: var(--text-primary);
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .hero-subtitle {
-  font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+  font-size: clamp(1.02rem, 1.6vw, 1.18rem);
   font-weight: 500;
   color: var(--text-secondary);
-  line-height: 1.5;
+  line-height: 1.55;
   max-width: 780px;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .hero-subtitle strong {
@@ -304,20 +309,108 @@ button {
   font-weight: 600;
 }
 
+/* Creative Academic Affiliation Strip */
+.hero-affiliation-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.affiliation-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  transition: border-color var(--transition-fast), transform var(--transition-fast), background-color var(--transition-fast);
+}
+
+.affiliation-badge:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+  background-color: var(--bg-subtle);
+}
+
+.affil-inst {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background-color: var(--accent-soft);
+  color: var(--text-accent);
+  border: 1px solid var(--accent-border);
+}
+
+.affil-text {
+  font-weight: 600;
+}
+
+.affiliation-sep {
+  color: var(--border-strong);
+  font-weight: bold;
+}
+
+/* Creative Hero Bio & Focus Matrix */
 .hero-bio {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
   font-size: 0.98rem;
   color: var(--text-secondary);
   max-width: 780px;
-  line-height: 1.72;
+  line-height: 1.74;
   margin-bottom: 32px;
+  padding-left: 18px;
+  border-left: 2px solid var(--accent-border);
+}
+
+.hero-lead {
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: var(--text-primary);
 }
 
 .hero-bio strong {
   color: var(--text-primary);
   font-weight: 600;
+}
+
+.hero-focus-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding-top: 6px;
+}
+
+.focus-pill {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  background-color: var(--bg-elevated);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.focus-pill:hover {
+  color: var(--text-accent);
+  border-color: var(--accent-border);
+  background-color: var(--accent-soft);
+  transform: translateY(-1.5px);
 }
 
 /* Contact & Social Pills */
@@ -820,107 +913,6 @@ button {
   transition: width 0.08s ease-out;
 }
 
-/* ==========================================================================
-   Jon Barron Style Publication Visual Abstract Floater with Real DOI Figures
-   ========================================================================== */
-.pub-preview-floater {
-  position: fixed;
-  z-index: 999;
-  width: 330px;
-  background: var(--bg-card-glass);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--accent-border);
-  border-radius: var(--radius-md);
-  box-shadow: 0 20px 48px -12px rgba(0, 0, 0, 0.28), 0 0 30px -8px var(--accent-soft);
-  padding: 14px;
-  pointer-events: none;
-  opacity: 0;
-  transform: scale(0.92) translateY(8px);
-  transition: opacity 0.22s var(--ease-out), transform 0.22s var(--ease-out);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.pub-preview-floater.is-visible {
-  opacity: 1;
-  transform: scale(1) translateY(0);
-}
-
-.pub-preview-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-}
-
-.preview-badge {
-  font-size: 0.68rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-accent);
-  background-color: var(--accent-soft);
-  padding: 2px 8px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--accent-border);
-  white-space: nowrap;
-}
-
-.preview-tag {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.pub-preview-diagram {
-  width: 100%;
-  height: 156px;
-  border-radius: var(--radius-sm);
-  background-color: var(--bg-subtle);
-  border: 1px solid var(--border-subtle);
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-.pub-preview-diagram img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  display: block;
-  transition: transform 0.35s var(--ease-out);
-}
-
-.pub-preview-floater:hover .pub-preview-diagram img {
-  transform: scale(1.05);
-}
-
-.pub-preview-diagram svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.pub-preview-caption {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  line-height: 1.42;
-}
-
-@media (max-width: 860px) {
-  .pub-preview-floater {
-    display: none !important;
-  }
-}
 
 /* ==========================================================================
    jhey.dev 3D Tilt Cards with Dynamic Specular Glare & Tactile Lift
@@ -1309,14 +1301,6 @@ button {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 12px;
-}
-
-.crystal-header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
 }
 
 .crystal-pill {
@@ -1336,49 +1320,6 @@ button {
   padding: 5px 12px;
   border-radius: var(--radius-pill);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-}
-
-.crystal-switcher {
-  display: inline-flex;
-  align-self: center;
-  gap: 4px;
-  background-color: var(--bg-nav);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-subtle);
-  padding: 3px;
-  border-radius: var(--radius-pill);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-  pointer-events: auto;
-  z-index: 10;
-}
-
-.crystal-switch-btn {
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: var(--radius-pill);
-  color: var(--text-secondary);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  white-space: nowrap;
-}
-
-.crystal-switch-btn:hover {
-  color: var(--text-primary);
-  background-color: var(--bg-subtle);
-}
-
-.crystal-switch-btn.active {
-  background-color: var(--accent);
-  color: #ffffff;
-  box-shadow: 0 0 10px var(--accent-border);
-}
-
-[data-theme="dark"] .crystal-switch-btn.active {
-  color: #0b0c0b;
 }
 
 .crystal-dot {
