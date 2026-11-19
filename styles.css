@@ -1444,49 +1444,99 @@ button {
 }
 
 /* ==========================================================================
-   Dynamic Visitor Counter
+   Dynamic Visitor Counter (Compact, Dynamic, No Wrap)
    ========================================================================== */
 
 .visitor-counter-pill {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
   font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--text-secondary);
+  font-weight: 700;
+  color: var(--text-primary);
   background-color: var(--bg-elevated);
   border: 1px solid var(--border-subtle);
-  padding: 6px 13px;
+  padding: 5px 10px;
   border-radius: var(--radius-pill);
-  transition: border-color var(--transition-fast), color var(--transition-fast);
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+  user-select: none;
 }
 
 .visitor-counter-pill:hover {
-  border-color: var(--border-strong);
-  color: var(--text-primary);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px rgba(92, 225, 182, 0.25);
+  transform: translateY(-1px);
 }
 
-.visitor-dot {
-  width: 7px;
-  height: 7px;
+.visitor-icon-logo {
+  width: 14px;
+  height: 14px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.visitor-pulse-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.visitor-pulse-dot .dot-core {
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background-color: #10b981;
   box-shadow: 0 0 8px #10b981;
-  animation: pulse-dot 2s infinite ease-in-out;
 }
 
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.45; transform: scale(0.85); }
+.visitor-pulse-dot .dot-ring {
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1.5px solid #10b981;
+  opacity: 0.8;
+  animation: radar-ripple 2s infinite cubic-bezier(0, 0.2, 0.8, 1);
 }
 
-.visitor-label {
-  color: var(--text-muted);
+@keyframes radar-ripple {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
 }
 
 .visitor-count {
-  font-weight: 700;
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 0.82rem;
+  letter-spacing: -0.01em;
   color: var(--text-primary);
+}
+
+.visitor-badge {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  text-transform: uppercase;
 }
 
 .footer-visitor {

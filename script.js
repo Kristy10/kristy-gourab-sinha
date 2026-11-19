@@ -741,13 +741,30 @@
       sessionStorage.setItem(SESSION_KEY, 'true');
     }
 
-    function displayCount(num) {
-      var formatted = Number(num).toLocaleString();
-      if (visitorEl) visitorEl.textContent = formatted;
-      if (footerVisitorEl) footerVisitorEl.textContent = formatted;
+    function animateRoll(targetNum) {
+      var start = Math.max(0, targetNum - 35);
+      var duration = 900;
+      var startTime = performance.now();
+      function tick(now) {
+        var elapsed = now - startTime;
+        var progress = Math.min(elapsed / duration, 1);
+        var ease = 1 - Math.pow(1 - progress, 3);
+        var current = Math.floor(start + (targetNum - start) * ease);
+        var formatted = current.toLocaleString();
+        if (visitorEl) visitorEl.textContent = formatted;
+        if (footerVisitorEl) footerVisitorEl.textContent = formatted;
+        if (progress < 1) {
+          requestAnimationFrame(tick);
+        } else {
+          var finalFormatted = Number(targetNum).toLocaleString();
+          if (visitorEl) visitorEl.textContent = finalFormatted;
+          if (footerVisitorEl) footerVisitorEl.textContent = finalFormatted;
+        }
+      }
+      requestAnimationFrame(tick);
     }
 
-    displayCount(localCount);
+    animateRoll(localCount);
 
     var badgeUrl = 'https://api.visitorbadge.io/api/visitors?path=kristy10.github.io.kristy-gourab-sinha&countColor=%23263759';
     fetch(badgeUrl)
@@ -759,7 +776,7 @@
           if (apiCount && !isNaN(apiCount)) {
             var finalCount = apiCount + 180;
             localStorage.setItem(CACHE_KEY, finalCount);
-            displayCount(finalCount);
+            if (finalCount !== localCount) { animateRoll(finalCount); }
           }
         }
       })

@@ -46,16 +46,19 @@
       </nav>
 
             <div class="nav-actions">
-        <div class="visitor-counter-pill" title="Dynamic Page Visitors · Live Telemetry">
+        <div class="visitor-counter-pill" title="Live Visitors · Dynamic Real-time Telemetry" aria-label="Live visitors counter">
           <svg class="visitor-icon-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
             <circle cx="12" cy="12" r="3"></circle>
           </svg>
-          <span class="visitor-dot"></span>
-          <span class="visitor-label">Live Visitors:</span>
-          <span id="visitor-count" class="visitor-count tabular-nums">Loading...</span>
+          <span class="visitor-pulse-dot" aria-hidden="true">
+            <span class="dot-core"></span>
+            <span class="dot-ring"></span>
+          </span>
+          <span id="visitor-count" class="visitor-count tabular-nums">296</span>
+          <span class="visitor-badge">LIVE</span>
         </div>
-        <button id="theme-toggle" class="theme-toggle" aria-label="Toggle color theme" title="Toggle Light / Dark theme">
+        <button id="theme-toggle"  class="theme-toggle" aria-label="Toggle color theme" title="Toggle Light / Dark theme">
           <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
           </svg>
