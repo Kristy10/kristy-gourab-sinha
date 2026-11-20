@@ -1700,6 +1700,87 @@ html[data-theme="dark"] #dft-info.ok { color: #34d399; }
 .dft-scf i.run { background: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.22); animation: scf-blink .6s steps(2) infinite; }
 @keyframes scf-blink { 50% { opacity: .35; } }
 
+/* ══════════════════════════════════════════════════════════
+   AWARDS & HONOURS — summary strip + year-by-year timeline
+   ══════════════════════════════════════════════════════════ */
+.aw-wrap { max-width: 1020px; margin: 0 auto; }
+.aw-gold   { --tc: #d97706; --tt: #fff6e5; }
+.aw-silver { --tc: #64748b; --tt: #f1f5f9; }
+.aw-bronze { --tc: #b45309; --tt: #fdf1e7; }
+.aw-final  { --tc: #2563eb; --tt: #eef4ff; }
+.aw-honour { --tc: #7c3aed; --tt: #f5f0ff; }
+html[data-theme="dark"] .aw-gold   { --tc: #fbbf24; --tt: rgba(251,191,36,.12); }
+html[data-theme="dark"] .aw-silver { --tc: #cbd5e1; --tt: rgba(203,213,225,.10); }
+html[data-theme="dark"] .aw-bronze { --tc: #f0a35e; --tt: rgba(240,163,94,.12); }
+html[data-theme="dark"] .aw-final  { --tc: #7aa5ff; --tt: rgba(122,165,255,.13); }
+html[data-theme="dark"] .aw-honour { --tc: #b79cff; --tt: rgba(183,156,255,.13); }
+
+.aw-summary {
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin: 0 auto 36px; max-width: 760px; overflow: hidden;
+  background: #ffffff; border: 1px solid #e3e8ef; border-radius: 16px; box-shadow: var(--shadow-sm);
+}
+.aw-sum { position: relative; padding: 15px 8px 13px; text-align: center; border-left: 1px solid #eef1f5; }
+.aw-sum:first-child { border-left: 0; }
+.aw-sum::after { content: ""; position: absolute; left: 30%; right: 30%; bottom: 0; height: 3px; border-radius: 3px 3px 0 0; background: var(--tc); }
+.aw-sum b { display: block; font: 700 26px/1.1 var(--display); color: var(--tc); }
+.aw-sum span { display: block; margin-top: 4px; font: 600 9.5px/1.3 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink3); }
+
+.aw-timeline { position: relative; }
+.aw-timeline::before {
+  content: ""; position: absolute; top: 14px; bottom: 14px; left: 125px; width: 2px; border-radius: 2px;
+  background: linear-gradient(180deg, #f59e0b, #6366f1 55%, #a78bfa);
+  opacity: .55;
+}
+.aw-year { display: grid; grid-template-columns: 96px 28px minmax(0, 1fr); column-gap: 16px; padding-bottom: 28px; }
+.aw-year:last-child { padding-bottom: 0; }
+.aw-ylabel { text-align: right; padding-top: 4px; }
+.aw-ylabel strong { display: block; font: 700 28px/1 var(--display); color: var(--ink); letter-spacing: -.01em; }
+.aw-ylabel small { display: block; margin-top: 6px; font: 600 10px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink4); }
+.aw-rail { display: flex; justify-content: center; }
+.aw-rail i {
+  position: relative; z-index: 1; width: 16px; height: 16px; margin-top: 10px; border-radius: 50%;
+  background: #ffffff; border: 3px solid #2563eb; box-shadow: 0 0 0 5px rgba(37,99,235,.12);
+}
+.aw-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
+
+.aw-card {
+  position: relative; overflow: hidden; padding: 16px 18px 15px 20px;
+  background: #ffffff; border: 1px solid #e3e8ef; border-radius: 14px; box-shadow: var(--shadow-sm);
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+.aw-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--tc); }
+.aw-card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--tc) 45%, #e3e8ef); box-shadow: 0 14px 30px -16px var(--tc); }
+.aw-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 11px; }
+.aw-medal { width: 38px; height: 38px; border-radius: 11px; display: inline-flex; align-items: center; justify-content: center; color: var(--tc); background: var(--tt); }
+.aw-medal svg { width: 20px; height: 20px; }
+.aw-date { font: 600 10.5px/1 var(--mono); color: var(--ink3); background: var(--off2); border: 1px solid var(--off3); padding: 5px 9px; border-radius: 999px; white-space: nowrap; }
+.aw-title { margin: 0 0 4px; font: 700 16px/1.35 var(--display); color: var(--ink); }
+.aw-event { font: 600 13px/1.45 var(--display-sans); color: var(--tc); }
+.aw-desc { margin: 7px 0 0; font: 400 12.8px/1.6 var(--display-sans); color: var(--ink3); }
+
+html[data-theme="dark"] .aw-summary { background: #1c1e23; border-color: #30333b; box-shadow: none; }
+html[data-theme="dark"] .aw-sum { border-left-color: #2a2d35; }
+html[data-theme="dark"] .aw-sum:first-child { border-left: 0; }
+html[data-theme="dark"] .aw-card { background: #1c1e23; border-color: #30333b; box-shadow: none; }
+html[data-theme="dark"] .aw-card:hover { border-color: color-mix(in srgb, var(--tc) 45%, #30333b); }
+html[data-theme="dark"] .aw-rail i { background: #141518; border-color: #7aa5ff; box-shadow: 0 0 0 5px rgba(122,165,255,.14); }
+
+@media (max-width: 820px) {
+  .aw-timeline::before { left: 13px; }
+  .aw-year { grid-template-columns: 28px minmax(0, 1fr); grid-template-areas: "rail label" "rail cards"; column-gap: 12px; }
+  .aw-rail { grid-area: rail; }
+  .aw-ylabel { grid-area: label; text-align: left; display: flex; align-items: baseline; gap: 10px; padding: 6px 0 12px; }
+  .aw-ylabel small { margin-top: 0; }
+  .aw-cards { grid-area: cards; grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  .aw-summary { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .aw-sum { padding: 12px 4px 11px; }
+  .aw-sum b { font-size: 21px; }
+  .aw-sum span { font-size: 8px; letter-spacing: .03em; }
+}
+@media print { .aw-timeline::before, .aw-rail { display: none; } .aw-year { grid-template-columns: 70px 1fr; } }
+
 /* floating section scroller (bottom-right) */
 .sec-nav {
   position: fixed; right: 22px; bottom: 22px; z-index: 180;
@@ -2647,104 +2728,127 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
         <p class="section-sub">National innovation awards, international technology competition finals, and academic honors.</p>
       </div>
 
-      <div class="awards-grid reveal" style="max-width:1050px;margin:0 auto">
-        <!-- Award 1 -->
-        <div class="award-card">
-          <span class="award-icon">🏆</span>
-          <div class="award-year">Sep 2026</div>
-          <div class="award-title">Winner (Top Ten Innovators)</div>
-          <div class="award-org">Bangladesh Innovation Fair 2026</div>
-          <div class="award-desc">Organized by the Ministry of Science and Technology, Government of Bangladesh, Dhaka.</div>
+      <div class="aw-wrap reveal">
+        <!-- summary by type -->
+        <div class="aw-summary" aria-label="Awards by type">
+          <div class="aw-sum aw-gold"><b>3</b><span>Wins</span></div>
+          <div class="aw-sum aw-silver"><b>2</b><span>Runner-up</span></div>
+          <div class="aw-sum aw-bronze"><b>2</b><span>Third place</span></div>
+          <div class="aw-sum aw-final"><b>1</b><span>Int'l finalist</span></div>
+          <div class="aw-sum aw-honour"><b>3</b><span>Honours</span></div>
         </div>
 
-        <!-- Award 2 -->
-        <div class="award-card">
-          <span class="award-icon">🚀</span>
-          <div class="award-year">2026</div>
-          <div class="award-title">Finalist</div>
-          <div class="award-org">TEKNOFEST 2026 (Turkey)</div>
-          <div class="award-desc">Organized by the T3 Foundation (Turkish Technology Team Foundation) and the Ministry of Industry and Technology, Turkey.</div>
-        </div>
+        <!-- year-by-year timeline -->
+        <div class="aw-timeline">
 
-        <!-- Award 3 -->
-        <div class="award-card">
-          <span class="award-icon">🥇</span>
-          <div class="award-year">2026</div>
-          <div class="award-title">Winner</div>
-          <div class="award-org">Bangladesh ICT and Innovation Fair</div>
-          <div class="award-desc">Dhaka, Bangladesh. Awarded for breakthrough indigenous engineering and technological innovation.</div>
-        </div>
+          <div class="aw-year">
+            <div class="aw-ylabel"><strong>2026</strong><small>3 awards</small></div>
+            <div class="aw-rail" aria-hidden="true"><i></i></div>
+            <div class="aw-cards">
+              <article class="aw-card aw-gold">
+                <div class="aw-top"><span class="aw-medal" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></span><span class="aw-date">Sep 2026</span></div>
+                <h3 class="aw-title">Winner (Top Ten Innovators)</h3>
+                <div class="aw-event">Bangladesh Innovation Fair 2026</div>
+                <p class="aw-desc">Organized by the Ministry of Science and Technology, Government of Bangladesh, Dhaka.</p>
+              </article>
+              <article class="aw-card aw-final">
+                <div class="aw-top"><span class="aw-medal" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg></span><span class="aw-date">2026</span></div>
+                <h3 class="aw-title">Finalist</h3>
+                <div class="aw-event">TEKNOFEST 2026 (Turkey)</div>
+                <p class="aw-desc">Organized by the T3 Foundation (Turkish Technology Team Foundation) and the Ministry of Industry and Technology, Turkey.</p>
+              </article>
+              <article class="aw-card aw-gold">
+                <div class="aw-top"><span class="aw-medal" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></span><span class="aw-date">2026</span></div>
+                <h3 class="aw-title">Winner</h3>
+                <div class="aw-event">Bangladesh ICT and Innovation Fair</div>
+                <p class="aw-desc">Dhaka, Bangladesh. Awarded for breakthrough indigenous engineering and technological innovation.</p>
+              </article>
+            </div>
+          </div>
 
-        <!-- Award 4 -->
-        <div class="award-card">
-          <span class="award-icon">🥈</span>
-          <div class="award-year">May 2024</div>
-          <div class="award-title">Runner-up</div>
-          <div class="award-org">Nuclear Dilemma 2024</div>
-          <div class="award-desc">Organized by the Information Center on Nuclear Energy, Dhaka, focusing on nuclear energy policy and reactor safety.</div>
-        </div>
+          <div class="aw-year">
+            <div class="aw-ylabel"><strong>2024</strong><small>1 award</small></div>
+            <div class="aw-rail" aria-hidden="true"><i></i></div>
+            <div class="aw-cards">
+              <article class="aw-card aw-silver">
+                <div class="aw-top"><span class="aw-medal" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15"/><path d="M11 12 5.12 2.2"/><path d="m13 12 5.88-9.8"/><path d="M8 7h8"/><circle cx="12" cy="17" r="5"/><path d="M12 18v-2h-.5"/></svg></span><span class="aw-date">May 2024</span></div>
+                <h3 class="aw-title">Runner-up</h3>
+                <div class="aw-event">Nuclear Dilemma 2024</div>
+                <p class="aw-desc">Organized by the Information Center on Nuclear Energy, Dhaka, focusing on nuclear energy policy and reactor safety.</p>
+              </article>
+            </div>
+          </div>
 
-        <!-- Award 5 -->
-        <div class="award-card">
-          <span class="award-icon">🎖️</span>
-          <div class="award-year">Dec 2022</div>
-          <div class="award-title">1st Runner-up - Poster Presentation</div>
-          <div class="award-org">4th International Conference on Energy and Power (ICEP 2022)</div>
-          <div class="award-desc">“Computerized High-Tech Exploration Robot for Radiological Ground Surveys, Nuclear Area Observation, Radioactive Material Detection and Handling,” MIST, Dhaka.</div>
-        </div>
+          <div class="aw-year">
+            <div class="aw-ylabel"><strong>2022</strong><small>1 award</small></div>
+            <div class="aw-rail" aria-hidden="true"><i></i></div>
+            <div class="aw-cards">
+              <article class="aw-card aw-silver">
+                <div class="aw-top"><span class="aw-medal" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15"/><path d="M11 12 5.12 2.2"/><path d="m13 12 5.88-9.8"/><path d="M8 7h8"/><circle cx="12" cy="17" r="5"/><path d="M12 18v-2h-.5"/></svg></span><span class="aw-date">Dec 2022</span></div>
+                <h3 class="aw-title">1st Runner-up Poster Presentation</h3>
+                <div class="aw-event">4th International Conference on Energy and Power (ICEP 2022)</div>
+                <p class="aw-desc">Organized by Military Institute of Science and Technology and Australian Society of Energy and Power</p>
+              </article>
+            </div>
+          </div>
 
-        <!-- Award 6 -->
-        <div class="award-card">
-          <span class="award-icon">📜</span>
-          <div class="award-year">2021</div>
-          <div class="award-title">Dean's List of Honor</div>
-          <div class="award-org">Military Institute of Science and Technology (MIST)</div>
-          <div class="award-desc">Awarded for sustained academic excellence in the Department of Nuclear Science and Engineering, MIST, Dhaka.</div>
-        </div>
+          <div class="aw-year">
+            <div class="aw-ylabel"><strong>2021</strong><small>2 awards</small></div>
+            <div class="aw-rail" aria-hidden="true"><i></i></div>
+            <div class="aw-cards">
+              <article class="aw-card aw-honour">
+                <div class="aw-top"><span class="aw-medal" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg></span><span class="aw-date">2021</span></div>
+                <h3 class="aw-title">Dean's List of Honor</h3>
+                <div class="aw-event">Military Institute of Science and Technology (MIST)</div>
+                <p class="aw-desc">Awarded for sustained academic excellence in the Department of Nuclear Science and Engineering, MIST, Dhaka.</p>
+              </article>
+              <article class="aw-card aw-gold">
+                <div class="aw-top"><span class="aw-medal" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></span><span class="aw-date">Mar 2021</span></div>
+                <h3 class="aw-title">Winner</h3>
+                <div class="aw-event">Nuclear Sprint 2021</div>
+                <p class="aw-desc">Organized by the Information Center on Nuclear Energy, Dhaka, testing advanced nuclear reactor physics concepts.</p>
+              </article>
+            </div>
+          </div>
 
-        <!-- Award 7 -->
-        <div class="award-card">
-          <span class="award-icon">⚡</span>
-          <div class="award-year">Mar 2021</div>
-          <div class="award-title">Winner</div>
-          <div class="award-org">Nuclear Sprint 2021</div>
-          <div class="award-desc">Organized by the Information Center on Nuclear Energy, Dhaka, testing advanced nuclear reactor physics concepts.</div>
-        </div>
+          <div class="aw-year">
+            <div class="aw-ylabel"><strong>2018</strong><small>2 awards</small></div>
+            <div class="aw-rail" aria-hidden="true"><i></i></div>
+            <div class="aw-cards">
+              <article class="aw-card aw-bronze">
+                <div class="aw-top"><span class="aw-medal" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15"/><path d="M11 12 5.12 2.2"/><path d="m13 12 5.88-9.8"/><path d="M8 7h8"/><circle cx="12" cy="17" r="5"/><path d="M12 18v-2h-.5"/></svg></span><span class="aw-date">2018</span></div>
+                <h3 class="aw-title">3rd Place - Project Display (Mechanical)</h3>
+                <div class="aw-event">6th National Science Exposition 2018</div>
+                <p class="aw-desc">Dhaka College Science Club, Dhaka College, Dhaka.</p>
+              </article>
+              <article class="aw-card aw-honour">
+                <div class="aw-top"><span class="aw-medal" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg></span><span class="aw-date">2018</span></div>
+                <h3 class="aw-title">Award - Eco-friendly Project Event</h3>
+                <div class="aw-event">ACC National Carnival 2018</div>
+                <p class="aw-desc">Adamjee Cantonment Public School, Dhaka.</p>
+              </article>
+            </div>
+          </div>
 
-        <!-- Award 8 -->
-        <div class="award-card">
-          <span class="award-icon">🥉</span>
-          <div class="award-year">2018</div>
-          <div class="award-title">3rd Place - Project Display (Mechanical)</div>
-          <div class="award-org">6th National Science Exposition 2018</div>
-          <div class="award-desc">Dhaka College Science Club, Dhaka College, Dhaka.</div>
-        </div>
+          <div class="aw-year">
+            <div class="aw-ylabel"><strong>2016</strong><small>2 awards</small></div>
+            <div class="aw-rail" aria-hidden="true"><i></i></div>
+            <div class="aw-cards">
+              <article class="aw-card aw-honour">
+                <div class="aw-top"><span class="aw-medal" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg></span><span class="aw-date">2016</span></div>
+                <h3 class="aw-title">Award - Physical Project Event</h3>
+                <div class="aw-event">Notre Dame Annual Science Festival 2016 &amp; 26th GKC</div>
+                <p class="aw-desc">Notre Dame Science Club, Notre Dame College, Dhaka.</p>
+              </article>
+              <article class="aw-card aw-bronze">
+                <div class="aw-top"><span class="aw-medal" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15"/><path d="M11 12 5.12 2.2"/><path d="m13 12 5.88-9.8"/><path d="M8 7h8"/><circle cx="12" cy="17" r="5"/><path d="M12 18v-2h-.5"/></svg></span><span class="aw-date">2016</span></div>
+                <h3 class="aw-title">3rd Place - Chemistry Project Event</h3>
+                <div class="aw-event">9th ISTARC Science and Technology Festival 2016</div>
+                <p class="aw-desc">Ideal Science and Technology Aiming Research Council (ISTARC), Dhaka.</p>
+              </article>
+            </div>
+          </div>
 
-        <!-- Award 9 -->
-        <div class="award-card">
-          <span class="award-icon">🌿</span>
-          <div class="award-year">2018</div>
-          <div class="award-title">Award - Eco-friendly Project Event</div>
-          <div class="award-org">ACC National Carnival 2018</div>
-          <div class="award-desc">Adamjee Cantonment Public School, Dhaka.</div>
-        </div>
-
-        <!-- Award 10 -->
-        <div class="award-card">
-          <span class="award-icon">🔬</span>
-          <div class="award-year">2016</div>
-          <div class="award-title">Award - Physical Project Event</div>
-          <div class="award-org">Notre Dame Annual Science Festival 2016 &amp; 26th GKC</div>
-          <div class="award-desc">Notre Dame Science Club, Notre Dame College, Dhaka.</div>
-        </div>
-
-        <!-- Award 11 -->
-        <div class="award-card">
-          <span class="award-icon">🧪</span>
-          <div class="award-year">2016</div>
-          <div class="award-title">3rd Place - Chemistry Project Event</div>
-          <div class="award-org">9th ISTARC Science and Technology Festival 2016</div>
-          <div class="award-desc">Ideal Science and Technology Aiming Research Council (ISTARC), Dhaka.</div>
         </div>
       </div>
     </div>
