@@ -1550,27 +1550,35 @@ html[data-theme="dark"], [data-theme="dark"] body { background: var(--off); colo
 }
 
 /* ══════════════════════════════════════════════════════════
-   SOLID BACKGROUNDS — one flat colour per theme, cards stand out
-   Day:   page #f4f6fa (soft white)  · cards #ffffff + border/shadow
-   Night: page #0b0c10 (near black)  · cards #15171e + border
+   PAGE BACKGROUNDS
+   Day:   white #ffffff with a faint 40px graph-paper grid
+   Night: flat charcoal #141518
+   Cards sit on top as clearly bordered boxes.
    ══════════════════════════════════════════════════════════ */
 html[data-theme="light"] {
-  --off:  #f4f6fa;  --white: #ffffff;  --off2: #eef1f6;  --off3: #dfe4ec;
+  --off:  #f7f8fa;  --white: #ffffff;  --off2: #f1f4f8;  --off3: #e2e8f0;
   --shadow-sm: 0 1px 2px rgba(15,23,42,.06), 0 1px 3px rgba(15,23,42,.05);
   --shadow:    0 4px 14px rgba(15,23,42,.07), 0 1px 3px rgba(15,23,42,.05);
 }
 html[data-theme="dark"] {
-  --off:  #0b0c10;  --white: #15171e;  --off2: #1c1f28;  --off3: #2b2f3a;
-  --blue-light: #16203a;
+  --off:  #141518;  --white: #1c1e23;  --off2: #23262c;  --off3: #30333b;
+  --blue-light: #1a2440;
 }
-html[data-theme="light"], html[data-theme="light"] body { background: #f4f6fa; }
-html[data-theme="dark"],  html[data-theme="dark"] body  { background: #0b0c10; }
+html[data-theme="light"] { background: #ffffff; }
+html[data-theme="light"] body {
+  background-color: #ffffff;
+  background-image:
+    linear-gradient(rgba(226,232,240,.24) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(226,232,240,.24) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+html[data-theme="dark"], html[data-theme="dark"] body { background: #141518; }
 html[data-theme] #hero,
 html[data-theme] .section-alt { background: transparent; border-top: 0; border-bottom: 0; }
 #hero .hero-bg, #hero .hero-grid-bg { display: none; }
-html[data-theme="light"] #nav { background: #ffffff; border-bottom: 1px solid #e3e8ef; }
-html[data-theme="dark"]  #nav { background: #0b0c10; border-bottom: 1px solid #22252e; }
-html[data-theme="dark"] footer { background: #0b0c10 !important; border-top: 1px solid #22252e; }
+html[data-theme="light"] #nav { background: #ffffff; border-bottom: 1px solid #e8edf3; }
+html[data-theme="dark"]  #nav { background: #141518; border-bottom: 1px solid #262930; }
+html[data-theme="dark"] footer { background: #141518 !important; border-top: 1px solid #262930; }
 
 /* cards: clearly visible boxes on the flat page */
 html[data-theme="light"] :is(.pub-card, .service-card, .course-card, .thesis-card, .news-card, .proj-card,
@@ -1581,7 +1589,7 @@ html[data-theme="light"] :is(.pub-card, .service-card, .course-card, .thesis-car
 html[data-theme="dark"] :is(.pub-card, .service-card, .course-card, .thesis-card, .news-card, .proj-card,
   .team-card, .mem-card, .exp-card, .award-card, .talk-card, .media-card, .research-card, .edu-card,
   .reviewer-card, .sir-proj-card, .skills-box-card, .contact-card, .stat-card, .stat-row, .hero-photo-card) {
-  background: #15171e; border-color: #2b2f3a; box-shadow: none;
+  background: #1c1e23; border-color: #30333b; box-shadow: none;
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -1598,7 +1606,7 @@ html[data-theme="dark"] :is(.pub-card, .service-card, .course-card, .thesis-card
 }
 html[data-theme="dark"] .crystal-hero-wrapper {
   background:
-    linear-gradient(#15171e, #15171e) padding-box,
+    linear-gradient(#1c1e23, #1c1e23) padding-box,
     linear-gradient(140deg, #6366f1, #a855f7 40%, #2dd4bf 75%, #fbbf24) border-box;
   border-color: transparent;
   box-shadow: 0 18px 50px -20px rgba(99,102,241,.5);
@@ -2733,7 +2741,7 @@ html[data-theme="dark"] #dft-info.ok { color: #34d399; }
   <!-- Three.js removed: using native Canvas 2D crystal -->
 
   <!-- Complete script.js -->
-  <script src="script.js?v=dft-solid-13"></script>
+  <script src="script.js?v=dft-grid-14"></script>
 
   <!-- Dynamic Functions -->
   <script>
