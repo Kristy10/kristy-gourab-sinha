@@ -141,12 +141,14 @@
   };
 
   // ═══════════════════════════════════════════════════════════════════
-  // Hero visual: schematic DFT (CASTEP-style) surface-adsorption study
-  //  - BCC (100) slab in a periodic supercell with vacuum, thermal (AIMD)
-  //    vibration, gas atoms landing in 4-fold hollows, Δρ lobes
-  //  - live PDOS and planar-averaged potential (work function) panels
-  //    that respond to surface coverage θ, plus an SCF/MD readout
-  //  - drag to rotate, tap to dose gas; colours follow light/dark theme
+  // Hero visual: schematic DFT (CASTEP-style) surface workflow, looped
+  //   0 SC cell   – simple cubic unit cell pops in
+  //   1 Supercell – cell is repeated into a 2×2×2 supercell
+  //   2 Slab      – (001) slab is cleaved and a vacuum gap opens
+  //   3 Relax ✓   – BFGS relaxation until |F|max converges (check)
+  //   4 Adsorb    – AIMD: gas atoms land in 4-fold hollows, Δρ lobes
+  // Live PDOS and planar-averaged potential (work function) panels follow
+  // each stage. Drag to rotate · tap to advance / dose gas · click a step.
   // ═══════════════════════════════════════════════════════════════════
   function initCrystalAnimation() {
     const canvas = document.getElementById('crystal-canvas');
@@ -154,14 +156,21 @@
     if (!canvas || !stage || !canvas.getContext) return;
     const ctx = canvas.getContext('2d');
     const $ = id => document.getElementById(id);
-    const thetaEl = $('crystal-theta'), phiEl = $('dft-phi'), eadsEl = $('dft-eads');
+    const wrap = stage.closest('.crystal-hero-wrapper') || stage;
+    const thetaEl = $('crystal-theta'), phiEl = $('dft-phi'), infoEl = $('dft-info');
     const scfN = $('dft-scf-n'), scfDE = $('dft-scf-de'), scfDot = $('dft-scf-dot');
-    const tempEl = $('dft-temp'), timeEl = $('dft-time');
+    const tempEl = $('dft-temp'), timeEl = $('dft-time'), barEl = $('dft-step-bar');
+    const stepEls = Array.from(wrap.querySelectorAll('.dft-step'));
     const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
     const TAU = Math.PI * 2;
     const isDark = () => document.documentElement.getAttribute('data-theme') === 'dark';
+    const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+    const ease = u => u * u * (3 - 2 * u);
+    const easeBack = u => { const c = 1.9; return 1 + (c + 1) * Math.pow(u - 1, 3) + c * Math.pow(u - 1, 2); };
+    const lerp = (a, b, t) => a + (b - a) * t;
+    const rnd = (a, b) => a + Math.random() * (b - a);
 
-    // ── Canvas sizing (main 3D view) ──
+    // ── Canvas sizing ──
     let W = 1, H = 1, A = 40;
     function fit(cv, c2) {
       const r = cv.getBoundingClientRect();
@@ -171,467 +180,572 @@
       c2.setTransform(dpr, 0, 0, dpr, 0, 0);
       return [w, h];
     }
-    function resize() {
-      [W, H] = fit(canvas, ctx);
-      A = Math.max(18, Math.min((W - 40) / 3.5, (H - 104) / 4.1));
-    }
+    function resize() { [W, H] = fit(canvas, ctx); A = Math.max(18, Math.min((W - 30) / 3.9, (H - 96) / 4.9)); }
     resize();
-
-    // ── Plot canvases ──
     const plots = [$('dft-dos'), $('dft-wf')].filter(Boolean).map(cv => ({ cv, c: cv.getContext('2d'), w: 1, h: 1 }));
-    function resizePlots() { plots.forEach(p => { [p.w, p.h] = fit(p.cv, p.c); }); }
-    resizePlots();
+    plots.forEach(p => { [p.w, p.h] = fit(p.cv, p.c); });
     if ('ResizeObserver' in window) {
       new ResizeObserver(resize).observe(stage);
       plots.forEach(p => new ResizeObserver(() => { [p.w, p.h] = fit(p.cv, p.c); }).observe(p.cv));
-    } else window.addEventListener('resize', () => { resize(); resizePlots(); });
+    } else window.addEventListener('resize', () => { resize(); plots.forEach(p => { [p.w, p.h] = fit(p.cv, p.c); }); });
 
-    // ── Geometry (world units = lattice constant a; y points up) ──
-    const N = 3, LAYERS = 3, H_ADS = 0.30, TOP = 1, HALF = (N - 1) / 2;
-    const BOX = { x: HALF, yMin: TOP - (LAYERS - 1) - 0.18, yMax: 2.78 };
-    const corners = [], bodies = [], edges = [], sites = [];
-    const cIdx = (i, j, k) => (j * N + i) * N + k;
-    const rnd = (a, b) => a + Math.random() * (b - a);
-    const vib = () => ({ p1: rnd(0, TAU), p2: rnd(0, TAU), p3: rnd(0, TAU), w: rnd(5, 8) });
-    for (let j = 0; j < LAYERS; j++)
-      for (let i = 0; i < N; i++)
-        for (let k = 0; k < N; k++)
-          corners.push(Object.assign({ x: i - HALF, y: TOP - j, z: k - HALF, body: false, surf: j === 0 }, vib()));
-    for (let j = 0; j < LAYERS - 1; j++)
-      for (let i = 0; i < N - 1; i++)
-        for (let k = 0; k < N - 1; k++)
-          bodies.push(Object.assign({ x: i - HALF + 0.5, y: TOP - 0.5 - j, z: k - HALF + 0.5, body: true }, vib()));
-    for (let j = 0; j < LAYERS; j++)
+    // ── Geometry: simple cubic, 3×3×3 lattice points (2×2×2 cells) ──
+    const N = 3, HALF = 1, TOP = 1, H_ADS = 0.4;
+    const atoms = [], edges = [], sites = [];
+    const aIdx = (i, j, k) => (j * N + i) * N + k;
+    for (let j = 0; j < N; j++)
       for (let i = 0; i < N; i++)
         for (let k = 0; k < N; k++) {
-          if (i < N - 1) edges.push([cIdx(i, j, k), cIdx(i + 1, j, k)]);
-          if (k < N - 1) edges.push([cIdx(i, j, k), cIdx(i, j, k + 1)]);
-          if (j < LAYERS - 1) edges.push([cIdx(i, j, k), cIdx(i, j + 1, k)]);
+          const unit = i < 2 && j < 2 && k < 2;
+          const ui = Math.min(i, 1), uj = Math.min(j, 1), uk = Math.min(k, 1);
+          atoms.push({
+            tx: i - HALF, ty: TOP - j, tz: k - HALF,                  // lattice position in the slab
+            sx: ui - 0.5, sy: 0.5 - uj, sz: uk - 0.5,                 // position inside the lone unit cell
+            unit, top: j === 0, pop: (ui + uj * 2 + uk * 4) * 0.13,   // pop-in order of the 8 corners
+            delay: (Math.abs(i - 0.5) + Math.abs(j - 0.5) + Math.abs(k - 0.5) - 1.5) * 0.3,
+            p1: rnd(0, TAU), p2: rnd(0, TAU), p3: rnd(0, TAU), w: rnd(5, 8), kick: 9,
+            x: 0, y: 0, z: 0, s: 0
+          });
+        }
+    for (let j = 0; j < N; j++)
+      for (let i = 0; i < N; i++)
+        for (let k = 0; k < N; k++) {
+          if (i < N - 1) edges.push([aIdx(i, j, k), aIdx(i + 1, j, k)]);
+          if (k < N - 1) edges.push([aIdx(i, j, k), aIdx(i, j, k + 1)]);
+          if (j < N - 1) edges.push([aIdx(i, j, k), aIdx(i, j + 1, k)]);
         }
     for (let i = 0; i < N - 1; i++)
       for (let k = 0; k < N - 1; k++)
-        sites.push({
-          i, k, x: i - HALF + 0.5, y: TOP + H_ADS, z: k - HALF + 0.5, occ: null, res: null,
-          nb: [cIdx(i, 0, k), cIdx(i + 1, 0, k), cIdx(i, 0, k + 1), cIdx(i + 1, 0, k + 1)]
-        });
-    const atoms = corners.concat(bodies);
-    // supercell box corners + edges
-    const bx = [];
-    [BOX.yMin, BOX.yMax].forEach(y => [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([sx, sz]) => bx.push({ x: sx * BOX.x, y, z: sz * BOX.x })));
-    const bEdges = [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4], [0, 4], [1, 5], [2, 6], [3, 7]];
+        sites.push({ i, k, x: i - HALF + 0.5, y: TOP + H_ADS, z: k - HALF + 0.5, occ: null, res: null,
+          nb: [aIdx(i, 0, k), aIdx(i + 1, 0, k), aIdx(i, 0, k + 1), aIdx(i + 1, 0, k + 1)] });
+
+    // ── Workflow phases ──
+    const PH = [
+      { d: 3.4, info: 'Pm-3m · a = 3.35 Å' },
+      { d: 3.0, info: '2×2×2 supercell · 27 atoms' },
+      { d: 3.0, info: '(001) slab · 15 Å vacuum' },
+      { d: 5.0, info: 'BFGS relaxation…' },
+      { d: 24,  info: 'dosing gas…' }
+    ];
+    let ph = 0, pt = 0, fadeOut = 0;
+    let zoom = 1.5, TY = 0, yaw = 0.62, pitch = 0.5, yawVel = 0;
+    let boxA = 0, boxTop = 1.3, vac = 0, surfMix = 0, relaxDy = 0, fmax = 1, thetaS = 0, phiSettle = 0;
+    let simT = 0, clock = 0, eads = null;
+    const AUTO = reduceMotion ? 0.06 : 0.24;
+    const BX = 1.5, BOT = -1.3, TOPV = 2.95;
+    let mobiles = [], flashes = [], sparks = [];
+
+    function setInfo(t, ok) { if (infoEl) { infoEl.textContent = t; infoEl.classList.toggle('ok', !!ok); } }
+    function resetAll() {
+      sites.forEach(s => { s.occ = null; s.res = null; });
+      mobiles = []; flashes = []; sparks = []; thetaS = 0; eads = null; fadeOut = 0;
+      boxA = 0; boxTop = 1.3; vac = 0; surfMix = 0; relaxDy = 0; fmax = 1; simT = 0;
+    }
+    function setPhase(n) {
+      ph = n; pt = 0;
+      setInfo(PH[n].info);
+      if (n === 0) resetAll();
+      if (n === 4) {
+        mobiles = Array.from({ length: 5 }, () => makeGas(true));
+      }
+      startSCF();
+      stepEls.forEach((el, i) => { el.classList.toggle('on', i === n); el.classList.toggle('done', i < n); });
+    }
+
+    // ── SCF bookkeeping ──
+    const scf = { n: 0, target: 14, t: 0, run: false, de: 0 };
+    function startSCF() {
+      scf.run = true; scf.n = 0; scf.t = 0; scf.target = 10 + Math.floor(Math.random() * 8);
+      if (scfDot) scfDot.classList.add('run');
+    }
+    function stepSCF(dt) {
+      if (!scf.run) return;
+      scf.t += dt;
+      while (scf.t > 0.07 && scf.n < scf.target) {
+        scf.t -= 0.07; scf.n++;
+        scf.de = Math.pow(10, -(0.3 + scf.n * 0.43)) * rnd(0.6, 1.6);
+      }
+      if (scf.n >= scf.target) {
+        scf.run = false;
+        if (scfDot) scfDot.classList.remove('run');
+        if (ph === 4 && eads !== null) setInfo('E_ads = −' + Math.abs(eads).toFixed(2) + ' eV');
+      }
+      if (scfN) scfN.textContent = scf.n;
+      if (scfDE) scfDE.textContent = scf.n ? scf.de.toExponential(1) : '—';
+    }
+
+    // ── Adsorbates ──
+    const GAS = { x: 1.0, yMin: 1.95, yMax: 2.6 };
+    function makeGas(fresh) {
+      return {
+        x: rnd(-GAS.x, GAS.x), y: rnd(GAS.yMin, GAS.yMax), z: rnd(-GAS.x, GAS.x),
+        vx: rnd(-0.6, 0.6), vy: rnd(-0.2, 0.2), vz: rnd(-0.6, 0.6),
+        state: 'gas', timer: fresh ? rnd(0.5, 2.6) : rnd(1.5, 4), mix: 0, site: null, t: 0, dur: 1, from: null,
+        bond: 0, ph: rnd(0, TAU), born: 0, trail: []
+      };
+    }
+    const freeSites = () => sites.filter(s => !s.occ && !s.res);
+    const coverage = () => sites.filter(s => s.occ).length / sites.length;
+    function startMove(m, site, state, dur) { m.state = state; m.site = site; m.t = 0; m.dur = dur; m.from = { x: m.x, y: m.y, z: m.z }; site.res = m; }
+    function land(m, big) {
+      const s = m.site; s.res = null; s.occ = m;
+      m.state = 'ads'; m.x = s.x; m.y = s.y; m.z = s.z; m.timer = rnd(4, 9);
+      flashes.push({ x: s.x, z: s.z, t: 0, big });
+      if (big) {
+        s.nb.forEach(ix => { atoms[ix].kick = 0; });
+        for (let n = 0; n < 12; n++) {
+          const a = n / 12 * TAU + rnd(-0.2, 0.2), sp = rnd(0.6, 1.3);
+          sparks.push({ x: s.x, y: s.y, z: s.z, vx: Math.cos(a) * sp, vy: rnd(0.6, 1.4), vz: Math.sin(a) * sp, life: 1 });
+        }
+        eads = -1.62 + 0.36 * coverage() + rnd(-0.05, 0.05);
+        startSCF();
+      }
+    }
+    function seek(m) {
+      const fs = freeSites(); if (!fs.length) { m.timer = rnd(0.6, 1.5); return; }
+      fs.sort((a, b) => ((a.x - m.x) ** 2 + (a.z - m.z) ** 2) - ((b.x - m.x) ** 2 + (b.z - m.z) ** 2));
+      startMove(m, fs[Math.random() < 0.7 ? 0 : Math.floor(Math.random() * fs.length)], 'approach', rnd(0.8, 1.2));
+    }
+    function updateMobile(m, dt) {
+      m.born = Math.min(1, m.born + dt * 2.5);
+      m.mix += (((m.state === 'ads' || m.state === 'hop') ? 1 : 0) - m.mix) * Math.min(1, dt * 5);
+      m.bond += ((m.state === 'ads' ? 1 : 0) - m.bond) * Math.min(1, dt * 6);
+      m.ph += dt * 9;
+      if (m.state === 'gas') {
+        m.vx += rnd(-1, 1) * dt * 1.8; m.vy += rnd(-1, 1) * dt * 1.0; m.vz += rnd(-1, 1) * dt * 1.8;
+        const sp = Math.hypot(m.vx, m.vy, m.vz), max = 0.85;
+        if (sp > max) { m.vx *= max / sp; m.vy *= max / sp; m.vz *= max / sp; }
+        m.x += m.vx * dt; m.y += m.vy * dt; m.z += m.vz * dt;
+        if (Math.abs(m.x) > GAS.x) { m.x = Math.sign(m.x) * GAS.x; m.vx *= -1; }
+        if (Math.abs(m.z) > GAS.x) { m.z = Math.sign(m.z) * GAS.x; m.vz *= -1; }
+        if (m.y > GAS.yMax) { m.y = GAS.yMax; m.vy = -Math.abs(m.vy); }
+        if (m.y < GAS.yMin) m.vy += dt * 3;
+        if ((m.timer -= dt) <= 0) seek(m);
+      } else if (m.state === 'approach' || m.state === 'hop') {
+        m.t += dt / m.dur;
+        const u = Math.min(1, m.t), s = m.site, f = m.from;
+        if (m.state === 'approach') {
+          const e = Math.pow(u, 1.8), c = { x: s.x, y: Math.max(f.y, s.y + 0.9), z: s.z };
+          const a = (1 - e) * (1 - e), b = 2 * (1 - e) * e, d = e * e;
+          m.x = a * f.x + b * c.x + d * s.x; m.y = a * f.y + b * c.y + d * s.y; m.z = a * f.z + b * c.z + d * s.z;
+        } else {
+          const e = ease(u);
+          m.x = f.x + (s.x - f.x) * e; m.z = f.z + (s.z - f.z) * e; m.y = s.y + Math.sin(Math.PI * e) * 0.34;
+        }
+        if (u >= 1) land(m, m.state === 'approach');
+      } else if (m.state === 'ads') {
+        m.y = m.site.y + relaxDy + Math.sin(m.ph) * 0.024;
+        if ((m.timer -= dt) <= 0) {
+          m.site.occ = null; m.site = null;
+          m.state = 'gas'; m.vy = rnd(1.0, 1.4); m.vx = rnd(-0.4, 0.4); m.vz = rnd(-0.4, 0.4); m.timer = rnd(2, 4.5);
+        } else if (Math.random() < dt * 0.12) {
+          const nbs = sites.filter(s => !s.occ && !s.res && Math.abs(s.i - m.site.i) + Math.abs(s.k - m.site.k) === 1);
+          if (nbs.length) { const to = nbs[Math.floor(Math.random() * nbs.length)]; m.site.occ = null; startMove(m, to, 'hop', 0.55); }
+        }
+      }
+      m.trail.push({ x: m.x, y: m.y, z: m.z });
+      if (m.trail.length > 12) m.trail.shift();
+    }
+    function dose() { mobiles.forEach(m => { if (m.state === 'gas') m.timer = rnd(0, 0.3); }); }
+
+    // ── Per-frame physics of the build/relax stages ──
+    function stepWorld(dt) {
+      pt += dt;
+      const d = PH[ph].d, u = clamp(pt / d);
+      const zT = [1.55, 1.02, 0.94, 0.94, 0.94][ph];
+      const tyT = ph < 2 ? 0 : (BOT + TOPV) / 2;
+      zoom += (zT - zoom) * Math.min(1, dt * 2.2);
+      TY += (tyT - TY) * Math.min(1, dt * 2.2);
+      if (ph === 1) boxA = ease(clamp(u * 1.6 - 0.4));
+      if (ph >= 2) boxA = 1;
+      if (ph === 2) { vac = ease(clamp(u * 1.25)); boxTop = lerp(1.3, TOPV, vac); surfMix = vac; }
+      if (ph >= 3) { vac = 1; boxTop = TOPV; surfMix = 1; }
+      if (ph === 3) {
+        const t = pt;
+        relaxDy = -0.07 * (1 - Math.exp(-2.4 * t)) + 0.06 * Math.exp(-1.8 * t) * Math.sin(8 * t);
+        fmax = 0.85 * Math.exp(-1.3 * t) + 0.012;
+        phiSettle = 0.7 * Math.exp(-1.3 * t) * Math.cos(6 * t);
+        const step = Math.min(18, 1 + Math.floor(t / 0.24));
+        if (fmax > 0.03) setInfo('BFGS ' + step + ' · |F|max ' + fmax.toFixed(3) + ' eV/Å');
+        else setInfo('✓ converged · |F|max ' + fmax.toFixed(3), true);
+      } else if (ph < 3) { relaxDy = 0; phiSettle = 0; }
+      else { phiSettle = 0; relaxDy = -0.07; }
+      if (ph === 4) {
+        mobiles.forEach(m => updateMobile(m, dt));
+        thetaS += (coverage() - thetaS) * Math.min(1, dt * 2.4);
+      }
+      for (let n = flashes.length - 1; n >= 0; n--) { flashes[n].t += dt / 0.8; if (flashes[n].t >= 1) flashes.splice(n, 1); }
+      for (let n = sparks.length - 1; n >= 0; n--) {
+        const s = sparks[n]; s.x += s.vx * dt; s.y += s.vy * dt; s.z += s.vz * dt; s.vy -= dt * 3; s.life -= dt / 0.75;
+        if (s.life <= 0) sparks.splice(n, 1);
+      }
+      atoms.forEach(a => { a.kick += dt; });
+      // atom positions for this frame
+      const amp = reduceMotion ? 0.01 : [0.012, 0.014, 0.018, 0.024, 0.036][ph];
+      atoms.forEach(a => {
+        let x, y, z, s;
+        if (ph === 0) {
+          x = a.sx; y = a.sy; z = a.sz;
+          s = a.unit ? easeBack(clamp((pt - a.pop) / 0.45)) : 0;
+        } else if (ph === 1) {
+          const v = clamp(u * 1.75 - a.delay), e = ease(v);
+          x = lerp(a.sx, a.tx, e); y = lerp(a.sy, a.ty, e); z = lerp(a.sz, a.tz, e);
+          s = a.unit ? 1 : clamp(v * 3);
+        } else { x = a.tx; y = a.ty; z = a.tz; s = 1; }
+        if (a.top && ph >= 3) y += relaxDy;
+        if (a.kick < 1.5) y -= 0.09 * Math.exp(-4 * a.kick) * Math.cos(16 * a.kick);
+        x += amp * Math.sin(clock * a.w + a.p1);
+        y += amp * 0.8 * Math.sin(clock * a.w * 1.13 + a.p2);
+        z += amp * Math.sin(clock * a.w * 0.91 + a.p3);
+        a.x = x; a.y = y; a.z = z; a.s = s;
+      });
+      if (pt >= d) {
+        if (ph < 4) setPhase(ph + 1);
+        else if (fadeOut === 0) fadeOut = 0.0001;
+      }
+      if (fadeOut > 0) { fadeOut += dt / 0.9; if (fadeOut >= 1) { fadeOut = 0; setPhase(0); } }
+    }
 
     // ── Camera ──
-    let yaw = 0.62, pitch = 0.5, yawVel = 0;
-    const AUTO = reduceMotion ? 0.05 : 0.2;
-    const F = 10, TY = (BOX.yMin + BOX.yMax) / 2;
     function project(x, y, z) {
       const cy = Math.cos(yaw), sy = Math.sin(yaw);
       const x1 = x * cy - z * sy, z1 = x * sy + z * cy;
       const yy = y - TY;
       const cp = Math.cos(pitch), sp = Math.sin(pitch);
       const y2 = yy * cp + z1 * sp, z2 = -yy * sp + z1 * cp;
-      const s = A * F / (F + z2);
-      return { sx: W / 2 + x1 * s, sy: H / 2 + 2 - y2 * s, z: z2, s };
+      const F = 10, s = A * zoom * F / (F + z2);
+      return { sx: W / 2 + x1 * s, sy: H / 2 + 4 - y2 * s, z: z2, s };
     }
 
-    // ── Theme palette ──
+    // ── Palette ──
     function hex(h) { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
     function mixc(a, b, t) { return 'rgb(' + a.map((v, i) => Math.round(v + (b[i] - v) * t)).join(',') + ')'; }
     const PAL = {
       light: {
-        host: ['#4f63e6', '#eef0ff', '#1e2a8a'], surf: ['#7c5cf0', '#f3eeff', '#3b1d9a'], body: ['#38a3e8', '#ffffff', '#0b5a96'],
+        host: ['#3b6fe0', '#eaf1ff', '#16348f'], surf: ['#7c4ddb', '#f3ecff', '#3b1a8f'],
         gas: ['#f59e0b', '#fff6dc', '#b45309'], ads: ['#e11d48', '#ffe4ea', '#881337'],
-        edge: '79,70,229', edgeA: 0.36, box: '124,58,237', site: '16,150,110', shadow: '30,27,75', glow: '244,63,94',
-        rhoP: '234,179,8', rhoM: '6,182,212', text: '#64748b'
+        edge: '59,92,190', edgeA: 0.42, box: '124,58,237', site: '5,150,105', shadow: '15,23,42', glow: '225,29,72',
+        rhoP: '234,179,8', rhoM: '6,182,212', text: '#64748b', ok: '#059669', bg: '#f6f8fb'
       },
       dark: {
-        host: ['#818cf8', '#f1f2ff', '#3730a3'], surf: ['#a78bfa', '#faf5ff', '#5b21b6'], body: ['#38bdf8', '#ffffff', '#0369a1'],
+        host: ['#6d8ff7', '#f0f4ff', '#26409e'], surf: ['#a78bfa', '#faf5ff', '#5b21b6'],
         gas: ['#fbbf24', '#fff8e3', '#b45309'], ads: ['#fb7185', '#fff1f2', '#9f1239'],
-        edge: '165,180,252', edgeA: 0.32, box: '196,181,253', site: '52,211,153', shadow: '0,0,0', glow: '251,113,133',
-        rhoP: '250,204,21', rhoM: '34,211,238', text: '#94a3b8'
+        edge: '165,180,252', edgeA: 0.34, box: '196,181,253', site: '52,211,153', shadow: '0,0,0', glow: '251,113,133',
+        rhoP: '250,204,21', rhoM: '34,211,238', text: '#94a3b8', ok: '#34d399', bg: '#0e1016'
       }
     };
-    for (const k in PAL) ['host', 'surf', 'body', 'gas', 'ads'].forEach(n => { PAL[k][n + 'RGB'] = PAL[k][n].map(hex); });
-
-    // ── Adsorbates ──
-    const GAS_BOX = { x: 0.95, yMin: 1.85, yMax: 2.5 };
-    const flashes = [];
-    function freeSites() { return sites.filter(s => !s.occ && !s.res); }
-    function makeGas() {
-      return {
-        x: rnd(-GAS_BOX.x, GAS_BOX.x), y: rnd(GAS_BOX.yMin, GAS_BOX.yMax), z: rnd(-GAS_BOX.x, GAS_BOX.x),
-        vx: rnd(-0.5, 0.5), vy: rnd(-0.2, 0.2), vz: rnd(-0.5, 0.5),
-        state: 'gas', timer: rnd(0.8, 3.5), mix: 0, site: null, t: 0, dur: 1, from: null, bond: 0, ph: rnd(0, TAU)
-      };
-    }
-    const mobiles = Array.from({ length: 5 }, makeGas);
-    mobiles.slice(0, 2).forEach(m => {
-      const fs = freeSites(); const s = fs[Math.floor(Math.random() * fs.length)];
-      Object.assign(m, { state: 'ads', site: s, x: s.x, y: s.y, z: s.z, mix: 1, bond: 1, timer: rnd(2, 7) });
-      s.occ = m;
-    });
-    const coverage = () => sites.filter(s => s.occ).length / sites.length;
-
-    // ── SCF / MD bookkeeping ──
-    const scf = { n: 14, target: 14, t: 0, run: false, de: 8.2e-7 };
-    let eads = -1.42, simT = 0, clock = 0, thetaS = coverage();
-    function startSCF() {
-      scf.run = true; scf.n = 0; scf.t = 0; scf.target = 11 + Math.floor(Math.random() * 7);
-      if (scfDot) scfDot.classList.add('run');
-    }
-    function stepSCF(dt) {
-      if (!scf.run) return;
-      scf.t += dt;
-      while (scf.t > 0.085 && scf.n < scf.target) {
-        scf.t -= 0.085; scf.n++;
-        scf.de = Math.pow(10, -(0.4 + scf.n * 0.42)) * rnd(0.6, 1.6);
-      }
-      if (scf.n >= scf.target) {
-        scf.run = false;
-        eads = -1.58 + 0.32 * coverage() + rnd(-0.05, 0.05);
-        if (eadsEl) eadsEl.textContent = '−' + Math.abs(eads).toFixed(2);
-        if (scfDot) scfDot.classList.remove('run');
-      }
-      if (scfN) scfN.textContent = scf.n;
-      if (scfDE) scfDE.textContent = scf.de.toExponential(1);
-    }
-
-    function startMove(m, site, state, dur) {
-      m.state = state; m.site = site; m.t = 0; m.dur = dur;
-      m.from = { x: m.x, y: m.y, z: m.z };
-      site.res = m;
-    }
-    function land(m, big) {
-      const s = m.site; s.res = null; s.occ = m;
-      m.state = 'ads'; m.x = s.x; m.y = s.y; m.z = s.z; m.timer = rnd(3.5, 8.5);
-      flashes.push({ x: s.x, z: s.z, t: 0, big });
-      if (big) startSCF();
-    }
-    function seek(m) {
-      const fs = freeSites(); if (!fs.length) { m.timer = rnd(0.6, 1.5); return; }
-      fs.sort((a, b) => ((a.x - m.x) ** 2 + (a.z - m.z) ** 2) - ((b.x - m.x) ** 2 + (b.z - m.z) ** 2));
-      const pick = fs[Math.random() < 0.7 ? 0 : Math.floor(Math.random() * fs.length)];
-      startMove(m, pick, 'approach', rnd(0.9, 1.4));
-    }
-    function update(m, dt) {
-      const target = (m.state === 'ads' || m.state === 'hop') ? 1 : 0;
-      m.mix += (target - m.mix) * Math.min(1, dt * 5);
-      m.bond += ((m.state === 'ads' ? 1 : 0) - m.bond) * Math.min(1, dt * 6);
-      m.ph += dt * 9;
-      if (m.state === 'gas') {
-        m.vx += rnd(-1, 1) * dt * 1.6; m.vy += rnd(-1, 1) * dt * 1.0; m.vz += rnd(-1, 1) * dt * 1.6;
-        const sp = Math.hypot(m.vx, m.vy, m.vz), max = 0.75;
-        if (sp > max) { m.vx *= max / sp; m.vy *= max / sp; m.vz *= max / sp; }
-        m.x += m.vx * dt; m.y += m.vy * dt; m.z += m.vz * dt;
-        if (Math.abs(m.x) > GAS_BOX.x) { m.x = Math.sign(m.x) * GAS_BOX.x; m.vx *= -1; }
-        if (Math.abs(m.z) > GAS_BOX.x) { m.z = Math.sign(m.z) * GAS_BOX.x; m.vz *= -1; }
-        if (m.y > GAS_BOX.yMax) { m.y = GAS_BOX.yMax; m.vy = -Math.abs(m.vy); }
-        if (m.y < GAS_BOX.yMin) { m.vy += dt * 3; }
-        m.timer -= dt;
-        if (m.timer <= 0) seek(m);
-      } else if (m.state === 'approach' || m.state === 'hop') {
-        m.t += dt / m.dur;
-        const u = Math.min(1, m.t), s = m.site, f = m.from;
-        if (m.state === 'approach') {
-          const e = Math.pow(u, 1.7);
-          const c = { x: s.x, y: Math.max(f.y, s.y + 0.9), z: s.z };
-          const a = (1 - e) * (1 - e), b = 2 * (1 - e) * e, d = e * e;
-          m.x = a * f.x + b * c.x + d * s.x; m.y = a * f.y + b * c.y + d * s.y; m.z = a * f.z + b * c.z + d * s.z;
-        } else {
-          const e = u * u * (3 - 2 * u);
-          m.x = f.x + (s.x - f.x) * e; m.z = f.z + (s.z - f.z) * e; m.y = s.y + Math.sin(Math.PI * e) * 0.32;
-        }
-        if (u >= 1) land(m, m.state === 'approach');
-      } else if (m.state === 'ads') {
-        m.y = m.site.y + Math.sin(m.ph) * 0.022;
-        m.timer -= dt;
-        if (m.timer <= 0) {
-          m.site.occ = null; m.site = null;
-          m.state = 'gas'; m.vy = rnd(0.9, 1.3); m.vx = rnd(-0.4, 0.4); m.vz = rnd(-0.4, 0.4);
-          m.timer = rnd(2.2, 5);
-        } else if (Math.random() < dt * 0.1) {
-          const nbs = sites.filter(s => !s.occ && !s.res && Math.abs(s.i - m.site.i) + Math.abs(s.k - m.site.k) === 1);
-          if (nbs.length) {
-            const to = nbs[Math.floor(Math.random() * nbs.length)];
-            m.site.occ = null; startMove(m, to, 'hop', 0.6);
-          }
-        }
-      }
-    }
-    function dose() { mobiles.forEach(m => { if (m.state === 'gas') m.timer = rnd(0, 0.35); }); }
+    for (const k in PAL) ['host', 'surf', 'gas', 'ads'].forEach(n => { PAL[k][n + 'RGB'] = PAL[k][n].map(hex); });
 
     // ── Drawing helpers ──
     function sphere(p, rU, pal, alpha) {
       const r = rU * p.s; if (r < 0.5) return;
       const g = ctx.createRadialGradient(p.sx - r * 0.38, p.sy - r * 0.42, r * 0.06, p.sx, p.sy, r);
       g.addColorStop(0, pal[1]); g.addColorStop(0.42, pal[0]); g.addColorStop(1, pal[2]);
-      ctx.globalAlpha = alpha;
-      ctx.beginPath(); ctx.arc(p.sx, p.sy, r, 0, TAU); ctx.fillStyle = g; ctx.fill();
+      ctx.globalAlpha = alpha; ctx.beginPath(); ctx.arc(p.sx, p.sy, r, 0, TAU); ctx.fillStyle = g; ctx.fill();
     }
     function blob(p, rU, rgb, a) {
-      const r = rU * p.s; if (r < 0.5) return;
+      const r = rU * p.s; if (r < 0.5 || a <= 0) return;
       const g = ctx.createRadialGradient(p.sx, p.sy, 0, p.sx, p.sy, r);
       g.addColorStop(0, 'rgba(' + rgb + ',' + a + ')'); g.addColorStop(0.6, 'rgba(' + rgb + ',' + (a * 0.45) + ')'); g.addColorStop(1, 'rgba(' + rgb + ',0)');
       ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.sx, p.sy, r, 0, TAU); ctx.fill();
     }
     function ring(x, y, z, R, stroke, lw, dash) {
       ctx.beginPath();
-      for (let n = 0; n <= 24; n++) {
-        const t = n / 24 * TAU, q = project(x + Math.cos(t) * R, y, z + Math.sin(t) * R);
-        n ? ctx.lineTo(q.sx, q.sy) : ctx.moveTo(q.sx, q.sy);
-      }
+      for (let n = 0; n <= 24; n++) { const t = n / 24 * TAU, q = project(x + Math.cos(t) * R, y, z + Math.sin(t) * R); n ? ctx.lineTo(q.sx, q.sy) : ctx.moveTo(q.sx, q.sy); }
       ctx.setLineDash(dash || []); ctx.strokeStyle = stroke; ctx.lineWidth = lw; ctx.stroke(); ctx.setLineDash([]);
     }
-    function fade(z) { return Math.max(0.45, Math.min(1, 0.76 - z * 0.2)); }
+    const fade = z => Math.max(0.45, Math.min(1, 0.76 - z * 0.2));
+    function line(p, q, style, lw, alpha, dash) {
+      ctx.globalAlpha = alpha; ctx.setLineDash(dash || []); ctx.strokeStyle = style; ctx.lineWidth = lw;
+      ctx.beginPath(); ctx.moveTo(p.sx, p.sy); ctx.lineTo(q.sx, q.sy); ctx.stroke(); ctx.setLineDash([]);
+    }
 
-    // ── Render: 3D supercell ──
+    // ── Render: 3D ──
     let lastTheta = -1;
     function render3D(P) {
       ctx.clearRect(0, 0, W, H);
-      const amp = reduceMotion ? 0.012 : 0.034;
-      const pos = atoms.map(a => ({
-        x: a.x + amp * Math.sin(clock * a.w + a.p1),
-        y: a.y + amp * 0.8 * Math.sin(clock * a.w * 1.13 + a.p2),
-        z: a.z + amp * Math.sin(clock * a.w * 0.91 + a.p3)
-      }));
-      const pa = pos.map(q => project(q.x, q.y, q.z));
-      const pb = bx.map(q => project(q.x, q.y, q.z));
+      const master = fadeOut > 0 ? 1 - fadeOut : 1;
+      const pa = atoms.map(a => project(a.x, a.y, a.z));
       const list = [];
 
-      // supercell box (dashed) + vacuum label
-      bEdges.forEach(([u, v]) => {
-        const p = pb[u], q = pb[v];
-        list.push({ z: (p.z + q.z) / 2 + 0.6, d: () => {
-          ctx.globalAlpha = 0.75; ctx.setLineDash([4, 4]);
-          ctx.strokeStyle = 'rgba(' + P.box + ',0.6)'; ctx.lineWidth = 1;
-          ctx.beginPath(); ctx.moveTo(p.sx, p.sy); ctx.lineTo(q.sx, q.sy); ctx.stroke(); ctx.setLineDash([]);
-        } });
-      });
-      // lattice-vector triad at the cell origin
-      const o = bx[0], ends = [[1.0, 0, 0, 'a'], [0, 0, 1.0, 'b'], [0, 0.9, 0, 'c']];
-      const po = project(o.x, o.y, o.z);
-      ends.forEach(([dx, dy, dz, lab]) => {
-        const q = project(o.x + dx * 0.5, o.y + dy * 0.5, o.z + dz * 0.5);
-        list.push({ z: -99, d: () => {
-          ctx.globalAlpha = 0.95; ctx.strokeStyle = 'rgba(' + P.box + ',0.95)'; ctx.lineWidth = 1.6;
-          ctx.beginPath(); ctx.moveTo(po.sx, po.sy); ctx.lineTo(q.sx, q.sy); ctx.stroke();
-          ctx.fillStyle = 'rgba(' + P.box + ',1)'; ctx.font = '600 9px "JetBrains Mono", monospace';
-          ctx.fillText(lab, q.sx + 3, q.sy + 3);
-        } });
-      });
+      // periodic supercell box, growing a vacuum gap during the slab stage
+      if (boxA > 0.01) {
+        const by = [BOT, boxTop], c4 = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
+        const pb = []; by.forEach(y => c4.forEach(([a, b]) => pb.push(project(a * BX, y, b * BX))));
+        [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4], [0, 4], [1, 5], [2, 6], [3, 7]].forEach(([u, v]) => {
+          const p = pb[u], q = pb[v];
+          list.push({ z: (p.z + q.z) / 2 + 0.6, d: () => line(p, q, 'rgba(' + P.box + ',0.7)', 1, 0.8 * boxA * master, [4, 4]) });
+        });
+        if (vac > 0.05) {
+          // shaded vacuum region + label
+          const c1 = project(-BX, 1.35, BX), c2 = project(-BX, boxTop, BX);
+          list.push({ z: -98, d: () => {
+            ctx.globalAlpha = vac * master; ctx.fillStyle = P.text; ctx.font = '500 9px "JetBrains Mono", monospace';
+            ctx.textAlign = 'left'; ctx.fillText('vacuum 15 Å', c2.sx + 5, c2.sy + 12);
+            ctx.strokeStyle = 'rgba(' + P.box + ',0.9)'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(c1.sx - 4, c1.sy); ctx.lineTo(c2.sx - 4, c2.sy); ctx.stroke();
+            [[c1.sy, -1], [c2.sy, 1]].forEach(([y, d]) => { ctx.beginPath(); ctx.moveTo(c1.sx - 7, y); ctx.lineTo(c1.sx - 1, y); ctx.stroke(); });
+          } });
+        }
+      }
 
       edges.forEach(([u, v]) => {
+        const a = atoms[u], b = atoms[v], s = Math.min(a.s, b.s);
+        if (s < 0.05) return;
+        if (ph === 0 && !(a.unit && b.unit)) return;
         const p = pa[u], q = pa[v];
-        list.push({ z: (p.z + q.z) / 2, d: () => {
-          ctx.globalAlpha = fade((p.z + q.z) / 2);
-          ctx.strokeStyle = 'rgba(' + P.edge + ',' + P.edgeA + ')';
-          ctx.lineWidth = Math.max(1, 0.045 * (p.s + q.s) / 2);
-          ctx.beginPath(); ctx.moveTo(p.sx, p.sy); ctx.lineTo(q.sx, q.sy); ctx.stroke();
-        } });
+        list.push({ z: (p.z + q.z) / 2, d: () => line(p, q, 'rgba(' + P.edge + ',' + P.edgeA + ')', Math.max(1, 0.05 * (p.s + q.s) / 2), fade((p.z + q.z) / 2) * clamp(s) * master) });
       });
       atoms.forEach((a, i) => {
-        const p = pa[i];
-        list.push({ z: p.z, d: () => sphere(p, a.body ? 0.17 : 0.21, a.body ? P.body : (a.surf ? P.surf : P.host), fade(p.z)) });
+        if (a.s < 0.02) return;
+        const p = pa[i], pal = a.top ? [0, 1, 2].map(n => mixc(P.hostRGB[n], P.surfRGB[n], surfMix)) : P.host;
+        list.push({ z: p.z, d: () => sphere(p, 0.2 * Math.max(0, a.s), pal, fade(p.z) * master) });
       });
-      sites.forEach(s => {
-        if (s.occ) return;
-        const c = project(s.x, TOP + 0.02, s.z);
-        const hot = !!s.res;
-        list.push({ z: c.z + 0.05, d: () => {
-          ctx.globalAlpha = fade(c.z);
-          ring(s.x, TOP + 0.02, s.z, 0.22, 'rgba(' + P.site + ',' + (hot ? 0.95 : 0.45) + ')', hot ? 1.6 : 1, hot ? [] : [3, 3]);
-        } });
-      });
-      flashes.forEach(f => {
-        const c = project(f.x, TOP + 0.02, f.z);
-        list.push({ z: c.z + 0.04, d: () => {
-          const k = f.t; ctx.globalAlpha = (1 - k) * 0.9;
-          ring(f.x, TOP + 0.02, f.z, 0.15 + k * (f.big ? 0.6 : 0.35), 'rgba(' + P.glow + ',1)', 1.8, []);
-        } });
-      });
-      mobiles.forEach(m => {
-        const p = project(m.x, m.y, m.z);
-        const col = [0, 1, 2].map(n => mixc(P.gasRGB[n], P.adsRGB[n], m.mix));
-        if (m.state !== 'ads' && Math.abs(m.x) < HALF + 0.1 && Math.abs(m.z) < HALF + 0.1) {
-          const h = Math.max(0, m.y - TOP), c = project(m.x, TOP + 0.01, m.z);
-          list.push({ z: c.z + 0.03, d: () => {
-            ctx.globalAlpha = Math.max(0, 0.3 - h * 0.1);
-            ctx.beginPath();
-            ctx.ellipse(c.sx, c.sy, 0.16 * c.s, 0.16 * c.s * Math.max(0.25, Math.sin(pitch)), 0, 0, TAU);
-            ctx.fillStyle = 'rgb(' + P.shadow + ')'; ctx.fill();
-          } });
-        }
-        if (m.state === 'approach') {
-          const t = project(m.site.x, m.site.y, m.site.z);
-          list.push({ z: (p.z + t.z) / 2 - 0.5, d: () => {
-            ctx.globalAlpha = 0.6; ctx.setLineDash([2, 4]);
-            ctx.strokeStyle = 'rgba(' + P.glow + ',0.85)'; ctx.lineWidth = 1;
-            ctx.beginPath(); ctx.moveTo(p.sx, p.sy); ctx.lineTo(t.sx, t.sy); ctx.stroke(); ctx.setLineDash([]);
-          } });
-        }
-        if (m.bond > 0.02 && m.site) {
-          // charge-density-difference lobes: accumulation (yellow) in the bond, depletion (cyan) above
-          const acc = project(m.x, m.y - 0.2, m.z), dep = project(m.x, m.y + 0.2, m.z);
-          const pulse = 0.85 + 0.15 * Math.sin(clock * 3 + m.ph * 0.1);
-          list.push({ z: acc.z + 0.02, d: () => blob(acc, 0.42 * pulse, P.rhoP, 0.5 * m.bond) });
-          list.push({ z: dep.z - 0.02, d: () => blob(dep, 0.3 * pulse, P.rhoM, 0.42 * m.bond) });
-          m.site.nb.forEach(ix => {
-            const q = pa[ix];
-            list.push({ z: (p.z + q.z) / 2 - 0.02, d: () => {
-              ctx.globalAlpha = m.bond * 0.85;
-              ctx.strokeStyle = 'rgba(' + P.rhoP + ',0.9)';
-              ctx.lineWidth = Math.max(1, 0.04 * p.s);
-              ctx.beginPath(); ctx.moveTo(p.sx, p.sy); ctx.lineTo(q.sx, q.sy); ctx.stroke();
+
+      if (ph === 4) {
+        sites.forEach(s => {
+          if (s.occ) return;
+          const c = project(s.x, TOP + relaxDy + 0.02, s.z), hot = !!s.res;
+          list.push({ z: c.z + 0.05, d: () => { ctx.globalAlpha = fade(c.z) * master; ring(s.x, TOP + relaxDy + 0.02, s.z, 0.22, 'rgba(' + P.site + ',' + (hot ? 0.95 : 0.45) + ')', hot ? 1.6 : 1, hot ? [] : [3, 3]); } });
+        });
+        flashes.forEach(f => {
+          const c = project(f.x, TOP + 0.02, f.z);
+          list.push({ z: c.z + 0.04, d: () => { ctx.globalAlpha = (1 - f.t) * 0.9 * master; ring(f.x, TOP + relaxDy + 0.02, f.z, 0.15 + f.t * (f.big ? 0.75 : 0.4), 'rgba(' + P.glow + ',1)', 2, []); } });
+        });
+        sparks.forEach(s => {
+          const p = project(s.x, s.y, s.z);
+          list.push({ z: p.z - 0.02, d: () => { ctx.globalAlpha = Math.max(0, s.life) * master; ctx.fillStyle = 'rgb(' + P.rhoP + ')'; ctx.beginPath(); ctx.arc(p.sx, p.sy, Math.max(1, 0.035 * p.s), 0, TAU); ctx.fill(); } });
+        });
+        mobiles.forEach(m => {
+          const p = project(m.x, m.y, m.z);
+          const col = [0, 1, 2].map(n => mixc(P.gasRGB[n], P.adsRGB[n], m.mix));
+          if (m.state !== 'ads' && m.trail.length > 2) {
+            const tp = m.trail.map(q => project(q.x, q.y, q.z));
+            list.push({ z: p.z + 0.2, d: () => {
+              for (let n = 1; n < tp.length; n++) line(tp[n - 1], tp[n], 'rgba(' + (m.state === 'approach' ? P.glow : P.rhoP) + ',1)', Math.max(1, 0.05 * p.s * n / tp.length), (n / tp.length) * 0.5 * master);
             } });
-          });
-        }
-        list.push({ z: p.z - 0.01, d: () => {
-          if (m.mix > 0.5) blob(p, 0.38, P.glow, 0.3 * m.mix);
-          sphere(p, 0.15, col, Math.max(0.85, fade(p.z)));
-        } });
-      });
+          }
+          if (m.state !== 'ads') {
+            const h = Math.max(0, m.y - TOP), c = project(m.x, TOP + 0.01, m.z);
+            list.push({ z: c.z + 0.03, d: () => {
+              ctx.globalAlpha = Math.max(0, 0.3 - h * 0.1) * master; ctx.beginPath();
+              ctx.ellipse(c.sx, c.sy, 0.16 * c.s, 0.16 * c.s * Math.max(0.25, Math.sin(pitch)), 0, 0, TAU);
+              ctx.fillStyle = 'rgb(' + P.shadow + ')'; ctx.fill();
+            } });
+          }
+          if (m.bond > 0.02 && m.site) {
+            const acc = project(m.x, m.y - 0.22, m.z), dep = project(m.x, m.y + 0.22, m.z);
+            const pulse = 0.85 + 0.15 * Math.sin(clock * 3.5 + m.ph * 0.1);
+            list.push({ z: acc.z + 0.02, d: () => blob(acc, 0.46 * pulse, P.rhoP, 0.5 * m.bond * master) });
+            list.push({ z: dep.z - 0.02, d: () => blob(dep, 0.32 * pulse, P.rhoM, 0.45 * m.bond * master) });
+            m.site.nb.forEach(ix => {
+              const q = pa[ix];
+              list.push({ z: (p.z + q.z) / 2 - 0.02, d: () => line(p, q, 'rgba(' + P.rhoP + ',0.95)', Math.max(1, 0.045 * p.s), m.bond * 0.85 * master) });
+            });
+          }
+          list.push({ z: p.z - 0.01, d: () => {
+            if (m.mix > 0.5) blob(p, 0.4, P.glow, 0.3 * m.mix * master);
+            sphere(p, 0.15 * easeBack(m.born), col, Math.max(0.85, fade(p.z)) * master);
+          } });
+        });
+      }
 
       list.sort((a, b) => b.z - a.z);
       for (let n = 0; n < list.length; n++) list[n].d();
       ctx.globalAlpha = 1;
 
-      // vacuum tag near the top of the cell
-      const vt = project(-BOX.x, BOX.yMax - 0.12, BOX.x);
-      ctx.fillStyle = P.text; ctx.font = '500 8.5px "JetBrains Mono", monospace';
-      ctx.fillText('vacuum', vt.sx + 4, vt.sy);
+      // stage captions drawn on the canvas
+      const caps = ['Simple cubic unit cell', 'Build supercell', 'Cleave (001) slab', '', ''];
+      if (caps[ph]) {
+        const a = clamp(Math.min(pt / 0.3, (PH[ph].d - pt) / 0.3)) * master;
+        ctx.globalAlpha = a; ctx.font = '700 11px "Plus Jakarta Sans", system-ui, sans-serif'; ctx.textAlign = 'center';
+        ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = P.bg; ctx.strokeText(caps[ph], W / 2, 64);
+        ctx.fillStyle = P.text; ctx.fillText(caps[ph], W / 2, 64);
+      }
+      if (ph === 3 && fmax <= 0.03) {
+        const a = clamp((PH[3].d - pt) / 0.3) * master, r = 15 + 2 * Math.sin(clock * 6);
+        ctx.globalAlpha = a; ctx.fillStyle = P.ok; ctx.beginPath(); ctx.arc(W / 2, H / 2 - 64, r, 0, TAU); ctx.fill();
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.beginPath();
+        ctx.moveTo(W / 2 - 7, H / 2 - 64); ctx.lineTo(W / 2 - 2, H / 2 - 58); ctx.lineTo(W / 2 + 8, H / 2 - 70); ctx.stroke(); ctx.lineCap = 'butt';
+        ctx.font = '700 11px "Plus Jakarta Sans", system-ui, sans-serif'; ctx.textAlign = 'center';
+        ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = P.bg; ctx.strokeText('Geometry converged', W / 2, H / 2 - 38);
+        ctx.fillStyle = P.ok; ctx.fillText('Geometry converged', W / 2, H / 2 - 38);
+      }
+      ctx.globalAlpha = 1; ctx.textAlign = 'left';
     }
 
     // ── Plots ──
-    const g = (x, m, s) => Math.exp(-((x - m) * (x - m)) / (2 * s * s));
+    const gss = (x, m, s) => Math.exp(-((x - m) * (x - m)) / (2 * s * s));
     const PLOT = {
-      light: { axis: 'rgba(100,116,139,.45)', text: '#64748b', tot: '#4f46e5', totF: 'rgba(99,102,241,', ads: '#e11d48', adsF: 'rgba(244,63,94,', ef: '#059669', wf: '#7c3aed', vac: 'rgba(20,184,166,.10)', slab: 'rgba(99,102,241,.07)' },
-      dark:  { axis: 'rgba(148,163,184,.4)', text: '#94a3b8', tot: '#a5b4fc', totF: 'rgba(129,140,248,', ads: '#fb7185', adsF: 'rgba(251,113,133,', ef: '#34d399', wf: '#c4b5fd', vac: 'rgba(45,212,191,.10)', slab: 'rgba(129,140,248,.09)' }
+      light: { axis: 'rgba(100,116,139,.5)', grid: 'rgba(100,116,139,.12)', text: '#64748b', tot: '#4f46e5', totF: 'rgba(99,102,241,', ads: '#e11d48', adsF: 'rgba(244,63,94,', surf: '#7c3aed', ef: '#059669', wf: '#7c3aed', vac: 'rgba(20,184,166,.10)', slab: 'rgba(99,102,241,.08)', dot: '#f59e0b' },
+      dark:  { axis: 'rgba(148,163,184,.45)', grid: 'rgba(148,163,184,.10)', text: '#94a3b8', tot: '#a5b4fc', totF: 'rgba(129,140,248,', ads: '#fb7185', adsF: 'rgba(251,113,133,', surf: '#c4b5fd', ef: '#34d399', wf: '#c4b5fd', vac: 'rgba(45,212,191,.10)', slab: 'rgba(129,140,248,.10)', dot: '#fbbf24' }
     };
-    function drawDOS(p, Q, th) {
+    function grid(c, L, R, T, B, Q) {
+      c.strokeStyle = Q.grid; c.lineWidth = 1;
+      for (let i = 1; i < 4; i++) { const y = Math.round(T + (B - T) * i / 4) + 0.5; c.beginPath(); c.moveTo(L, y); c.lineTo(R, y); c.stroke(); }
+    }
+    function drawDOS(p, Q) {
       const c = p.c, w = p.w, h = p.h, L = 4, R = w - 4, T = 4, B = h - 13;
       const E0 = -9, E1 = 3, X = e => L + (e - E0) / (E1 - E0) * (R - L);
-      c.clearRect(0, 0, w, h);
-      const wob = reduceMotion ? 0 : 0.06;
-      const dShift = -0.25 * th;
-      const tot = e => 0.12 + 0.9 * g(e, -3.4 + dShift, 0.55) + (1 + wob * Math.sin(clock * 2.1)) * g(e, -2.0 + dShift, 0.5)
-        + 0.85 * g(e, -0.8 + dShift, 0.45) + 0.5 * g(e, 0.7, 0.5) + 0.4 * th * g(e, -6.2, 0.5);
-      const ads = e => th * ((1.25 + wob * Math.sin(clock * 2.7)) * g(e, -6.2, 0.42) + 0.35 * g(e, -4.6, 0.5) + 0.32 * g(e, 1.3, 0.4));
-      const max = 1.45, Y = v => B - Math.min(1, v / max) * (B - T);
+      c.clearRect(0, 0, w, h); grid(c, L, R, T, B, Q);
+      const th = thetaS;
+      const reveal = ph === 0 ? clamp(pt / PH[0].d) * 0.55 : ph === 1 ? 0.55 + 0.45 * clamp(pt / PH[1].d) : 1;
+      const noise = ph === 3 ? 0.22 * Math.exp(-1.2 * pt) : 0;
+      const breathe = reduceMotion ? 0 : 0.05;
+      const dS = -0.3 * th, sf = surfMix;
+      const tot = e => {
+        let v = 0.1 + 0.9 * gss(e, -3.4 + dS, 0.6) + (1 + breathe * Math.sin(clock * 2.1)) * gss(e, -2.1 + dS, 0.5)
+          + 0.85 * gss(e, -0.9 + dS, 0.45) + 0.5 * gss(e, 0.8, 0.55) + sf * 0.5 * gss(e, -0.35, 0.28) + 0.35 * th * gss(e, -6.2, 0.5);
+        return v * (1 + noise * Math.sin(e * 3.3 + clock * 14));
+      };
+      const ads = e => th * ((1.3 + breathe * Math.sin(clock * 2.7)) * gss(e, -6.2, 0.42) + 0.35 * gss(e, -4.6, 0.5) + 0.32 * gss(e, 1.3, 0.4));
+      const max = 1.5, Y = v => B - Math.min(1, v / max) * (B - T), eMax = E0 + (E1 - E0) * reveal;
       function curve(f, stroke, fill) {
         const pts = [];
-        for (let i = 0; i <= 90; i++) { const e = E0 + (E1 - E0) * i / 90; pts.push([X(e), Y(f(e)), e]); }
-        // filled occupied states (E < E_F)
+        for (let i = 0; i <= 100; i++) { const e = E0 + (E1 - E0) * i / 100; if (e > eMax) break; pts.push([X(e), Y(f(e)), e]); }
+        if (pts.length < 2) return;
         c.beginPath(); c.moveTo(X(E0), B);
         pts.forEach(([x, y, e]) => { if (e <= 0) c.lineTo(x, y); });
-        c.lineTo(X(0), Y(f(0))); c.lineTo(X(0), B); c.closePath();
+        const eCut = Math.min(0, eMax); c.lineTo(X(eCut), Y(f(eCut))); c.lineTo(X(eCut), B); c.closePath();
         const gr = c.createLinearGradient(0, T, 0, B); gr.addColorStop(0, fill + '.55)'); gr.addColorStop(1, fill + '.05)');
         c.fillStyle = gr; c.fill();
         c.beginPath(); pts.forEach(([x, y], i) => i ? c.lineTo(x, y) : c.moveTo(x, y));
-        c.strokeStyle = stroke; c.lineWidth = 1.4; c.stroke();
+        c.strokeStyle = stroke; c.lineWidth = 1.5; c.stroke();
       }
-      // axis
       c.strokeStyle = Q.axis; c.lineWidth = 1; c.beginPath(); c.moveTo(L, B + 0.5); c.lineTo(R, B + 0.5); c.stroke();
       c.fillStyle = Q.text; c.font = '500 8px "JetBrains Mono", monospace'; c.textAlign = 'center';
       [-8, -4, 0].forEach(e => { c.fillText(String(e).replace('-', '−'), X(e), h - 3); c.fillRect(X(e), B, 1, 3); });
       curve(tot, Q.tot, Q.totF);
-      curve(ads, Q.ads, Q.adsF);
-      // Fermi level
+      if (th > 0.005) curve(ads, Q.ads, Q.adsF);
+      if (reveal < 1) { // k-point sweep cursor
+        c.globalAlpha = 0.9; c.fillStyle = Q.dot; c.fillRect(X(eMax) - 1, T, 2, B - T);
+        c.globalAlpha = 0.18; c.fillRect(X(eMax) - 7, T, 7, B - T); c.globalAlpha = 1;
+      }
       c.setLineDash([3, 3]); c.strokeStyle = Q.ef; c.lineWidth = 1.2;
       c.beginPath(); c.moveTo(X(0) + 0.5, T); c.lineTo(X(0) + 0.5, B); c.stroke(); c.setLineDash([]);
-      c.fillStyle = Q.ef; c.textAlign = 'left'; c.fillText('EF', X(0) + 3, T + 7);
-      // mini legend
-      c.textAlign = 'left'; c.fillStyle = Q.tot; c.fillText('d', L + 2, T + 7);
-      c.fillStyle = Q.ads; c.fillText('ads-p', L + 12, T + 7);
+      c.textAlign = 'left'; c.fillStyle = Q.ef; c.fillText('EF', X(0) + 3, T + 7);
+      c.fillStyle = Q.tot; c.fillText(ph < 2 ? 'bulk' : 'd', L + 2, T + 7);
+      if (sf > 0.3 && th < 0.005) { c.fillStyle = Q.surf; c.fillText('surf', L + 26, T + 7); }
+      if (th > 0.005) { c.fillStyle = Q.ads; c.fillText('ads-p', L + 12, T + 7); }
     }
-    function drawWF(p, Q, phi) {
+    const PHI0 = 4.55;
+    function phiNow() {
+      if (ph < 2) return null;
+      if (ph === 2) return PHI0 * vac;
+      return PHI0 + phiSettle + 0.95 * thetaS;
+    }
+    function drawWF(p, Q) {
       const c = p.c, w = p.w, h = p.h, L = 4, R = w - 4, T = 6, B = h - 13;
       const Z1 = 20, V0 = -15, V1 = 8, X = z => L + z / Z1 * (R - L), Y = v => B - (v - V0) / (V1 - V0) * (B - T);
-      c.clearRect(0, 0, w, h);
-      const zs = 8.7, planes = [1.6, 3.05, 4.5, 5.95, 7.4];
-      const th = thetaS, wob = reduceMotion ? 0 : 0.25;
-      // slab / vacuum shading
-      c.fillStyle = Q.slab; c.fillRect(X(0), T, X(zs) - X(0), B - T);
-      c.fillStyle = Q.vac; c.fillRect(X(zs), T, R - X(zs), B - T);
+      c.clearRect(0, 0, w, h); grid(c, L, R, T, B, Q);
+      const phi = phiNow(), ph2 = phi === null ? 0 : phi;
+      const zs = lerp(21.5, 8.7, vac);                  // surface plane moves in as the vacuum opens
+      const wob = reduceMotion ? 0 : 0.3;
+      if (vac > 0.02) { c.fillStyle = Q.slab; c.fillRect(X(0), T, X(Math.min(Z1, zs)) - X(0), B - T); c.fillStyle = Q.vac; c.fillRect(X(Math.min(Z1, zs)), T, R - X(Math.min(Z1, zs)), B - T); }
       const V = z => {
-        let v = -6 + (phi + 6) * 0.5 * (1 + Math.tanh((z - zs) / 0.55));
-        planes.forEach((zk, i) => { v -= (8.5 + wob * Math.sin(clock * 6 + i)) * g(z, zk, 0.255); });
-        v -= 4.5 * th * g(z, 9.3, 0.25);
+        let v = -6 + (ph2 + 6) * 0.5 * (1 + Math.tanh((z - zs) / 0.55));
+        for (let k = 0; k < 14; k++) {
+          const zk = 1.6 + 1.45 * k; if (zk > zs - 0.6) break;
+          v -= (8.5 + wob * Math.sin(clock * 6 + k)) * gss(z, zk, 0.255);
+        }
+        v -= 4.5 * thetaS * gss(z, 9.35, 0.25);
         return Math.max(V0, v);
       };
-      // E_F line
       c.setLineDash([3, 3]); c.strokeStyle = Q.ef; c.lineWidth = 1.1;
       c.beginPath(); c.moveTo(L, Y(0) + 0.5); c.lineTo(R, Y(0) + 0.5); c.stroke(); c.setLineDash([]);
-      // potential curve with soft fill
-      c.beginPath();
-      for (let i = 0; i <= 140; i++) { const z = Z1 * i / 140; const x = X(z), y = Y(V(z)); i ? c.lineTo(x, y) : c.moveTo(x, y); }
-      const stroke = c.createLinearGradient(L, 0, R, 0); stroke.addColorStop(0, Q.tot); stroke.addColorStop(1, Q.wf);
-      c.strokeStyle = stroke; c.lineWidth = 1.5; c.stroke();
-      // Φ arrow in vacuum
-      const ax = X(15.5);
-      c.strokeStyle = Q.ads; c.fillStyle = Q.ads; c.lineWidth = 1.2;
-      c.beginPath(); c.moveTo(ax, Y(0)); c.lineTo(ax, Y(phi)); c.stroke();
-      [[Y(phi), 1], [Y(0), -1]].forEach(([y, d]) => { c.beginPath(); c.moveTo(ax, y); c.lineTo(ax - 3, y + 4 * d); c.lineTo(ax + 3, y + 4 * d); c.closePath(); c.fill(); });
-      c.font = '600 9px "JetBrains Mono", monospace'; c.textAlign = 'left';
-      c.fillText('Φ', ax + 4, (Y(0) + Y(phi)) / 2 + 3);
-      // labels
-      c.fillStyle = Q.ef; c.font = '500 8px "JetBrains Mono", monospace'; c.fillText('EF', R - 13, Y(0) + 9);
+      const pts = [];
+      for (let i = 0; i <= 160; i++) { const z = Z1 * i / 160; pts.push([X(z), Y(V(z))]); }
+      c.beginPath(); pts.forEach(([x, y], i) => i ? c.lineTo(x, y) : c.moveTo(x, y));
+      const st = c.createLinearGradient(L, 0, R, 0); st.addColorStop(0, Q.tot); st.addColorStop(1, Q.wf);
+      c.strokeStyle = st; c.lineWidth = 1.6; c.stroke();
+      // an electron tracer running along V(z)
+      if (!reduceMotion) {
+        const u = (clock * 0.22) % 1, idx = Math.floor(u * 160), [ex, ey] = pts[idx];
+        c.globalAlpha = 0.25; c.fillStyle = Q.dot; c.beginPath(); c.arc(ex, ey, 5, 0, TAU); c.fill();
+        c.globalAlpha = 1; c.beginPath(); c.arc(ex, ey, 2.2, 0, TAU); c.fill();
+      }
+      c.font = '500 8px "JetBrains Mono", monospace';
+      if (phi === null || vac < 0.35) {
+        c.fillStyle = Q.text; c.textAlign = 'center'; c.fillText('bulk · no vacuum', (L + R) / 2, T + 9);
+      }
+      if (phi !== null && vac > 0.35) {
+        const ax = X(15.6);
+        c.globalAlpha = clamp((vac - 0.35) / 0.4); c.strokeStyle = Q.ads; c.fillStyle = Q.ads; c.lineWidth = 1.2;
+        c.beginPath(); c.moveTo(ax, Y(0)); c.lineTo(ax, Y(phi)); c.stroke();
+        [[Y(phi), 1], [Y(0), -1]].forEach(([y, d]) => { c.beginPath(); c.moveTo(ax, y); c.lineTo(ax - 3, y + 4 * d); c.lineTo(ax + 3, y + 4 * d); c.closePath(); c.fill(); });
+        c.font = '600 9px "JetBrains Mono", monospace'; c.textAlign = 'left';
+        c.fillText('Φ', ax + 4, (Y(0) + Y(phi)) / 2 + 3);
+        if (ph === 4 && thetaS > 0.02) {
+          c.font = '500 8px "JetBrains Mono", monospace'; c.textAlign = 'right';
+          c.fillText('ΔΦ +' + (0.95 * thetaS).toFixed(2), R - 2, Y(phi) - 4);
+        }
+        c.globalAlpha = 1;
+      }
+      c.fillStyle = Q.ef; c.font = '500 8px "JetBrains Mono", monospace'; c.textAlign = 'left'; c.fillText('EF', R - 13, Y(0) + 9);
       c.fillStyle = Q.text; c.textAlign = 'center';
-      c.fillText('slab', X(zs / 2), h - 3); c.fillText('vacuum  z →', X(14.3), h - 3);
+      if (vac > 0.35) { c.fillText('slab', X(Math.min(zs, Z1) / 2), h - 3); c.fillText('vacuum z→', X(14.5), h - 3); }
+      else c.fillText('z →', (L + R) / 2, h - 3);
       c.strokeStyle = Q.axis; c.beginPath(); c.moveTo(L, B + 0.5); c.lineTo(R, B + 0.5); c.stroke();
+      if (phiEl) phiEl.textContent = phi === null ? '—' : phi.toFixed(2);
     }
 
     function render() {
       const dark = isDark();
       render3D(PAL[dark ? 'dark' : 'light']);
-      const occ = sites.filter(s => s.occ).length;
-      const th = occ / sites.length;
-      if (thetaEl && occ !== lastTheta) { lastTheta = occ; thetaEl.textContent = th.toFixed(2); }
       const Q = PLOT[dark ? 'dark' : 'light'];
-      const phi = 4.55 + 0.95 * thetaS;
-      if (plots[0]) drawDOS(plots[0], Q, thetaS);
-      if (plots[1]) drawWF(plots[1], Q, phi);
-      if (phiEl) phiEl.textContent = phi.toFixed(2);
+      if (plots[0]) drawDOS(plots[0], Q);
+      if (plots[1]) drawWF(plots[1], Q);
+      const occ = ph === 4 ? sites.filter(s => s.occ).length : 0;
+      if (thetaEl && occ !== lastTheta) { lastTheta = occ; thetaEl.textContent = (occ / sites.length).toFixed(2); }
       if (tempEl) tempEl.textContent = Math.round(300 + 6 * Math.sin(clock * 1.7) + 4 * Math.sin(clock * 3.1 + 1));
       if (timeEl) timeEl.textContent = simT.toFixed(2);
+      if (barEl) {
+        let done = 0, total = 0; PH.forEach((q, i) => { total += q.d; if (i < ph) done += q.d; });
+        barEl.style.width = (100 * Math.min(1, (done + Math.min(pt, PH[ph].d)) / total)).toFixed(1) + '%';
+      }
     }
 
-    // ── Interaction: drag to rotate, tap to dose ──
+    // ── Interaction: drag to rotate · tap to advance / dose · click a step ──
     let dragging = false, moved = 0, lx = 0, ly = 0;
-    stage.addEventListener('pointerdown', e => {
-      dragging = true; moved = 0; lx = e.clientX; ly = e.clientY;
-      try { stage.setPointerCapture(e.pointerId); } catch (err) {}
-    });
+    stage.addEventListener('pointerdown', e => { dragging = true; moved = 0; lx = e.clientX; ly = e.clientY; try { stage.setPointerCapture(e.pointerId); } catch (err) {} });
     stage.addEventListener('pointermove', e => {
       if (!dragging) return;
       const dx = e.clientX - lx, dy = e.clientY - ly; lx = e.clientX; ly = e.clientY;
       moved += Math.abs(dx) + Math.abs(dy);
-      yaw += dx * 0.01; yawVel = dx * 0.6;
-      pitch = Math.max(0.2, Math.min(1.05, pitch + dy * 0.006));
+      yaw += dx * 0.01; yawVel = dx * 0.6; pitch = Math.max(0.15, Math.min(1.05, pitch + dy * 0.006));
     });
-    function endDrag() { if (dragging && moved < 6) dose(); dragging = false; }
+    function endDrag() {
+      if (dragging && moved < 6) { if (ph < 4) setPhase(ph + 1); else dose(); kick(); }
+      dragging = false;
+    }
     stage.addEventListener('pointerup', endDrag);
     stage.addEventListener('pointercancel', () => { dragging = false; });
+    stepEls.forEach(el => el.addEventListener('click', () => {
+      const n = +el.getAttribute('data-i');
+      resetAll(); setPhase(n); if (n === 4) dose(); kick();
+    }));
 
     // ── Loop (paused when off-screen or tab hidden) ──
     let visible = true, last = 0, raf = 0;
     function frame(now) {
       raf = 0;
       const dt = Math.min(0.05, last ? (now - last) / 1000 : 0.016); last = now;
-      clock += dt;
-      simT += dt * 0.25; if (simT >= 50) simT = 0;
-      if (!dragging) { yawVel += (AUTO - yawVel) * Math.min(1, dt * 1.5); yaw += yawVel * dt; }
-      mobiles.forEach(m => update(m, dt));
-      for (let n = flashes.length - 1; n >= 0; n--) { flashes[n].t += dt / 0.8; if (flashes[n].t >= 1) flashes.splice(n, 1); }
-      thetaS += (coverage() - thetaS) * Math.min(1, dt * 2.2);
-      stepSCF(dt);
-      render();
+      clock += dt; simT += dt * 0.25; if (simT >= 50) simT = 0;
+      if (!dragging) { yawVel += (AUTO - yawVel) * Math.min(1, dt * 1.5); yaw += yawVel * dt; pitch += (0.5 + 0.06 * Math.sin(clock * 0.35) - pitch) * Math.min(1, dt * 0.6); }
+      stepWorld(dt); stepSCF(dt); render();
       if (visible && !document.hidden) raf = requestAnimationFrame(frame);
     }
     function kick() { if (!raf && visible && !document.hidden) { last = 0; raf = requestAnimationFrame(frame); } }
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver(es => { visible = es[0].isIntersecting; kick(); }).observe(stage);
-    }
+    function inView() { const r = wrap.getBoundingClientRect(); return r.bottom > 0 && r.top < (window.innerHeight || 800); }
+    if ('IntersectionObserver' in window) new IntersectionObserver(es => { visible = es[es.length - 1].isIntersecting; kick(); }).observe(wrap);
+    // fallback: some mobile browsers deliver IntersectionObserver late, so re-check on scroll/resize
+    let chk = 0;
+    const recheck = () => { if (chk) return; chk = setTimeout(() => { chk = 0; const v = inView(); if (v !== visible) { visible = v; kick(); } }, 120); };
+    window.addEventListener('scroll', recheck, { passive: true });
+    window.addEventListener('resize', recheck);
     document.addEventListener('visibilitychange', kick);
+    visible = inView();
+    setPhase(0);
     yawVel = AUTO;
     kick();
   }
