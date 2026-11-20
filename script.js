@@ -743,52 +743,51 @@
 
   initCrystalAnimation();
 
-  // 8. Dynamic Page Visitor Counter
+  // 8. Visitor counter — real unique visitors, no offsets.
+  //    Each browser is counted once (remembered in localStorage) through the
+  //    free Abacus counter API; later visits only read the total. Local
+  //    previews (localhost / file) never add to the count.
   function initVisitorCounter() {
-    var visitorEl = document.getElementById('visitor-count');
-    var footerVisitorEl = document.getElementById('footer-visitor-count');
-    if (!visitorEl && !footerVisitorEl) return;
+    var els = [document.getElementById('visitor-count'), document.getElementById('footer-visitor-count')].filter(Boolean);
+    if (!els.length) return;
 
-    var CACHE_KEY = 'kgs_portfolio_visits';
-    var SESSION_KEY = 'kgs_session_counted';
+    var API = 'https://abacus.jasoncameron.dev';
+    var NS = 'kristy10-github-io', KEY = 'kgs-portfolio-visitors';
+    var SEEN = 'kgs_visitor_counted_v2', LAST = 'kgs_visitor_last_v2';
 
-    var localCount = parseInt(localStorage.getItem(CACHE_KEY), 10);
-    if (!localCount || isNaN(localCount)) {
-      localCount = 184;
-      localStorage.setItem(CACHE_KEY, localCount);
+    function getItem(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+    function setItem(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+    function show(v) {
+      var t = typeof v === 'number' ? v.toLocaleString() : v;
+      els.forEach(function (el) { el.textContent = t; });
     }
 
-    if (!sessionStorage.getItem(SESSION_KEY)) {
-      localCount += 1;
-      localStorage.setItem(CACHE_KEY, localCount);
-      sessionStorage.setItem(SESSION_KEY, 'true');
-    }
+    // show the last real total straight away while the fresh one loads
+    var last = parseInt(getItem(LAST), 10);
+    show(isNaN(last) ? '…' : last);
 
-    function displayCount(num) {
-      var formatted = Number(num).toLocaleString();
-      if (visitorEl) visitorEl.textContent = formatted;
-      if (footerVisitorEl) footerVisitorEl.textContent = formatted;
-    }
+    var isLocal = location.protocol === 'file:' || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+    var mode = (getItem(SEEN) === '1' || isLocal) ? 'get' : 'hit';
 
-    displayCount(localCount);
-
-    var badgeUrl = 'https://api.visitorbadge.io/api/visitors?path=kristy10.github.io.kristy-gourab-sinha&countColor=%23263759';
-    fetch(badgeUrl)
-      .then(function(res) { return res.text(); })
-      .then(function(svgText) {
-        var match = svgText.match(/VISITORS:\s*([\d,]+)/i);
-        if (match && match[1]) {
-          var apiCount = parseInt(match[1].replace(/,/g, ''), 10);
-          if (apiCount && !isNaN(apiCount)) {
-            var finalCount = apiCount + 180;
-            localStorage.setItem(CACHE_KEY, finalCount);
-            displayCount(finalCount);
-          }
-        }
+    fetch(API + '/' + mode + '/' + NS + '/' + KEY, { cache: 'no-store' })
+      .then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+      .then(function (data) {
+        var v = Number(data && data.value);
+        if (!isFinite(v)) throw new Error('bad value');
+        if (mode === 'hit') setItem(SEEN, '1');
+        setItem(LAST, String(v));
+        show(v);
       })
-      .catch(function(err) {
-        // Fallback gracefully to local stored metric
-      });
+      .catch(function () { if (isNaN(last)) show('—'); });
+  }
+
+  // 8b. Animated "scroll down" cue in the hero — fades out once the page moves
+  function initScrollCue() {
+    var cue = document.querySelector('.scroll-cue');
+    if (!cue) return;
+    var update = function () { cue.classList.toggle('is-hidden', window.scrollY > 60); };
+    window.addEventListener('scroll', update, { passive: true });
+    update();
   }
 
   // 9. Responsive Contact Form (FormSubmit to Inbox)
@@ -966,6 +965,7 @@
 
   function initAllFeatures() {
     initVisitorCounter();
+    initScrollCue();
     initContactForm();
     initMagneticButtons();
     initScrollProgress();

@@ -1700,6 +1700,25 @@ html[data-theme="dark"] #dft-info.ok { color: #34d399; }
 .dft-scf i.run { background: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.22); animation: scf-blink .6s steps(2) infinite; }
 @keyframes scf-blink { 50% { opacity: .35; } }
 
+/* animated scroll-down cue at the foot of the hero */
+.scroll-cue {
+  position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 2;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  color: var(--ink3); text-decoration: none; transition: opacity .35s ease, transform .35s ease;
+}
+.scroll-cue:hover { color: var(--blue); }
+.scroll-cue.is-hidden { opacity: 0; pointer-events: none; transform: translate(-50%, 10px); }
+.sc-mouse { width: 22px; height: 34px; border: 2px solid currentColor; border-radius: 12px; display: flex; justify-content: center; opacity: .75; }
+.sc-wheel { width: 3px; height: 7px; margin-top: 6px; border-radius: 2px; background: currentColor; animation: sc-wheel 1.6s ease-in-out infinite; }
+.sc-chev { display: flex; flex-direction: column; align-items: center; margin-top: 2px; }
+.sc-chev i { width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); margin-top: -3px; animation: sc-chev 1.6s ease-in-out infinite; }
+.sc-chev i:nth-child(2) { animation-delay: .2s; }
+.sc-text { font: 600 9.5px/1 var(--mono); letter-spacing: .22em; text-transform: uppercase; opacity: .8; }
+@keyframes sc-wheel { 0% { transform: translateY(0); opacity: 1; } 70% { transform: translateY(9px); opacity: 0; } 100% { transform: translateY(0); opacity: 0; } }
+@keyframes sc-chev { 0%, 100% { opacity: .15; } 50% { opacity: .9; } }
+@media (prefers-reduced-motion: reduce) { .sc-wheel, .sc-chev i { animation: none; } }
+@media (max-width: 900px), (max-height: 620px) { .scroll-cue { display: none; } }
+
 /* compact top bar on laptop widths so "Get in Touch" always fits */
 @media (min-width: 701px) and (max-width: 1279px) {
   #nav { padding: 0 1.1rem; gap: 10px; }
@@ -1867,7 +1886,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
         <!-- Bio Paragraphs using exact 2nd pic font typography -->
         <div class="hero-bio" id="h-bio" style="margin-top:16px">
           <p>
-            Hi, I'm Kristy Gourab Sinha. I am a Nuclear Engineer and Materials Science Researcher, currently working as a Research Assistant in the Department of Nuclear Science and Engineering at the Military Institute of Science and Technology, Dhaka, Bangladesh. I completed my B.Sc. in Nuclear Science and Engineering from MIST in 2024 and am currently pursuing an M.Sc. in Materials Science at the Bangladesh University of Engineering and Technology, Dhaka, Bangladesh.
+            Hi, I'm Kristy Gourab Sinha. I am a Nuclear Engineer and Materials Science Researcher. I completed my B.Sc. in Nuclear Science and Engineering from Military Institute of Science and Technology, Bangladesh in 2024 and am currently pursuing an M.Sc. in Materials Science at the Bangladesh University of Engineering and Technology, Dhaka, Bangladesh.
           </p>
         </div>
 
@@ -1956,6 +1975,13 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
         </div>
       </div>
     </div>
+
+    <!-- Animated scroll-down cue -->
+    <a href="#about" class="scroll-cue" aria-label="Scroll down to About">
+      <span class="sc-mouse" aria-hidden="true"><span class="sc-wheel"></span></span>
+      <span class="sc-chev" aria-hidden="true"><i></i><i></i></span>
+      <span class="sc-text">Scroll</span>
+    </a>
   </section>
 
   <!-- ── 01. ABOUT / BIOGRAPHY ── -->
@@ -1969,7 +1995,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
       <div class="bio-layout reveal">
         <div class="bio-main">
           <div class="bio-text">
-            <p>Hi, I'm Kristy Gourab Sinha. I am a Nuclear Engineer and Materials Science Researcher, currently working as a Research Assistant in the Department of Nuclear Science and Engineering at the Military Institute of Science and Technology, Dhaka, Bangladesh. I completed my B.Sc. in Nuclear Science and Engineering from MIST in 2024 and am currently pursuing an M.Sc. in Materials Science at the Bangladesh University of Engineering and Technology, Dhaka, Bangladesh.</p>
+            <p>Hi, I'm Kristy Gourab Sinha. I am a Nuclear Engineer and Materials Science Researcher. I completed my B.Sc. in Nuclear Science and Engineering from Military Institute of Science and Technology, Bangladesh in 2024 and am currently pursuing an M.Sc. in Materials Science at the Bangladesh University of Engineering and Technology, Dhaka, Bangladesh.</p>
             <p>My research interests include advanced materials, radiation dosimetry, alloy synthesis, corrosion analysis, materials characterization, computational materials science, nuclear instrumentation, and radiation detection and mapping. As a Research Assistant, I conduct SEM and WDXRF analyses in departmental laboratories and support undergraduate students in their research projects and thesis.</p>
           </div>
 
@@ -2845,7 +2871,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
   <!-- Three.js removed: using native Canvas 2D crystal -->
 
   <!-- Complete script.js -->
-  <script src="script.js?v=bio-16"></script>
+  <script src="script.js?v=visitors-17"></script>
 
   <!-- Dynamic Functions -->
   <script>
