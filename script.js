@@ -141,10 +141,11 @@
   };
 
   // ═══════════════════════════════════════════════════════════════════
-  // Hero visual: dynamic BCC (100) crystal slab with gas-atom adsorption
-  //  - depth-sorted ball-and-stick rendering on Canvas 2D (HiDPI aware)
-  //  - gas atoms drift above the surface, land in 4-fold hollow sites,
-  //    bond to the four surface atoms, hop between sites and desorb
+  // Hero visual: schematic DFT (CASTEP-style) surface-adsorption study
+  //  - BCC (100) slab in a periodic supercell with vacuum, thermal (AIMD)
+  //    vibration, gas atoms landing in 4-fold hollows, Δρ lobes
+  //  - live PDOS and planar-averaged potential (work function) panels
+  //    that respond to surface coverage θ, plus an SCF/MD readout
   //  - drag to rotate, tap to dose gas; colours follow light/dark theme
   // ═══════════════════════════════════════════════════════════════════
   function initCrystalAnimation() {
@@ -152,37 +153,54 @@
     const stage = document.getElementById('crystal-stage');
     if (!canvas || !stage || !canvas.getContext) return;
     const ctx = canvas.getContext('2d');
-    const thetaEl = document.getElementById('crystal-theta');
+    const $ = id => document.getElementById(id);
+    const thetaEl = $('crystal-theta'), phiEl = $('dft-phi'), eadsEl = $('dft-eads');
+    const scfN = $('dft-scf-n'), scfDE = $('dft-scf-de'), scfDot = $('dft-scf-dot');
+    const tempEl = $('dft-temp'), timeEl = $('dft-time');
     const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
     const TAU = Math.PI * 2;
+    const isDark = () => document.documentElement.getAttribute('data-theme') === 'dark';
 
-    // ── Canvas sizing ──
-    let W = 1, H = 1, A = 40; // A = pixels per lattice constant
-    function resize() {
-      const r = stage.getBoundingClientRect();
-      W = Math.max(1, r.width); H = Math.max(1, r.height);
+    // ── Canvas sizing (main 3D view) ──
+    let W = 1, H = 1, A = 40;
+    function fit(cv, c2) {
+      const r = cv.getBoundingClientRect();
+      const w = Math.max(1, r.width), h = Math.max(1, r.height);
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = Math.round(W * dpr);
-      canvas.height = Math.round(H * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      A = Math.max(18, Math.min((W - 40) / 3.7, (H - 120) / 4.4));
+      cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+      c2.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return [w, h];
+    }
+    function resize() {
+      [W, H] = fit(canvas, ctx);
+      A = Math.max(18, Math.min((W - 40) / 3.5, (H - 104) / 4.1));
     }
     resize();
-    if ('ResizeObserver' in window) new ResizeObserver(resize).observe(stage);
-    else window.addEventListener('resize', resize);
+
+    // ── Plot canvases ──
+    const plots = [$('dft-dos'), $('dft-wf')].filter(Boolean).map(cv => ({ cv, c: cv.getContext('2d'), w: 1, h: 1 }));
+    function resizePlots() { plots.forEach(p => { [p.w, p.h] = fit(p.cv, p.c); }); }
+    resizePlots();
+    if ('ResizeObserver' in window) {
+      new ResizeObserver(resize).observe(stage);
+      plots.forEach(p => new ResizeObserver(() => { [p.w, p.h] = fit(p.cv, p.c); }).observe(p.cv));
+    } else window.addEventListener('resize', () => { resize(); resizePlots(); });
 
     // ── Geometry (world units = lattice constant a; y points up) ──
     const N = 3, LAYERS = 3, H_ADS = 0.30, TOP = 1, HALF = (N - 1) / 2;
+    const BOX = { x: HALF, yMin: TOP - (LAYERS - 1) - 0.18, yMax: 2.78 };
     const corners = [], bodies = [], edges = [], sites = [];
     const cIdx = (i, j, k) => (j * N + i) * N + k;
+    const rnd = (a, b) => a + Math.random() * (b - a);
+    const vib = () => ({ p1: rnd(0, TAU), p2: rnd(0, TAU), p3: rnd(0, TAU), w: rnd(5, 8) });
     for (let j = 0; j < LAYERS; j++)
       for (let i = 0; i < N; i++)
         for (let k = 0; k < N; k++)
-          corners.push({ x: i - HALF, y: TOP - j, z: k - HALF, body: false });
+          corners.push(Object.assign({ x: i - HALF, y: TOP - j, z: k - HALF, body: false, surf: j === 0 }, vib()));
     for (let j = 0; j < LAYERS - 1; j++)
       for (let i = 0; i < N - 1; i++)
         for (let k = 0; k < N - 1; k++)
-          bodies.push({ x: i - HALF + 0.5, y: TOP - 0.5 - j, z: k - HALF + 0.5, body: true });
+          bodies.push(Object.assign({ x: i - HALF + 0.5, y: TOP - 0.5 - j, z: k - HALF + 0.5, body: true }, vib()));
     for (let j = 0; j < LAYERS; j++)
       for (let i = 0; i < N; i++)
         for (let k = 0; k < N; k++) {
@@ -197,11 +215,15 @@
           nb: [cIdx(i, 0, k), cIdx(i + 1, 0, k), cIdx(i, 0, k + 1), cIdx(i + 1, 0, k + 1)]
         });
     const atoms = corners.concat(bodies);
+    // supercell box corners + edges
+    const bx = [];
+    [BOX.yMin, BOX.yMax].forEach(y => [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([sx, sz]) => bx.push({ x: sx * BOX.x, y, z: sz * BOX.x })));
+    const bEdges = [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4], [0, 4], [1, 5], [2, 6], [3, 7]];
 
     // ── Camera ──
-    let yaw = 0.62, pitch = 0.6, yawVel = 0;
-    const AUTO = reduceMotion ? 0.05 : 0.22; // rad/s
-    const F = 10, TY = 0.72;
+    let yaw = 0.62, pitch = 0.5, yawVel = 0;
+    const AUTO = reduceMotion ? 0.05 : 0.2;
+    const F = 10, TY = (BOX.yMin + BOX.yMax) / 2;
     function project(x, y, z) {
       const cy = Math.cos(yaw), sy = Math.sin(yaw);
       const x1 = x * cy - z * sy, z1 = x * sy + z * cy;
@@ -209,7 +231,7 @@
       const cp = Math.cos(pitch), sp = Math.sin(pitch);
       const y2 = yy * cp + z1 * sp, z2 = -yy * sp + z1 * cp;
       const s = A * F / (F + z2);
-      return { sx: W / 2 + x1 * s, sy: H / 2 - 10 - y2 * s, z: z2, s };
+      return { sx: W / 2 + x1 * s, sy: H / 2 + 2 - y2 * s, z: z2, s };
     }
 
     // ── Theme palette ──
@@ -217,21 +239,22 @@
     function mixc(a, b, t) { return 'rgb(' + a.map((v, i) => Math.round(v + (b[i] - v) * t)).join(',') + ')'; }
     const PAL = {
       light: {
-        host: ['#3567d6', '#e9f0ff', '#173581'], body: ['#6f93e6', '#ffffff', '#2a4ba6'],
-        gas: ['#f59e0b', '#fff6dc', '#b45309'], ads: ['#10b981', '#e2fbef', '#047857'],
-        edge: '37,70,160', edgeA: 0.42, site: '16,150,110', shadow: '15,30,80', glow: '16,185,129'
+        host: ['#4f63e6', '#eef0ff', '#1e2a8a'], surf: ['#7c5cf0', '#f3eeff', '#3b1d9a'], body: ['#38a3e8', '#ffffff', '#0b5a96'],
+        gas: ['#f59e0b', '#fff6dc', '#b45309'], ads: ['#e11d48', '#ffe4ea', '#881337'],
+        edge: '79,70,229', edgeA: 0.36, box: '124,58,237', site: '16,150,110', shadow: '30,27,75', glow: '244,63,94',
+        rhoP: '234,179,8', rhoM: '6,182,212', text: '#64748b'
       },
       dark: {
-        host: ['#5b8ff9', '#eef4ff', '#1d3a8f'], body: ['#93b4ff', '#ffffff', '#3352b0'],
-        gas: ['#fbbf24', '#fff8e3', '#b45309'], ads: ['#34d399', '#eafff5', '#047857'],
-        edge: '150,180,255', edgeA: 0.34, site: '52,211,153', shadow: '0,0,0', glow: '52,211,153'
+        host: ['#818cf8', '#f1f2ff', '#3730a3'], surf: ['#a78bfa', '#faf5ff', '#5b21b6'], body: ['#38bdf8', '#ffffff', '#0369a1'],
+        gas: ['#fbbf24', '#fff8e3', '#b45309'], ads: ['#fb7185', '#fff1f2', '#9f1239'],
+        edge: '165,180,252', edgeA: 0.32, box: '196,181,253', site: '52,211,153', shadow: '0,0,0', glow: '251,113,133',
+        rhoP: '250,204,21', rhoM: '34,211,238', text: '#94a3b8'
       }
     };
-    for (const k in PAL) ['host', 'body', 'gas', 'ads'].forEach(n => { PAL[k][n + 'RGB'] = PAL[k][n].map(hex); });
+    for (const k in PAL) ['host', 'surf', 'body', 'gas', 'ads'].forEach(n => { PAL[k][n + 'RGB'] = PAL[k][n].map(hex); });
 
     // ── Adsorbates ──
-    const rnd = (a, b) => a + Math.random() * (b - a);
-    const GAS_BOX = { x: 1.05, yMin: 1.8, yMax: 2.55 };
+    const GAS_BOX = { x: 0.95, yMin: 1.85, yMax: 2.5 };
     const flashes = [];
     function freeSites() { return sites.filter(s => !s.occ && !s.res); }
     function makeGas() {
@@ -242,12 +265,36 @@
       };
     }
     const mobiles = Array.from({ length: 5 }, makeGas);
-    // start with a few atoms already adsorbed
     mobiles.slice(0, 2).forEach(m => {
       const fs = freeSites(); const s = fs[Math.floor(Math.random() * fs.length)];
       Object.assign(m, { state: 'ads', site: s, x: s.x, y: s.y, z: s.z, mix: 1, bond: 1, timer: rnd(2, 7) });
       s.occ = m;
     });
+    const coverage = () => sites.filter(s => s.occ).length / sites.length;
+
+    // ── SCF / MD bookkeeping ──
+    const scf = { n: 14, target: 14, t: 0, run: false, de: 8.2e-7 };
+    let eads = -1.42, simT = 0, clock = 0, thetaS = coverage();
+    function startSCF() {
+      scf.run = true; scf.n = 0; scf.t = 0; scf.target = 11 + Math.floor(Math.random() * 7);
+      if (scfDot) scfDot.classList.add('run');
+    }
+    function stepSCF(dt) {
+      if (!scf.run) return;
+      scf.t += dt;
+      while (scf.t > 0.085 && scf.n < scf.target) {
+        scf.t -= 0.085; scf.n++;
+        scf.de = Math.pow(10, -(0.4 + scf.n * 0.42)) * rnd(0.6, 1.6);
+      }
+      if (scf.n >= scf.target) {
+        scf.run = false;
+        eads = -1.58 + 0.32 * coverage() + rnd(-0.05, 0.05);
+        if (eadsEl) eadsEl.textContent = '−' + Math.abs(eads).toFixed(2);
+        if (scfDot) scfDot.classList.remove('run');
+      }
+      if (scfN) scfN.textContent = scf.n;
+      if (scfDE) scfDE.textContent = scf.de.toExponential(1);
+    }
 
     function startMove(m, site, state, dur) {
       m.state = state; m.site = site; m.t = 0; m.dur = dur;
@@ -258,6 +305,7 @@
       const s = m.site; s.res = null; s.occ = m;
       m.state = 'ads'; m.x = s.x; m.y = s.y; m.z = s.z; m.timer = rnd(3.5, 8.5);
       flashes.push({ x: s.x, z: s.z, t: 0, big });
+      if (big) startSCF();
     }
     function seek(m) {
       const fs = freeSites(); if (!fs.length) { m.timer = rnd(0.6, 1.5); return; }
@@ -285,7 +333,7 @@
         m.t += dt / m.dur;
         const u = Math.min(1, m.t), s = m.site, f = m.from;
         if (m.state === 'approach') {
-          const e = Math.pow(u, 1.7); // accelerates toward the surface
+          const e = Math.pow(u, 1.7);
           const c = { x: s.x, y: Math.max(f.y, s.y + 0.9), z: s.z };
           const a = (1 - e) * (1 - e), b = 2 * (1 - e) * e, d = e * e;
           m.x = a * f.x + b * c.x + d * s.x; m.y = a * f.y + b * c.y + d * s.y; m.z = a * f.z + b * c.z + d * s.z;
@@ -295,15 +343,13 @@
         }
         if (u >= 1) land(m, m.state === 'approach');
       } else if (m.state === 'ads') {
-        m.y = m.site.y + Math.sin(m.ph) * 0.018;
+        m.y = m.site.y + Math.sin(m.ph) * 0.022;
         m.timer -= dt;
         if (m.timer <= 0) {
-          // desorb back into the gas phase
           m.site.occ = null; m.site = null;
           m.state = 'gas'; m.vy = rnd(0.9, 1.3); m.vx = rnd(-0.4, 0.4); m.vz = rnd(-0.4, 0.4);
           m.timer = rnd(2.2, 5);
         } else if (Math.random() < dt * 0.1) {
-          // surface diffusion: hop to a neighbouring empty hollow
           const nbs = sites.filter(s => !s.occ && !s.res && Math.abs(s.i - m.site.i) + Math.abs(s.k - m.site.k) === 1);
           if (nbs.length) {
             const to = nbs[Math.floor(Math.random() * nbs.length)];
@@ -312,9 +358,7 @@
         }
       }
     }
-    function dose() {
-      mobiles.forEach(m => { if (m.state === 'gas') m.timer = rnd(0, 0.35); });
-    }
+    function dose() { mobiles.forEach(m => { if (m.state === 'gas') m.timer = rnd(0, 0.35); }); }
 
     // ── Drawing helpers ──
     function sphere(p, rU, pal, alpha) {
@@ -324,6 +368,12 @@
       ctx.globalAlpha = alpha;
       ctx.beginPath(); ctx.arc(p.sx, p.sy, r, 0, TAU); ctx.fillStyle = g; ctx.fill();
     }
+    function blob(p, rU, rgb, a) {
+      const r = rU * p.s; if (r < 0.5) return;
+      const g = ctx.createRadialGradient(p.sx, p.sy, 0, p.sx, p.sy, r);
+      g.addColorStop(0, 'rgba(' + rgb + ',' + a + ')'); g.addColorStop(0.6, 'rgba(' + rgb + ',' + (a * 0.45) + ')'); g.addColorStop(1, 'rgba(' + rgb + ',0)');
+      ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.sx, p.sy, r, 0, TAU); ctx.fill();
+    }
     function ring(x, y, z, R, stroke, lw, dash) {
       ctx.beginPath();
       for (let n = 0; n <= 24; n++) {
@@ -332,15 +382,43 @@
       }
       ctx.setLineDash(dash || []); ctx.strokeStyle = stroke; ctx.lineWidth = lw; ctx.stroke(); ctx.setLineDash([]);
     }
-    function fade(z) { return Math.max(0.42, Math.min(1, 0.74 - z * 0.2)); }
+    function fade(z) { return Math.max(0.45, Math.min(1, 0.76 - z * 0.2)); }
 
-    // ── Render ──
+    // ── Render: 3D supercell ──
     let lastTheta = -1;
-    function render() {
-      const P = PAL[document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'];
+    function render3D(P) {
       ctx.clearRect(0, 0, W, H);
-      const pa = atoms.map(a => project(a.x, a.y, a.z));
+      const amp = reduceMotion ? 0.012 : 0.034;
+      const pos = atoms.map(a => ({
+        x: a.x + amp * Math.sin(clock * a.w + a.p1),
+        y: a.y + amp * 0.8 * Math.sin(clock * a.w * 1.13 + a.p2),
+        z: a.z + amp * Math.sin(clock * a.w * 0.91 + a.p3)
+      }));
+      const pa = pos.map(q => project(q.x, q.y, q.z));
+      const pb = bx.map(q => project(q.x, q.y, q.z));
       const list = [];
+
+      // supercell box (dashed) + vacuum label
+      bEdges.forEach(([u, v]) => {
+        const p = pb[u], q = pb[v];
+        list.push({ z: (p.z + q.z) / 2 + 0.6, d: () => {
+          ctx.globalAlpha = 0.75; ctx.setLineDash([4, 4]);
+          ctx.strokeStyle = 'rgba(' + P.box + ',0.6)'; ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(p.sx, p.sy); ctx.lineTo(q.sx, q.sy); ctx.stroke(); ctx.setLineDash([]);
+        } });
+      });
+      // lattice-vector triad at the cell origin
+      const o = bx[0], ends = [[1.0, 0, 0, 'a'], [0, 0, 1.0, 'b'], [0, 0.9, 0, 'c']];
+      const po = project(o.x, o.y, o.z);
+      ends.forEach(([dx, dy, dz, lab]) => {
+        const q = project(o.x + dx * 0.5, o.y + dy * 0.5, o.z + dz * 0.5);
+        list.push({ z: -99, d: () => {
+          ctx.globalAlpha = 0.95; ctx.strokeStyle = 'rgba(' + P.box + ',0.95)'; ctx.lineWidth = 1.6;
+          ctx.beginPath(); ctx.moveTo(po.sx, po.sy); ctx.lineTo(q.sx, q.sy); ctx.stroke();
+          ctx.fillStyle = 'rgba(' + P.box + ',1)'; ctx.font = '600 9px "JetBrains Mono", monospace';
+          ctx.fillText(lab, q.sx + 3, q.sy + 3);
+        } });
+      });
 
       edges.forEach(([u, v]) => {
         const p = pa[u], q = pa[v];
@@ -353,7 +431,7 @@
       });
       atoms.forEach((a, i) => {
         const p = pa[i];
-        list.push({ z: p.z, d: () => sphere(p, a.body ? 0.17 : 0.21, a.body ? P.body : P.host, fade(p.z)) });
+        list.push({ z: p.z, d: () => sphere(p, a.body ? 0.17 : 0.21, a.body ? P.body : (a.surf ? P.surf : P.host), fade(p.z)) });
       });
       sites.forEach(s => {
         if (s.occ) return;
@@ -361,20 +439,19 @@
         const hot = !!s.res;
         list.push({ z: c.z + 0.05, d: () => {
           ctx.globalAlpha = fade(c.z);
-          ring(s.x, TOP + 0.02, s.z, 0.22, 'rgba(' + P.site + ',' + (hot ? 0.95 : 0.5) + ')', hot ? 1.6 : 1, hot ? [] : [3, 3]);
+          ring(s.x, TOP + 0.02, s.z, 0.22, 'rgba(' + P.site + ',' + (hot ? 0.95 : 0.45) + ')', hot ? 1.6 : 1, hot ? [] : [3, 3]);
         } });
       });
       flashes.forEach(f => {
         const c = project(f.x, TOP + 0.02, f.z);
         list.push({ z: c.z + 0.04, d: () => {
           const k = f.t; ctx.globalAlpha = (1 - k) * 0.9;
-          ring(f.x, TOP + 0.02, f.z, 0.15 + k * (f.big ? 0.55 : 0.35), 'rgba(' + P.site + ',1)', 1.8, []);
+          ring(f.x, TOP + 0.02, f.z, 0.15 + k * (f.big ? 0.6 : 0.35), 'rgba(' + P.glow + ',1)', 1.8, []);
         } });
       });
       mobiles.forEach(m => {
         const p = project(m.x, m.y, m.z);
         const col = [0, 1, 2].map(n => mixc(P.gasRGB[n], P.adsRGB[n], m.mix));
-        // shadow on the surface while airborne
         if (m.state !== 'ads' && Math.abs(m.x) < HALF + 0.1 && Math.abs(m.z) < HALF + 0.1) {
           const h = Math.max(0, m.y - TOP), c = project(m.x, TOP + 0.01, m.z);
           list.push({ z: c.z + 0.03, d: () => {
@@ -384,34 +461,33 @@
             ctx.fillStyle = 'rgb(' + P.shadow + ')'; ctx.fill();
           } });
         }
-        // drop line toward the target site
         if (m.state === 'approach') {
           const t = project(m.site.x, m.site.y, m.site.z);
           list.push({ z: (p.z + t.z) / 2 - 0.5, d: () => {
-            ctx.globalAlpha = 0.55; ctx.setLineDash([2, 4]);
-            ctx.strokeStyle = 'rgba(' + P.site + ',0.8)'; ctx.lineWidth = 1;
+            ctx.globalAlpha = 0.6; ctx.setLineDash([2, 4]);
+            ctx.strokeStyle = 'rgba(' + P.glow + ',0.85)'; ctx.lineWidth = 1;
             ctx.beginPath(); ctx.moveTo(p.sx, p.sy); ctx.lineTo(t.sx, t.sy); ctx.stroke(); ctx.setLineDash([]);
           } });
         }
-        // chemisorption bonds to the four surface atoms
         if (m.bond > 0.02 && m.site) {
+          // charge-density-difference lobes: accumulation (yellow) in the bond, depletion (cyan) above
+          const acc = project(m.x, m.y - 0.2, m.z), dep = project(m.x, m.y + 0.2, m.z);
+          const pulse = 0.85 + 0.15 * Math.sin(clock * 3 + m.ph * 0.1);
+          list.push({ z: acc.z + 0.02, d: () => blob(acc, 0.42 * pulse, P.rhoP, 0.5 * m.bond) });
+          list.push({ z: dep.z - 0.02, d: () => blob(dep, 0.3 * pulse, P.rhoM, 0.42 * m.bond) });
           m.site.nb.forEach(ix => {
             const q = pa[ix];
             list.push({ z: (p.z + q.z) / 2 - 0.02, d: () => {
               ctx.globalAlpha = m.bond * 0.85;
-              ctx.strokeStyle = 'rgba(' + P.site + ',0.9)';
+              ctx.strokeStyle = 'rgba(' + P.rhoP + ',0.9)';
               ctx.lineWidth = Math.max(1, 0.04 * p.s);
               ctx.beginPath(); ctx.moveTo(p.sx, p.sy); ctx.lineTo(q.sx, q.sy); ctx.stroke();
             } });
           });
         }
         list.push({ z: p.z - 0.01, d: () => {
-          if (m.mix > 0.5) { // soft glow when adsorbed
-            const r = 0.4 * p.s, g = ctx.createRadialGradient(p.sx, p.sy, 0, p.sx, p.sy, r);
-            g.addColorStop(0, 'rgba(' + P.glow + ',' + (0.35 * m.mix) + ')'); g.addColorStop(1, 'rgba(' + P.glow + ',0)');
-            ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.sx, p.sy, r, 0, TAU); ctx.fill();
-          }
-          sphere(p, 0.16, col, Math.max(0.8, fade(p.z)));
+          if (m.mix > 0.5) blob(p, 0.38, P.glow, 0.3 * m.mix);
+          sphere(p, 0.15, col, Math.max(0.85, fade(p.z)));
         } });
       });
 
@@ -419,8 +495,104 @@
       for (let n = 0; n < list.length; n++) list[n].d();
       ctx.globalAlpha = 1;
 
+      // vacuum tag near the top of the cell
+      const vt = project(-BOX.x, BOX.yMax - 0.12, BOX.x);
+      ctx.fillStyle = P.text; ctx.font = '500 8.5px "JetBrains Mono", monospace';
+      ctx.fillText('vacuum', vt.sx + 4, vt.sy);
+    }
+
+    // ── Plots ──
+    const g = (x, m, s) => Math.exp(-((x - m) * (x - m)) / (2 * s * s));
+    const PLOT = {
+      light: { axis: 'rgba(100,116,139,.45)', text: '#64748b', tot: '#4f46e5', totF: 'rgba(99,102,241,', ads: '#e11d48', adsF: 'rgba(244,63,94,', ef: '#059669', wf: '#7c3aed', vac: 'rgba(20,184,166,.10)', slab: 'rgba(99,102,241,.07)' },
+      dark:  { axis: 'rgba(148,163,184,.4)', text: '#94a3b8', tot: '#a5b4fc', totF: 'rgba(129,140,248,', ads: '#fb7185', adsF: 'rgba(251,113,133,', ef: '#34d399', wf: '#c4b5fd', vac: 'rgba(45,212,191,.10)', slab: 'rgba(129,140,248,.09)' }
+    };
+    function drawDOS(p, Q, th) {
+      const c = p.c, w = p.w, h = p.h, L = 4, R = w - 4, T = 4, B = h - 13;
+      const E0 = -9, E1 = 3, X = e => L + (e - E0) / (E1 - E0) * (R - L);
+      c.clearRect(0, 0, w, h);
+      const wob = reduceMotion ? 0 : 0.06;
+      const dShift = -0.25 * th;
+      const tot = e => 0.12 + 0.9 * g(e, -3.4 + dShift, 0.55) + (1 + wob * Math.sin(clock * 2.1)) * g(e, -2.0 + dShift, 0.5)
+        + 0.85 * g(e, -0.8 + dShift, 0.45) + 0.5 * g(e, 0.7, 0.5) + 0.4 * th * g(e, -6.2, 0.5);
+      const ads = e => th * ((1.25 + wob * Math.sin(clock * 2.7)) * g(e, -6.2, 0.42) + 0.35 * g(e, -4.6, 0.5) + 0.32 * g(e, 1.3, 0.4));
+      const max = 1.45, Y = v => B - Math.min(1, v / max) * (B - T);
+      function curve(f, stroke, fill) {
+        const pts = [];
+        for (let i = 0; i <= 90; i++) { const e = E0 + (E1 - E0) * i / 90; pts.push([X(e), Y(f(e)), e]); }
+        // filled occupied states (E < E_F)
+        c.beginPath(); c.moveTo(X(E0), B);
+        pts.forEach(([x, y, e]) => { if (e <= 0) c.lineTo(x, y); });
+        c.lineTo(X(0), Y(f(0))); c.lineTo(X(0), B); c.closePath();
+        const gr = c.createLinearGradient(0, T, 0, B); gr.addColorStop(0, fill + '.55)'); gr.addColorStop(1, fill + '.05)');
+        c.fillStyle = gr; c.fill();
+        c.beginPath(); pts.forEach(([x, y], i) => i ? c.lineTo(x, y) : c.moveTo(x, y));
+        c.strokeStyle = stroke; c.lineWidth = 1.4; c.stroke();
+      }
+      // axis
+      c.strokeStyle = Q.axis; c.lineWidth = 1; c.beginPath(); c.moveTo(L, B + 0.5); c.lineTo(R, B + 0.5); c.stroke();
+      c.fillStyle = Q.text; c.font = '500 8px "JetBrains Mono", monospace'; c.textAlign = 'center';
+      [-8, -4, 0].forEach(e => { c.fillText(String(e).replace('-', '−'), X(e), h - 3); c.fillRect(X(e), B, 1, 3); });
+      curve(tot, Q.tot, Q.totF);
+      curve(ads, Q.ads, Q.adsF);
+      // Fermi level
+      c.setLineDash([3, 3]); c.strokeStyle = Q.ef; c.lineWidth = 1.2;
+      c.beginPath(); c.moveTo(X(0) + 0.5, T); c.lineTo(X(0) + 0.5, B); c.stroke(); c.setLineDash([]);
+      c.fillStyle = Q.ef; c.textAlign = 'left'; c.fillText('EF', X(0) + 3, T + 7);
+      // mini legend
+      c.textAlign = 'left'; c.fillStyle = Q.tot; c.fillText('d', L + 2, T + 7);
+      c.fillStyle = Q.ads; c.fillText('ads-p', L + 12, T + 7);
+    }
+    function drawWF(p, Q, phi) {
+      const c = p.c, w = p.w, h = p.h, L = 4, R = w - 4, T = 6, B = h - 13;
+      const Z1 = 20, V0 = -15, V1 = 8, X = z => L + z / Z1 * (R - L), Y = v => B - (v - V0) / (V1 - V0) * (B - T);
+      c.clearRect(0, 0, w, h);
+      const zs = 8.7, planes = [1.6, 3.05, 4.5, 5.95, 7.4];
+      const th = thetaS, wob = reduceMotion ? 0 : 0.25;
+      // slab / vacuum shading
+      c.fillStyle = Q.slab; c.fillRect(X(0), T, X(zs) - X(0), B - T);
+      c.fillStyle = Q.vac; c.fillRect(X(zs), T, R - X(zs), B - T);
+      const V = z => {
+        let v = -6 + (phi + 6) * 0.5 * (1 + Math.tanh((z - zs) / 0.55));
+        planes.forEach((zk, i) => { v -= (8.5 + wob * Math.sin(clock * 6 + i)) * g(z, zk, 0.255); });
+        v -= 4.5 * th * g(z, 9.3, 0.25);
+        return Math.max(V0, v);
+      };
+      // E_F line
+      c.setLineDash([3, 3]); c.strokeStyle = Q.ef; c.lineWidth = 1.1;
+      c.beginPath(); c.moveTo(L, Y(0) + 0.5); c.lineTo(R, Y(0) + 0.5); c.stroke(); c.setLineDash([]);
+      // potential curve with soft fill
+      c.beginPath();
+      for (let i = 0; i <= 140; i++) { const z = Z1 * i / 140; const x = X(z), y = Y(V(z)); i ? c.lineTo(x, y) : c.moveTo(x, y); }
+      const stroke = c.createLinearGradient(L, 0, R, 0); stroke.addColorStop(0, Q.tot); stroke.addColorStop(1, Q.wf);
+      c.strokeStyle = stroke; c.lineWidth = 1.5; c.stroke();
+      // Φ arrow in vacuum
+      const ax = X(15.5);
+      c.strokeStyle = Q.ads; c.fillStyle = Q.ads; c.lineWidth = 1.2;
+      c.beginPath(); c.moveTo(ax, Y(0)); c.lineTo(ax, Y(phi)); c.stroke();
+      [[Y(phi), 1], [Y(0), -1]].forEach(([y, d]) => { c.beginPath(); c.moveTo(ax, y); c.lineTo(ax - 3, y + 4 * d); c.lineTo(ax + 3, y + 4 * d); c.closePath(); c.fill(); });
+      c.font = '600 9px "JetBrains Mono", monospace'; c.textAlign = 'left';
+      c.fillText('Φ', ax + 4, (Y(0) + Y(phi)) / 2 + 3);
+      // labels
+      c.fillStyle = Q.ef; c.font = '500 8px "JetBrains Mono", monospace'; c.fillText('EF', R - 13, Y(0) + 9);
+      c.fillStyle = Q.text; c.textAlign = 'center';
+      c.fillText('slab', X(zs / 2), h - 3); c.fillText('vacuum  z →', X(14.3), h - 3);
+      c.strokeStyle = Q.axis; c.beginPath(); c.moveTo(L, B + 0.5); c.lineTo(R, B + 0.5); c.stroke();
+    }
+
+    function render() {
+      const dark = isDark();
+      render3D(PAL[dark ? 'dark' : 'light']);
       const occ = sites.filter(s => s.occ).length;
-      if (thetaEl && occ !== lastTheta) { lastTheta = occ; thetaEl.textContent = (occ / sites.length).toFixed(2); }
+      const th = occ / sites.length;
+      if (thetaEl && occ !== lastTheta) { lastTheta = occ; thetaEl.textContent = th.toFixed(2); }
+      const Q = PLOT[dark ? 'dark' : 'light'];
+      const phi = 4.55 + 0.95 * thetaS;
+      if (plots[0]) drawDOS(plots[0], Q, thetaS);
+      if (plots[1]) drawWF(plots[1], Q, phi);
+      if (phiEl) phiEl.textContent = phi.toFixed(2);
+      if (tempEl) tempEl.textContent = Math.round(300 + 6 * Math.sin(clock * 1.7) + 4 * Math.sin(clock * 3.1 + 1));
+      if (timeEl) timeEl.textContent = simT.toFixed(2);
     }
 
     // ── Interaction: drag to rotate, tap to dose ──
@@ -434,7 +606,7 @@
       const dx = e.clientX - lx, dy = e.clientY - ly; lx = e.clientX; ly = e.clientY;
       moved += Math.abs(dx) + Math.abs(dy);
       yaw += dx * 0.01; yawVel = dx * 0.6;
-      pitch = Math.max(0.28, Math.min(1.05, pitch + dy * 0.006));
+      pitch = Math.max(0.2, Math.min(1.05, pitch + dy * 0.006));
     });
     function endDrag() { if (dragging && moved < 6) dose(); dragging = false; }
     stage.addEventListener('pointerup', endDrag);
@@ -445,9 +617,13 @@
     function frame(now) {
       raf = 0;
       const dt = Math.min(0.05, last ? (now - last) / 1000 : 0.016); last = now;
+      clock += dt;
+      simT += dt * 0.25; if (simT >= 50) simT = 0;
       if (!dragging) { yawVel += (AUTO - yawVel) * Math.min(1, dt * 1.5); yaw += yawVel * dt; }
       mobiles.forEach(m => update(m, dt));
       for (let n = flashes.length - 1; n >= 0; n--) { flashes[n].t += dt / 0.8; if (flashes[n].t >= 1) flashes.splice(n, 1); }
+      thetaS += (coverage() - thetaS) * Math.min(1, dt * 2.2);
+      stepSCF(dt);
       render();
       if (visible && !document.hidden) raf = requestAnimationFrame(frame);
     }
