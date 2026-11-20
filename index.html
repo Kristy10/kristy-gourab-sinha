@@ -1675,14 +1675,66 @@ html[data-theme="dark"] #dft-info.ok { color: #34d399; }
 .dft-scf i { width: 7px; height: 7px; border-radius: 50%; background: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,.18); transition: background .2s; }
 .dft-scf i.run { background: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.22); animation: scf-blink .6s steps(2) infinite; }
 @keyframes scf-blink { 50% { opacity: .35; } }
+
+/* ══════════════════════════════════════════════════════════
+   HERO RESEARCH FOCUS — three grouped cards
+   ══════════════════════════════════════════════════════════ */
+.focus-wrap { margin-top: 24px; }
+.focus-head {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 11px;
+  font: 700 10.5px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink3);
+}
+.focus-head i { flex: 1; height: 1px; background: linear-gradient(90deg, var(--off3), transparent); }
+.focus-head em { font-style: normal; font-weight: 600; letter-spacing: .04em; text-transform: none; color: var(--blue); }
+.focus-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; align-items: stretch; }
+.focus-card {
+  --ac: #2563eb; --tint: #eff6ff;
+  position: relative; overflow: hidden;
+  background: #ffffff; border: 1px solid #e3e8ef; border-radius: 14px;
+  padding: 15px 14px 13px; box-shadow: var(--shadow-sm);
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+.focus-card::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--ac); }
+.focus-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: color-mix(in srgb, var(--ac) 45%, #e3e8ef); }
+.fc-top { display: flex; align-items: center; gap: 9px; margin-bottom: 11px; }
+.fc-ic {
+  flex: none; width: 30px; height: 30px; border-radius: 9px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--ac); background: var(--tint);
+}
+.fc-ic svg { width: 17px; height: 17px; }
+.fc-title { font: 700 13px/1.25 var(--display-sans); letter-spacing: -.01em; color: var(--ink); }
+.fc-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.fc-list li { position: relative; padding-left: 15px; font: 500 12.5px/1.4 var(--display-sans); color: var(--ink2); }
+.fc-list li::before {
+  content: ""; position: absolute; left: 1px; top: .48em; width: 6px; height: 6px; border-radius: 1.5px;
+  background: var(--ac); opacity: .5; transform: rotate(45deg); transition: opacity .2s ease;
+}
+.focus-card:hover .fc-list li::before { opacity: 1; }
+.fc-tools { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.fc-tools b {
+  font: 600 10px/1 var(--mono); letter-spacing: .02em; color: var(--ac); background: var(--tint);
+  border: 1px solid color-mix(in srgb, var(--ac) 28%, transparent); padding: 3px 6px; border-radius: 6px;
+}
+.fc-nuc { --ac: #d97706; --tint: #fff7ed; }
+.fc-mat { --ac: #2563eb; --tint: #eff6ff; }
+.fc-chr { --ac: #0d9488; --tint: #f0fdfa; }
+html[data-theme="dark"] .focus-card { background: #1c1e23; border-color: #30333b; box-shadow: none; }
+html[data-theme="dark"] .focus-card:hover { border-color: color-mix(in srgb, var(--ac) 50%, #30333b); }
+html[data-theme="dark"] .fc-nuc { --ac: #fbbf24; --tint: rgba(251,191,36,.12); }
+html[data-theme="dark"] .fc-mat { --ac: #7aa5ff; --tint: rgba(122,165,255,.13); }
+html[data-theme="dark"] .fc-chr { --ac: #2dd4bf; --tint: rgba(45,212,191,.12); }
+@media (max-width: 640px) { .focus-grid { grid-template-columns: 1fr; } }
+
+/* Academic Biography: justified lines */
+.bio-card p { text-align: justify; text-justify: inter-word; hyphens: auto; -webkit-hyphens: auto; }
+@media (max-width: 640px) { .bio-card { padding: 22px !important; } }
   </style>
 </head>
 <body>
   <!-- Scroll Progress -->
   <div id="scroll-progress" aria-hidden="true"></div>
 
-  <!-- Dynamic Background Particle Canvas -->
-  <canvas id="bg-particle-canvas" aria-hidden="true" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.65"></canvas>
 
   <!-- Navigation with 4th Image Official BUET Logo -->
   <nav id="nav">
@@ -1793,21 +1845,54 @@ html[data-theme="dark"] #dft-info.ok { color: #34d399; }
         </div>
 
         <!-- ALL 14 RESEARCH FOCUS ITEMS SEPARATELY WITH PROPER GAPS -->
-        <div class="research-pills-wrap">
-          <span class="res-pill">Radiation Dosimetry and Luminescent Phosphor Materials</span>
-          <span class="res-pill">Materials Synthesis</span>
-          <span class="res-pill">Materials Characterization</span>
-          <span class="res-pill badge-highlight">XRD</span>
-          <span class="res-pill badge-highlight">SEM</span>
-          <span class="res-pill badge-highlight">TEM</span>
-          <span class="res-pill badge-highlight">FTIR</span>
-          <span class="res-pill">Alloy Synthesis</span>
-          <span class="res-pill">Corrosion Analysis</span>
-          <span class="res-pill">Computational Materials Science</span>
-          <span class="res-pill badge-highlight">DFT Castep</span>
-          <span class="res-pill badge-highlight">Geant4</span>
-          <span class="res-pill">Nuclear Instrumentation</span>
-          <span class="res-pill">Radiation Detection and Mapping</span>
+        <!-- Research focus: three structured groups -->
+        <div class="focus-wrap">
+          <div class="focus-head"><span>Research Focus</span><i aria-hidden="true"></i><em>9 areas</em></div>
+          <div class="focus-grid">
+            <div class="focus-card fc-nuc">
+              <div class="fc-top">
+                <span class="fc-ic" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="2.1"/><path d="M12 9.2 8.6 3.4a9.8 9.8 0 0 1 6.8 0z"/><path d="M12 9.2 8.6 3.4a9.8 9.8 0 0 1 6.8 0z" transform="rotate(120 12 12)"/><path d="M12 9.2 8.6 3.4a9.8 9.8 0 0 1 6.8 0z" transform="rotate(240 12 12)"/></svg>
+                </span>
+                <div class="fc-title">Radiation &amp; Nuclear</div>
+              </div>
+              <ul class="fc-list">
+                <li>Radiation Dosimetry</li>
+                <li>Luminescent Phosphor Materials</li>
+                <li>Radiation Detection and Mapping</li>
+                <li>Nuclear Instrumentation</li>
+              </ul>
+            </div>
+            <div class="focus-card fc-mat">
+              <div class="fc-top">
+                <span class="fc-ic" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"/><path d="M10 3v6.2L4.6 18.6A1.6 1.6 0 0 0 6 21h12a1.6 1.6 0 0 0 1.4-2.4L14 9.2V3"/><path d="M7.2 15h9.6"/></svg>
+                </span>
+                <div class="fc-title">Materials Processing</div>
+              </div>
+              <ul class="fc-list">
+                <li>Materials Synthesis</li>
+                <li>Alloy Synthesis</li>
+                <li>Corrosion Analysis</li>
+              </ul>
+            </div>
+            <div class="focus-card fc-chr">
+              <div class="fc-top">
+                <span class="fc-ic" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18h8"/><path d="M3 22h18"/><path d="M14 22a7 7 0 1 0 0-14h-1"/><path d="M9 14h2"/><path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/><path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/></svg>
+                </span>
+                <div class="fc-title">Characterization &amp; Modelling</div>
+              </div>
+              <ul class="fc-list">
+                <li>Materials Characterization
+                  <span class="fc-tools"><b>XRD</b><b>SEM</b><b>TEM</b><b>FTIR</b></span>
+                </li>
+                <li>Computational Materials Science
+                  <span class="fc-tools"><b>DFT CASTEP</b><b>Geant4</b></span>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1901,7 +1986,7 @@ html[data-theme="dark"] #dft-info.ok { color: #34d399; }
         <p class="section-sub">Background, academic pursuits, and departmental responsibilities.</p>
       </div>
 
-      <div class="reveal" style="max-width:920px;margin:0 auto;background:var(--white);padding:36px;border-radius:var(--radius);border:1px solid var(--off3);box-shadow:var(--shadow-sm)">
+      <div class="reveal bio-card" style="max-width:920px;margin:0 auto;background:var(--white);padding:36px;border-radius:var(--radius);border:1px solid var(--off3);box-shadow:var(--shadow-sm)">
         <p style="font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:16px;font-weight:400;line-height:1.85;color:var(--ink3);margin-bottom:20px">
           Hi, I'm Kristy Gourab Sinha. I am a Nuclear Engineer and Materials Science Researcher, currently working as a Research Assistant in the Department of Nuclear Science and Engineering at the Military Institute of Science and Technology, Bangladesh. I completed my B.Sc. in Nuclear Science and Engineering from MIST in 2024 and am currently pursuing an M.Sc. in Materials Science at the Bangladesh University of Engineering and Technology.
         </p>
@@ -2741,7 +2826,7 @@ html[data-theme="dark"] #dft-info.ok { color: #34d399; }
   <!-- Three.js removed: using native Canvas 2D crystal -->
 
   <!-- Complete script.js -->
-  <script src="script.js?v=dft-grid-14"></script>
+  <script src="script.js?v=focus-15"></script>
 
   <!-- Dynamic Functions -->
   <script>
