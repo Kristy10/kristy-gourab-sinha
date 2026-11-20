@@ -24,25 +24,25 @@
 
 :root {
   --white: #ffffff;
-  --off: #f8f9fc;
-  --off2: #f0f2f7;
-  --off3: #e4e8f0;
-  --ink: #0d0f14;
-  --ink2: #2d3142;
-  --ink3: #6b7394;
-  --ink4: #a8aec8;
-  --blue: #2563eb;
-  --blue-light: #eff4ff;
-  --blue-mid: #93b4fd;
-  --teal: #0d9488;
-  --teal-light: #f0fdfb;
-  --amber: #d97706;
-  --amber-light: #fffbeb;
-  --red: #dc2626;
-  --red-light: #fef2f2;
-  --purple-light: #fdf4ff;
-  --green: #16a34a;
-  --green-light: #f0fdf4;
+  --off: #f7f8fc;
+  --off2: #eef0f7;
+  --off3: #dde1ed;
+  --ink: #0c0e18;
+  --ink2: #1e2235;
+  --ink3: #5a6382;
+  --ink4: #9aa2bb;
+  --blue: #2155d4;
+  --blue-light: #eaf0ff;
+  --blue-mid: #7ba4fa;
+  --teal: #0b8c82;
+  --teal-light: #ebfaf8;
+  --amber: #c97100;
+  --amber-light: #fff8ea;
+  --red: #c92020;
+  --red-light: #fff0f0;
+  --purple-light: #f8f0ff;
+  --green: #148a40;
+  --green-light: #ebfaf1;
   --display: 'Playfair Display', Georgia, serif;
   --body: 'Plus Jakarta Sans', system-ui, sans-serif;
   --mono: 'JetBrains Mono', monospace;
@@ -56,25 +56,31 @@
 }
 /* ── DARK MODE ── */
 [data-theme="dark"] {
-  --white: #141518;
-  --off: #1a1d23;
-  --off2: #21252e;
-  --off3: #2e3340;
-  --ink: #edf0f7;
-  --ink2: #c5cade;
-  --ink3: #8892aa;
-  --ink4: #55607a;
-  --blue-light: #1a2a4a;
-  --teal-light: #0a2520;
-  --amber-light: #2a1f0a;
-  --red-light: #2a0f0f;
+  --white: #0f1117;
+  --off: #161920;
+  --off2: #1e2130;
+  --off3: #2a2f42;
+  --ink: #e8ecf6;
+  --ink2: #bec6dd;
+  --ink3: #7c87a6;
+  --ink4: #485069;
+  --blue: #5b8ef5;
+  --blue-light: #15213d;
+  --blue-mid: #3e6ccc;
+  --teal: #22c5b8;
+  --teal-light: #0a2420;
+  --amber: #f0a330;
+  --amber-light: #271d08;
+  --red: #f05050;
+  --red-light: #260e0e;
+  --green: #34c472;
   --green-light: #0a2018;
-  --purple-light: #241a2e;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,.25), 0 1px 2px rgba(0,0,0,.18);
-  --shadow: 0 4px 16px rgba(0,0,0,.3), 0 2px 6px rgba(0,0,0,.2);
-  --shadow-lg: 0 12px 40px rgba(0,0,0,.4), 0 4px 12px rgba(0,0,0,.25);
+  --purple-light: #1e1428;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.25);
+  --shadow: 0 4px 16px rgba(0,0,0,.45), 0 2px 6px rgba(0,0,0,.3);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,.55), 0 4px 12px rgba(0,0,0,.35);
 }
-[data-theme="dark"] #nav { background: rgba(20,21,24,0.94); }
+[data-theme="dark"] #nav { background: rgba(15,17,23,0.96); backdrop-filter: blur(24px) saturate(200%); }
 [data-theme="dark"] .hero-bg { opacity:.04; }
 [data-theme="dark"] .hero-grid-bg { opacity:.04; }
 [data-theme="dark"] .pub-card, [data-theme="dark"] .service-card,
@@ -1437,9 +1443,9 @@ body {
           Kristy Gourab<br><span style="color:var(--blue)">Sinha</span>
         </h1>
 
-        <div class="hero-dept" style="margin-top:12px">
-          <strong id="h-dept" style="font-size:15px;color:var(--ink);font-weight:700">Department of Materials and Metallurgical Engineering</strong>
-          <span id="h-uni" style="display:block;font-size:13.5px;color:var(--ink3);font-weight:500;margin-top:2px">Bangladesh University of Engineering and Technology (BUET)</span>
+        <div class="hero-dept" style="margin-top:14px;display:flex;flex-direction:column;gap:4px">
+          <strong id="h-dept" style="font-size:15px;color:var(--ink);font-weight:600;letter-spacing:-0.01em">Department of Materials and Metallurgical Engineering</strong>
+          <span id="h-uni" style="display:block;font-size:13.5px;color:var(--ink3);font-weight:400;letter-spacing:0.01em">Bangladesh University of Engineering and Technology</span>
         </div>
 
         <!-- Bio Paragraphs using exact 2nd pic font typography -->
@@ -1557,11 +1563,11 @@ body {
       </div>
 
       <div class="reveal" style="max-width:920px;margin:0 auto;background:var(--white);padding:36px;border-radius:var(--radius);border:1px solid var(--off3);box-shadow:var(--shadow-sm)">
-        <p style="font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:16px;font-weight:400;line-height:1.85;color:var(--ink3);margin-bottom:18px">
-          Hi, I'm Kristy Gourab Sinha. I am a Nuclear Engineer and Materials Science Researcher, currently working as a Research Assistant in the Department of Nuclear Science and Engineering at the Military Institute of Science and Technology (MIST), Bangladesh. I completed my B.Sc. in Nuclear Science and Engineering from MIST in 2024 and am currently pursuing an M.Sc. in Materials Science at the Bangladesh University of Engineering and Technology (BUET).
+        <p style="font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:16px;font-weight:400;line-height:1.85;color:var(--ink3);margin-bottom:20px">
+          Hi, I'm Kristy Gourab Sinha. I am a Nuclear Engineer and Materials Science Researcher, currently working as a Research Assistant in the Department of Nuclear Science and Engineering at the Military Institute of Science and Technology, Bangladesh. I completed my B.Sc. in Nuclear Science and Engineering from MIST in 2024 and am currently pursuing an M.Sc. in Materials Science at the Bangladesh University of Engineering and Technology.
         </p>
         <p style="font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:16px;font-weight:400;line-height:1.85;color:var(--ink3)">
-          My research interests include advanced materials, radiation dosimetry, alloy synthesis, corrosion analysis, materials characterization, computational materials science (DFT using CASTEP in Materials Studio), nuclear instrumentation, and radiation detection and mapping. As a Research Assistant, I conduct SEM and WDXRF analyses in departmental laboratories and support undergraduate students in their research projects and thesis.
+          My research interests include advanced materials, radiation dosimetry, alloy synthesis, corrosion analysis, materials characterization, computational materials science, nuclear instrumentation, and radiation detection and mapping. As a Research Assistant, I conduct SEM and WDXRF analyses in departmental laboratories and support undergraduate students in their research projects and thesis.
         </p>
       </div>
     </div>
@@ -2401,7 +2407,7 @@ body {
   <!-- Dynamic Functions -->
   <script>
     function initTheme() {
-      const savedTheme = localStorage.getItem('theme') || 'light';
+      const savedTheme = localStorage.getItem('kgs-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       document.documentElement.setAttribute('data-theme', savedTheme);
       updateThemeIcon(savedTheme);
     }
@@ -2410,7 +2416,7 @@ body {
       const current = document.documentElement.getAttribute('data-theme') || 'light';
       const next = current === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem('theme', next);
+      localStorage.setItem('kgs-theme', next);
       updateThemeIcon(next);
     }
 

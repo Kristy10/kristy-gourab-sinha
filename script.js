@@ -16,10 +16,13 @@
 
   if (themeToggle) {
     themeToggle.addEventListener('click', () => {
-      const current = root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      const current = root.getAttribute('data-theme') || 'light';
       const next = current === 'dark' ? 'light' : 'dark';
       root.setAttribute('data-theme', next);
       localStorage.setItem('kgs-theme', next);
+      // sync icon
+      const icon = document.getElementById('theme-icon');
+      if (icon) icon.textContent = next === 'dark' ? '☀️' : '🌙';
     });
   }
 
