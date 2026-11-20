@@ -1,14 +1,14 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kristy Gourab Sinha - Materials Science &amp; Nuclear Engineering | BUET · MIST</title>
+  <title>Kristy Gourab Sinha - Materials Science &amp; Nuclear Engineering | BUET Â· MIST</title>
   <meta name="description" content="Academic &amp; research portfolio of Kristy Gourab Sinha - M.Sc. in Materials Science (BUET) and Research Assistant in Nuclear Science &amp; Engineering (MIST).">
   <meta name="author" content="Kristy Gourab Sinha">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="Kristy Gourab Sinha - BUET · MIST">
+  <meta property="og:title" content="Kristy Gourab Sinha - BUET Â· MIST">
   <meta property="og:description" content="M.Sc. Researcher in Materials Science at BUET and Research Assistant at MIST.">
   <meta property="og:type" content="website">
 
@@ -66,7 +66,7 @@
   --radius-lg: 20px;
   --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
-/* ── DARK MODE ── */
+/* â”€â”€ DARK MODE â”€â”€ */
 [data-theme="dark"] {
   --white: #0f1117;
   --off: #161920;
@@ -120,7 +120,7 @@
 [data-theme="dark"] #nav.scrolled { box-shadow: 0 2px 20px rgba(0,0,0,.3); }
 html, body { transition: background-color .3s ease, color .3s ease; }
 
-/* ── PRINT / CV ── */
+/* â”€â”€ PRINT / CV â”€â”€ */
 @media print {
   #nav, .admin-panel, .toast-msg, .nav-cta, .nav-toggle,
   .btn-ghost, #dark-toggle, #section-rail,
@@ -148,7 +148,7 @@ html, body { transition: background-color .3s ease, color .3s ease; }
   .course-list, .team-grid, .service-grid, .awards-grid,
   .news-grid, .research-grid { grid-template-columns:1fr 1fr !important; }
   #projects-grid, #memberships-grid { grid-template-columns:1fr 1fr !important; }
-  /* show destination URLs after external links (skip DOI buttons — DOI text is enough) */
+  /* show destination URLs after external links (skip DOI buttons â€” DOI text is enough) */
   .media-card[href^="http"]::after, .news-link[href^="http"]::after,
   .thesis-pdf[href^="http"]::after {
     content:" (" attr(href) ")"; font-size:8.5pt; color:#555; word-break:break-all;
@@ -161,7 +161,7 @@ html { scroll-behavior: smooth; font-size: 16px; }
 body { font-family: var(--body); background: var(--off); color: var(--ink); line-height: 1.6; -webkit-font-smoothing: antialiased; }
 ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: var(--off2); } ::-webkit-scrollbar-thumb { background: var(--off3); border-radius: 3px; }
 
-/* ── NAV ── */
+/* â”€â”€ NAV â”€â”€ */
 #nav {
   position: fixed; top: 0; left: 0; right: 0; z-index: 200;
   height: 60px; display: flex; align-items: center; justify-content: space-between;
@@ -186,7 +186,7 @@ body { font-family: var(--body); background: var(--off); color: var(--ink); line
 .nav-toggle { display: none; background: none; border: none; cursor: pointer; padding: 4px; flex-direction: column; gap: 5px; }
 .nav-toggle span { display: block; width: 22px; height: 2px; background: var(--ink); border-radius: 1px; transition: var(--transition); }
 
-/* ── HERO ── */
+/* â”€â”€ HERO â”€â”€ */
 #hero {
   min-height: 100vh; display: flex; align-items: center;
   padding: 80px 2rem 60px;
@@ -241,7 +241,7 @@ body { font-family: var(--body); background: var(--off); color: var(--ink); line
 .stat-val { font-family: var(--display); font-size: 26px; font-weight: 700; color: var(--ink); display: block; }
 .stat-lbl { font-size: 11px; color: var(--ink4); font-family: var(--mono); letter-spacing: 0.05em; margin-top: 2px; }
 
-/* ── SECTION BASE ── */
+/* â”€â”€ SECTION BASE â”€â”€ */
 .section { padding: 64px 2rem; }
 .section-alt { background: var(--white); }
 .section-inner { max-width: 1120px; margin: 0 auto; }
@@ -252,12 +252,12 @@ h2.section-title { font-family: var(--display); font-size: clamp(1.8rem, 3vw, 2.
 h2.section-title em { font-style: italic; color: var(--blue); }
 .section-sub { font-size: 15px; color: var(--ink3); margin-top: 12px; max-width: 520px; margin-left: auto; margin-right: auto; line-height: 1.75; }
 
-/* ── CARDS ── */
+/* â”€â”€ CARDS â”€â”€ */
 .card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--off3); box-shadow: var(--shadow-sm); transition: all var(--transition); overflow: hidden; }
 .card:hover { box-shadow: var(--shadow); transform: translateY(-3px); border-color: var(--blue-mid); }
 .card-pad { padding: 24px 28px; }
 
-/* ── RESEARCH AREAS ── */
+/* â”€â”€ RESEARCH AREAS â”€â”€ */
 .research-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
 .research-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--off3); padding: 28px 24px; box-shadow: var(--shadow-sm); transition: all var(--transition); position: relative; overflow: hidden; }
 .research-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background: linear-gradient(90deg, var(--blue), var(--teal)); opacity:0; transition: opacity var(--transition); }
@@ -270,7 +270,7 @@ h2.section-title em { font-style: italic; color: var(--blue); }
 .rc-tags { display:flex; flex-wrap:wrap; gap:5px; }
 .rc-tag { font-size:10px; font-family: var(--mono); color: var(--blue); background: var(--blue-light); padding:3px 8px; border-radius:4px; }
 
-/* ── PUBLICATIONS ── */
+/* â”€â”€ PUBLICATIONS â”€â”€ */
 .pub-toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:28px; flex-wrap:wrap; gap:12px; }
 .pub-filters { display:flex; gap:6px; flex-wrap:wrap; }
 .pf { font-size:12px; font-weight:500; padding:7px 16px; border-radius:20px; border:1.5px solid var(--off3); background:var(--white); color:var(--ink3); cursor:pointer; transition:all var(--transition); font-family:var(--body); }
@@ -337,7 +337,7 @@ h2.section-title em { font-style: italic; color: var(--blue); }
 .cite-summary { display:inline-flex; align-items:center; gap:8px; font-size:12px; color:var(--ink3); font-family:var(--mono); padding:6px 14px; background:var(--amber-light); border-radius:20px; border:1px solid rgba(180,100,0,.15); }
 .cite-summary svg { width:13px; height:13px; fill:var(--amber); }
 
-/* ── EXPERIENCE TIMELINE ── */
+/* â”€â”€ EXPERIENCE TIMELINE â”€â”€ */
 .exp-timeline { position:relative; padding-left:28px; }
 .exp-timeline::before { content:''; position:absolute; left:7px; top:6px; bottom:0; width:2px; background:var(--off3); border-radius:2px; }
 .exp-item { position:relative; margin-bottom:32px; }
@@ -358,7 +358,7 @@ h2.section-title em { font-style: italic; color: var(--blue); }
 .orcid-source-badge { display:inline-flex; align-items:center; gap:6px; font-size:11px; font-family:var(--mono); color:var(--teal); background:var(--teal-light); padding:4px 10px; border-radius:20px; margin-bottom:20px; }
 .orcid-source-badge svg { width:14px; height:14px; }
 
-/* ── MEMBERSHIPS ── */
+/* â”€â”€ MEMBERSHIPS â”€â”€ */
 .membership-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:14px; }
 .mem-card { background:var(--white); border-radius:var(--radius); border:1px solid var(--off3); padding:18px 20px; box-shadow:var(--shadow-sm); display:flex; gap:14px; align-items:flex-start; transition:all var(--transition); }
 .mem-card:hover { box-shadow:var(--shadow); border-color:var(--blue-mid); transform:translateY(-3px); }
@@ -370,7 +370,7 @@ h2.section-title em { font-style: italic; color: var(--blue); }
 .mem-period { font-family:var(--mono); font-size:11px; color:var(--ink4); }
 .mem-type { font-size:10px; font-family:var(--mono); color:var(--blue); background:var(--blue-light); padding:2px 7px; border-radius:20px; margin-top:5px; display:inline-block; }
 
-/* ── PROJECTS ── */
+/* â”€â”€ PROJECTS â”€â”€ */
 .proj-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:20px; }
 .proj-card { background:var(--white); border-radius:var(--radius); border:1px solid var(--off3); padding:28px 26px; box-shadow:var(--shadow-sm); transition:all var(--transition); display:flex; flex-direction:column; gap:12px; }
 .proj-card:hover { box-shadow:var(--shadow); transform:translateY(-3px); border-color:var(--blue-mid); }
@@ -383,8 +383,8 @@ h2.section-title em { font-style: italic; color: var(--blue); }
 .proj-desc { font-size:14.5px; color:var(--ink3); line-height:1.7; flex:1; }
 .proj-funding { font-size:11px; font-family:var(--mono); color:var(--ink4); padding-top:8px; border-top:1px solid var(--off3); }
 
-/* ── TEACHING ── */
-.course-list { display:grid; grid-template-columns:repeat(auto-fill, minmax(340px,1fr)); gap:14px; align-items:start; } /* 2–3 columns on desktop, 1 on phones */
+/* â”€â”€ TEACHING â”€â”€ */
+.course-list { display:grid; grid-template-columns:repeat(auto-fill, minmax(340px,1fr)); gap:14px; align-items:start; } /* 2â€“3 columns on desktop, 1 on phones */
 .course-card { background:var(--white); border-radius:var(--radius); border:1px solid var(--off3); padding:22px 24px; box-shadow:var(--shadow-sm); display:grid; grid-template-columns:100px 1fr; gap:20px; transition:all var(--transition); }
 .course-card:hover { box-shadow:var(--shadow); border-color:var(--blue-mid); transform:translateY(-3px); }
 .course-code-block { display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--blue-light); border-radius:var(--radius-sm); padding:12px 8px; text-align:center; }
@@ -394,7 +394,7 @@ h2.section-title em { font-style: italic; color: var(--blue); }
 .course-meta { font-size:12px; color:var(--ink3); margin-bottom:7px; }
 .course-desc { font-size:14.5px; color:var(--ink3); line-height:1.7; }
 
-/* ── TEAM ── */
+/* â”€â”€ TEAM â”€â”€ */
 .team-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:16px; }
 .team-card { background:var(--white); border-radius:var(--radius); border:1px solid var(--off3); box-shadow:var(--shadow-sm); overflow:hidden; transition:all var(--transition); text-align:center; }
 .team-card:hover { box-shadow:var(--shadow); transform:translateY(-3px); border-color:var(--blue-mid); }
@@ -408,7 +408,7 @@ h2.section-title em { font-style: italic; color: var(--blue); }
 .team-section-lbl::after { content:''; flex:1; height:1px; background:var(--off3); }
 .team-section-lbl:first-child { margin-top:0; }
 
-/* ── STUDENTS ── */
+/* â”€â”€ STUDENTS â”€â”€ */
 .students-cols { display:grid; grid-template-columns:1fr 1fr; gap:28px; align-items:start; }
 .student-group-card { background:var(--white); border-radius:var(--radius); border:1px solid var(--off3); box-shadow:var(--shadow-sm); overflow:visible; }
 .sgc-header { padding:18px 22px; background:var(--off); border-bottom:1px solid var(--off3); border-radius:var(--radius) var(--radius) 0 0; }
@@ -425,7 +425,7 @@ h2.section-title em { font-style: italic; color: var(--blue); }
 .student-now { font-size:11px; color:var(--teal); margin-top:3px; }
 .student-badge { font-size:10px; font-family:var(--mono); font-weight:500; background:var(--blue-light); color:var(--blue); padding:3px 9px; border-radius:4px; white-space:nowrap; }
 
-/* ── THESIS ── */
+/* â”€â”€ THESIS â”€â”€ */
 .thesis-list { display:flex; flex-direction:column; gap:12px; }
 .thesis-card { background:var(--white); border-radius:var(--radius); border:1px solid var(--off3); padding:20px 24px; box-shadow:var(--shadow-sm); display:grid; grid-template-columns:60px 1fr; gap:16px; transition:all var(--transition); }
 .thesis-card:hover { box-shadow:var(--shadow); border-color:var(--blue-mid); transform:translateY(-3px); }
@@ -437,7 +437,7 @@ h2.section-title em { font-style: italic; color: var(--blue); }
 .thesis-pdf { font-size:11px; font-family:var(--mono); color:var(--blue); text-decoration:none; }
 .thesis-pdf:hover { text-decoration:underline; }
 
-/* ── NEWS ── */
+/* â”€â”€ NEWS â”€â”€ */
 .news-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:18px; }
 .news-card { background:var(--white); border-radius:var(--radius); border:1px solid var(--off3); padding:24px; box-shadow:var(--shadow-sm); transition:all var(--transition); display:flex; flex-direction:column; gap:10px; }
 .news-card:hover { box-shadow:var(--shadow); transform:translateY(-3px); border-color:var(--blue-mid); }
@@ -454,7 +454,7 @@ h2.section-title em { font-style: italic; color: var(--blue); }
 .news-link { font-size:12px; font-weight:600; color:var(--blue); text-decoration:none; margin-top:auto; }
 .news-link:hover { text-decoration:underline; }
 
-/* ── CONTACT ── */
+/* â”€â”€ CONTACT â”€â”€ */
 .contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:32px; }
 .contact-card { background:var(--white); border-radius:var(--radius); border:1px solid var(--off3); box-shadow:var(--shadow-sm); overflow:hidden; }
 .cc-header { padding:18px 24px; background:var(--off); border-bottom:1px solid var(--off3); font-family:var(--display); font-size:16px; font-weight:600; color:var(--ink); }
@@ -475,7 +475,7 @@ h2.section-title em { font-style: italic; color: var(--blue); }
 .prospect-card h3 { font-family:var(--display); font-size:18px; font-weight:700; color:var(--ink); margin-bottom:10px; }
 .prospect-card p { font-size:14px; color:var(--ink3); line-height:1.8; }
 
-/* ── ADMIN PANEL ── */
+/* â”€â”€ ADMIN PANEL â”€â”€ */
 #admin-toggle { position:fixed; bottom:24px; right:24px; z-index:300; width:48px; height:48px; background:var(--ink); color:white; border:none; border-radius:50%; cursor:pointer; display:none; align-items:center; justify-content:center; box-shadow:var(--shadow-lg); transition:all var(--transition); font-size:18px; }
 #admin-toggle:hover { background:var(--blue); transform:scale(1.1); }
 #admin-panel {
@@ -525,7 +525,7 @@ h2.section-title em { font-style: italic; color: var(--blue); }
 .toast-msg { position:fixed; bottom:88px; right:24px; background:var(--ink); color:white; padding:10px 20px; border-radius:var(--radius-sm); font-size:13px; font-weight:500; z-index:600; opacity:0; transform:translateY(10px); transition:all 0.25s; pointer-events:none; }
 .toast-msg.show { opacity:1; transform:translateY(0); }
 
-/* ── ORCID REFRESH BUTTON ── */
+/* â”€â”€ ORCID REFRESH BUTTON â”€â”€ */
 .orcid-refresh-btn {
   display: inline-flex; align-items: center; gap: 6px;
   font-size: 11px; font-weight: 600; font-family: var(--mono);
@@ -545,7 +545,7 @@ h2.section-title em { font-style: italic; color: var(--blue); }
 .orcid-dot { width:7px; height:7px; background:var(--teal); border-radius:50%; }
 .divider { height:1px; background:var(--off3); margin:32px 0; }
 
-/* ── SCROLL BUTTONS ── */
+/* â”€â”€ SCROLL BUTTONS â”€â”€ */
 .scroll-fab { position:fixed; right:26px; z-index:299; width:40px; height:40px; border-radius:50%; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:17px; box-shadow:var(--shadow); transition:all var(--transition); opacity:0; pointer-events:none; }
 .scroll-fab.visible { opacity:1; pointer-events:auto; }
 #scroll-top-btn { bottom:140px; background:var(--white); color:var(--ink2); border:1.5px solid var(--off3); }
@@ -554,10 +554,10 @@ h2.section-title em { font-style: italic; color: var(--blue); }
 #scroll-bot-btn:hover { background:var(--blue); color:white; border-color:var(--blue); transform:translateY(-2px); }
 [data-theme="dark"] .scroll-fab { background:var(--off2); border-color:var(--off3); }
 
-/* ── ORCID project card badge ── */
+/* â”€â”€ ORCID project card badge â”€â”€ */
 .orcid-proj { position:relative; }
 .orcid-proj::after { content:''; position:absolute; top:10px; right:10px; width:18px; height:18px; border-radius:50%; background:#A6CE39 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath fill='%23fff' d='M86 186H71V79h15v107zm22-107h42c40 0 57 28 57 54 0 27-22 53-57 53H108V79zm15 93h25c35 0 43-27 43-40 0-21-14-39-44-39h-24v79zM89 57a10 10 0 1 1-20 0 10 10 0 0 1 20 0z'/%3E%3C/svg%3E") center/12px no-repeat; opacity:.85; pointer-events:none; }
-/* ── ANIMATIONS ── */
+/* â”€â”€ ANIMATIONS â”€â”€ */
 .reveal { opacity:0; transform:translateY(24px); transition:opacity 0.55s ease, transform 0.55s ease; }
 .reveal.visible { opacity:1; transform:translateY(0); }
 .reveal-delay-1 { transition-delay:0.08s; }
@@ -566,7 +566,7 @@ h2.section-title em { font-style: italic; color: var(--blue); }
 .reveal-delay-4 { transition-delay:0.32s; }
 
 
-/* ── AWARDS ── */
+/* â”€â”€ AWARDS â”€â”€ */
 .awards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; }
 .award-card { background:var(--white); border-radius:16px; border:1px solid var(--off3); padding:22px 22px 18px; box-shadow:var(--shadow-sm); transition:all var(--transition); position:relative; overflow:hidden; }
 .award-card:hover { box-shadow:var(--shadow); transform:translateY(-3px); }
@@ -577,7 +577,7 @@ h2.section-title em { font-style: italic; color: var(--blue); }
 .award-org { font-size:13px; color:var(--ink3); margin-bottom:8px; }
 .award-desc { font-size:13px; color:var(--ink4); line-height:1.6; }
 
-/* ── TALKS ── */
+/* â”€â”€ TALKS â”€â”€ */
 .talks-list { display:flex; flex-direction:column; gap:0; }
 .talk-card { background:var(--white); border-radius:14px; border:1px solid var(--off3); padding:18px 22px; box-shadow:var(--shadow-sm); transition:all var(--transition); display:grid; grid-template-columns:90px 1fr; gap:18px; align-items:start; margin-bottom:10px; }
 .talk-card:hover { box-shadow:var(--shadow); transform:translateX(4px); border-color:var(--blue-mid); }
@@ -596,7 +596,7 @@ h2.section-title em { font-style: italic; color: var(--blue); }
 .tb-invited { background:var(--blue-light); color:var(--blue); }
 .tb-conf    { background:var(--green-light); color:var(--green); }
 
-/* ── MEDIA / PRESS ── */
+/* â”€â”€ MEDIA / PRESS â”€â”€ */
 .media-intro { font-size:14px; color:var(--ink3); margin-bottom:24px; line-height:1.7; }
 .media-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
 .media-card { background:var(--white); border-radius:14px; border:1px solid var(--off3); padding:18px 20px; box-shadow:var(--shadow-sm); transition:all var(--transition); text-decoration:none; display:block; }
@@ -608,14 +608,14 @@ h2.section-title em { font-style: italic; color: var(--blue); }
 .media-snippet { font-size:12px; color:var(--ink3); line-height:1.6; }
 .media-arrow { font-size:12px; color:var(--blue); margin-top:10px; display:block; font-weight:500; }
 
-/* ── DARK/LANG TOGGLE BUTTONS ── */
+/* â”€â”€ DARK/LANG TOGGLE BUTTONS â”€â”€ */
 .nav-icon-btns { display:flex; align-items:center; gap:6px; margin-right:8px; }
 .icon-btn { width:32px; height:32px; border-radius:8px; border:1.5px solid var(--off3); background:var(--white); color:var(--ink2); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:15px; transition:all .15s; }
 .icon-btn:hover { background:var(--off); border-color:var(--ink4); }
 [data-theme="dark"] .icon-btn { background:var(--off2); }
 
 
-/* ── REVIEWER CARD ── */
+/* â”€â”€ REVIEWER CARD â”€â”€ */
 .reviewer-card-wrap { position:relative; }
 .reviewer-card { background:var(--white); border-radius:16px; border:1px solid var(--off3); padding:24px 26px 20px; box-shadow:var(--shadow-sm); overflow:hidden; position:relative; }
 .reviewer-stat-row { display:flex; align-items:flex-end; gap:14px; margin-bottom:16px; }
@@ -643,8 +643,8 @@ h2.section-title em { font-style: italic; color: var(--blue); }
 [data-theme="dark"] .reviewer-card { background: var(--off2); border-color:var(--off3); }
 
 
-/* ── EDUCATION TIMELINE ── */
-/* ── EDUCATION COMPACT HORIZONTAL TIMELINE ── */
+/* â”€â”€ EDUCATION TIMELINE â”€â”€ */
+/* â”€â”€ EDUCATION COMPACT HORIZONTAL TIMELINE â”€â”€ */
 .edu-timeline {
   position: relative;
   padding: 0 0 8px;
@@ -767,8 +767,8 @@ h2.section-title em { font-style: italic; color: var(--blue); }
 [data-theme="dark"] .edu-card { background: var(--off2); border-color: var(--off3); }
 [data-theme="dark"] .edu-node { background: var(--off2); box-shadow: 0 0 0 5px rgba(37,99,235,.15); }
 
-/* ── UG ALUMNI SECTION ── */
-/* ── ALUMNI SHOW-MORE BUTTON ── */
+/* â”€â”€ UG ALUMNI SECTION â”€â”€ */
+/* â”€â”€ ALUMNI SHOW-MORE BUTTON â”€â”€ */
 .alumni-show-more-btn {
   margin-top: 10px;
   width: 100%;
@@ -811,14 +811,14 @@ h2.section-title em { font-style: italic; color: var(--blue); }
 .alumni-show-more-btn.open .alumni-show-more-arrow { transform: rotate(180deg); }
 [data-theme="dark"] .alumni-show-more-btn { box-shadow: 0 4px 14px rgba(37,99,235,0.20); }
 
-/* ── ADMIN DRAG-AND-DROP ── */
+/* â”€â”€ ADMIN DRAG-AND-DROP â”€â”€ */
 .drag-item { cursor: grab; user-select: none; }
 .drag-item:active { cursor: grabbing; }
 .drag-item.dragging { opacity: .45; background: var(--blue-light) !important; border-color: var(--blue-mid) !important; }
 .drag-item.drag-over { border-top: 2px solid var(--blue) !important; }
 .drag-handle { color: var(--ink4); font-size: 14px; cursor: grab; padding: 0 6px; flex-shrink: 0; }
 
-/* ── SECTION RAIL (on-this-page, desktop ≥ 1280px) ── */
+/* â”€â”€ SECTION RAIL (on-this-page, desktop â‰¥ 1280px) â”€â”€ */
 #section-rail { position:fixed; right:16px; top:50%; transform:translateY(-50%); z-index:150; display:none; flex-direction:column; gap:7px; }
 @media (min-width:1280px) { #section-rail { display:flex; } }
 #section-rail a { position:relative; width:22px; height:14px; display:flex; align-items:center; justify-content:flex-end; text-decoration:none; }
@@ -829,7 +829,7 @@ h2.section-title em { font-style: italic; color: var(--blue); }
 #section-rail a:hover .rail-lbl { opacity:1; }
 [data-theme="dark"] #section-rail a .rail-lbl { background:var(--off3); color:var(--ink); }
 
-/* ── RESPONSIVE ── */
+/* â”€â”€ RESPONSIVE â”€â”€ */
 @media(max-width:900px) {
   .hero-inner { grid-template-columns:1fr; }
   /* keep photo + stats on mobile: smaller, centered photo, 2x2 stat grid */
@@ -849,7 +849,7 @@ h2.section-title em { font-style: italic; color: var(--blue); }
   .course-card { grid-template-columns:1fr; gap:10px; }
   .thesis-card { grid-template-columns:1fr; gap:6px; }
 }
-/* ── SERVICE / EDITORIAL ── */
+/* â”€â”€ SERVICE / EDITORIAL â”€â”€ */
 .service-group { margin-bottom:44px; }
 .service-group:last-child { margin-bottom:0; }
 .service-group-title { font-size:11px; font-family:var(--mono); text-transform:uppercase; letter-spacing:.1em; color:var(--ink3); margin-bottom:16px; padding:8px 14px; background:var(--off); border-radius:8px; display:inline-flex; align-items:center; gap:8px; }
@@ -876,7 +876,7 @@ h2.section-title em { font-style: italic; color: var(--blue); }
 .srb-organizer { background:var(--purple-light); color:#9333ea; }
 .srb-other     { background:var(--off2); color:var(--ink3); }
 
-/* ── ADMIN: SERVICE CATEGORY + GROUPED ITEM LISTS ── */
+/* â”€â”€ ADMIN: SERVICE CATEGORY + GROUPED ITEM LISTS â”€â”€ */
 .svc-cat-row { align-items:center; gap:10px; }
 .svc-cat-row .svc-cat-grip { cursor:grab; }
 .svc-cat-row:active .svc-cat-grip { cursor:grabbing; }
@@ -890,12 +890,12 @@ h2.section-title em { font-style: italic; color: var(--blue); }
   border:1px dashed var(--off3); border-radius:var(--radius-sm); }
 .item-row-actions .btn-icon[disabled] { cursor:default; pointer-events:none; }
 
-/* ── SKIP LINK (keyboard users) ── */
+/* â”€â”€ SKIP LINK (keyboard users) â”€â”€ */
 .skip-link { position:absolute; left:-9999px; top:0; z-index:900; background:var(--blue); color:#fff;
   padding:10px 18px; border-radius:0 0 10px 0; font-size:13px; font-weight:600; text-decoration:none; }
 .skip-link:focus { left:0; }
 
-/* ── REDUCED MOTION ── respect the OS setting; never trap content behind an animation */
+/* â”€â”€ REDUCED MOTION â”€â”€ respect the OS setting; never trap content behind an animation */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration:.001ms !important; animation-iteration-count:1 !important;
@@ -907,7 +907,7 @@ h2.section-title em { font-style: italic; color: var(--blue); }
 
 
 
-/* ── ULTRA-LUCRATIVE PLUS JAKARTA SANS & PLAYFAIR DISPLAY STYLES ── */
+/* â”€â”€ ULTRA-LUCRATIVE PLUS JAKARTA SANS & PLAYFAIR DISPLAY STYLES â”€â”€ */
 :root {
   --display: 'Playfair Display', Georgia, serif;
   --display-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
@@ -952,7 +952,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── EXACT ONE DOT FIX FOR HERO EYEBROW ── */
+/* â”€â”€ EXACT ONE DOT FIX FOR HERO EYEBROW â”€â”€ */
 .hero-eyebrow::before {
   display: none !important; /* Eliminate default CSS duplicate dot */
 }
@@ -987,7 +987,7 @@ body {
   100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
 
-/* ── NAVBAR BRAND WITH OFFICIAL 4TH IMAGE BUET LOGO ── */
+/* â”€â”€ NAVBAR BRAND WITH OFFICIAL 4TH IMAGE BUET LOGO â”€â”€ */
 .nav-brand-container {
   display: flex;
   align-items: center;
@@ -1027,7 +1027,7 @@ body {
   margin-top: 2px;
 }
 
-/* ── BIO PARAGRAPHS USING EXACT 2ND PIC FONT (Plus Jakarta Sans) ── */
+/* â”€â”€ BIO PARAGRAPHS USING EXACT 2ND PIC FONT (Plus Jakarta Sans) â”€â”€ */
 .hero-bio p {
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
   font-size: 16px !important;
@@ -1042,7 +1042,7 @@ body {
   color: var(--ink3) !important;
 }
 
-/* ── SEPARATE EYE-CATCHING RESEARCH PILLS WITH HORIZONTAL & VERTICAL GAPS ── */
+/* â”€â”€ SEPARATE EYE-CATCHING RESEARCH PILLS WITH HORIZONTAL & VERTICAL GAPS â”€â”€ */
 .research-pills-wrap {
   display: flex;
   flex-wrap: wrap;
@@ -1092,7 +1092,7 @@ body {
   color: #93c5fd;
 }
 
-/* ── 3RD IMAGE EXACT SIR'S WEBSITE PROJECTS BOX THEME ── */
+/* â”€â”€ 3RD IMAGE EXACT SIR'S WEBSITE PROJECTS BOX THEME â”€â”€ */
 .sir-proj-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -1191,7 +1191,7 @@ body {
   line-height: 1.6;
 }
 
-/* ── 5TH IMAGE 2-COLUMN SIDEBAR & BOX LAYOUT FOR SKILLS ── */
+/* â”€â”€ 5TH IMAGE 2-COLUMN SIDEBAR & BOX LAYOUT FOR SKILLS â”€â”€ */
 .skills-sidebar-layout {
   display: grid;
   grid-template-columns: 320px 1fr;
@@ -1394,7 +1394,7 @@ body {
 }
 
 
-/* ── THEME TOGGLE BUTTON ── */
+/* â”€â”€ THEME TOGGLE BUTTON â”€â”€ */
 #theme-toggle {
   display: inline-flex; align-items: center; justify-content: center;
   width: 38px; height: 38px; padding: 0;
@@ -1411,17 +1411,17 @@ body {
 [data-theme="dark"] #theme-icon .ti-moon { display: none; }
 [data-theme="dark"] #theme-icon .ti-sun { display: block; color: #fbbf24; }
 
-/* ── PUBLICATION TYPE BADGES ── */
+/* â”€â”€ PUBLICATION TYPE BADGES â”€â”€ */
 .pt-journal { background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; }
 .pt-chapter { background:#fdf4ff; color:#a21caf; border:1px solid #f0abfc; }
 .pt-proc    { background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0; }
 .pt-pres    { background:#fffbeb; color:#b45309; border:1px solid #fde68a; }
 .nav-cta { white-space: nowrap; }
 
-/* ══════════════════════════════════════════════════════════
-   DARK MODE — final, authoritative palette (deep navy)
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   DARK MODE â€” final, authoritative palette (deep navy)
    Kept last so it wins over the earlier partial dark rules.
-   ══════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 html[data-theme="dark"] {
   color-scheme: dark;
   --white: #121b2e;   /* card / raised surface   */
@@ -1505,7 +1505,7 @@ html[data-theme="dark"], [data-theme="dark"] body { background: var(--off); colo
 [data-theme="dark"] ::selection { background: rgba(91,143,249,.35); color: #fff; }
 [data-theme="dark"] #theme-toggle { background: var(--off2); border-color: var(--off3); }
 
-/* ── HERO CRYSTAL: overlay, legend, coverage ── */
+/* â”€â”€ HERO CRYSTAL: overlay, legend, coverage â”€â”€ */
 .crystal-stage { height: 340px; }
 .crystal-top { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
 .crystal-rotate-ic {
@@ -1542,19 +1542,19 @@ html[data-theme="dark"], [data-theme="dark"] body { background: var(--off); colo
 [data-theme="dark"] .lg-ads  { background: radial-gradient(circle at 35% 30%, #eafff5, #34d399 50%, #047857); }
 [data-theme="dark"] .crystal-theta strong { color:#34d399; }
 
-/* ── small screens: keep the nav on one line ── */
+/* â”€â”€ small screens: keep the nav on one line â”€â”€ */
 @media (max-width: 700px) {
   .nav-brand-sub { display: none; }
   .nav-brand-name { white-space: nowrap; font-size: 15px; }
   .visitor-counter-pill > span:nth-child(2) { display: none; }
 }
 
-/* ══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    PAGE BACKGROUNDS
    Day:   white #ffffff with a faint 40px graph-paper grid
    Night: flat charcoal #141518
    Cards sit on top as clearly bordered boxes.
-   ══════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 html[data-theme="light"] {
   --off:  #f7f8fa;  --white: #ffffff;  --off2: #f1f4f8;  --off3: #e2e8f0;
   --shadow-sm: 0 1px 2px rgba(15,23,42,.06), 0 1px 3px rgba(15,23,42,.05);
@@ -1592,9 +1592,9 @@ html[data-theme="dark"] :is(.pub-card, .service-card, .course-card, .thesis-card
   background: #1c1e23; border-color: #30333b; box-shadow: none;
 }
 
-/* ══════════════════════════════════════════════════════════
-   HERO DFT VISUAL — workflow stepper + slab + PDOS + work function
-   ══════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   HERO DFT VISUAL â€” workflow stepper + slab + PDOS + work function
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 /* hero grid: text column fills the space up to the DFT card (no dead gap) */
 @media (min-width: 1000px) { .hero-inner { max-width: 1200px; grid-template-columns: minmax(0, 1fr) 360px; gap: 44px; } }
 @media (min-width: 1200px) { .hero-inner { grid-template-columns: minmax(0, 1fr) 410px; gap: 56px; } }
@@ -1619,7 +1619,7 @@ html[data-theme="dark"] .crystal-hero-wrapper {
 @media (max-width: 640px) { .crystal-stage { height: 320px; } }
 .dft-steps { padding-bottom: 7px; }
 
-/* hero stats: one tidy strip of four instead of a 2×2 block */
+/* hero stats: one tidy strip of four instead of a 2Ã—2 block */
 html[data-theme] .hero-right { gap: 14px; }
 html[data-theme] .hero-right .stat-row {
   grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; overflow: hidden;
@@ -1700,6 +1700,32 @@ html[data-theme="dark"] #dft-info.ok { color: #34d399; }
 .dft-scf i.run { background: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.22); animation: scf-blink .6s steps(2) infinite; }
 @keyframes scf-blink { 50% { opacity: .35; } }
 
+/* floating section scroller (bottom-right) */
+.sec-nav {
+  position: fixed; right: 22px; bottom: 22px; z-index: 180;
+  display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 5px;
+  border-radius: 999px; background: rgba(255,255,255,.94); border: 1px solid #e3e8ef;
+  box-shadow: 0 10px 26px -12px rgba(15,23,42,.35); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+}
+.sec-btn {
+  width: 38px; height: 38px; border-radius: 50%; border: 0; background: transparent; color: var(--ink2);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  transition: background .2s ease, color .2s ease, opacity .2s ease;
+}
+.sec-btn svg { width: 19px; height: 19px; }
+.sec-btn:hover:not(:disabled) { background: #2563eb; color: #fff; }
+.sec-btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.sec-btn:disabled { opacity: .28; cursor: default; }
+#sec-down:not(:disabled) svg { animation: sec-nudge 2.2s ease-in-out infinite; }
+#sec-down:hover svg { animation: none; }
+.sec-count { font: 600 9.5px/1 var(--mono); letter-spacing: .03em; color: var(--ink3); font-variant-numeric: tabular-nums; padding: 2px 0; }
+@keyframes sec-nudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
+@media (prefers-reduced-motion: reduce) { #sec-down svg { animation: none !important; } }
+html[data-theme="dark"] .sec-nav { background: rgba(28,30,35,.94); border-color: #30333b; box-shadow: 0 10px 26px -12px rgba(0,0,0,.6); }
+html[data-theme="dark"] .sec-btn:hover:not(:disabled) { background: #3b6fe8; }
+@media (max-width: 640px) { .sec-nav { right: 12px; bottom: 14px; padding: 4px; } .sec-btn { width: 34px; height: 34px; } }
+@media print { .sec-nav { display: none !important; } }
+
 /* animated scroll-down cue at the foot of the hero */
 .scroll-cue {
   position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 2;
@@ -1736,9 +1762,9 @@ html[data-theme="dark"] #dft-info.ok { color: #34d399; }
   .nav-cta { margin-left: 2px; padding: 7px 12px; }
 }
 
-/* ══════════════════════════════════════════════════════════
-   HERO CONTACT LINKS — pill row with real brand logos
-   ══════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   HERO CONTACT LINKS â€” pill row with real brand logos
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .brand-ic { width: 20px; height: 20px; flex: none; display: block; border-radius: 4px; }
 .brand-img { width: 22px; height: auto; border-radius: 0; }
 .cx-row { display: flex; flex-wrap: wrap; gap: 12px 10px; margin: 24px 0 20px; }
@@ -1763,9 +1789,9 @@ html[data-theme="dark"] .cx-mail { background: #18213a; border-color: #2d4580; c
   .cx-pill { padding: 9px 14px; font-size: 13.5px; gap: 8px; }
 }
 
-/* ══════════════════════════════════════════════════════════
-   ACADEMIC BIOGRAPHY — text + research focus | quick-facts card
-   ══════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   ACADEMIC BIOGRAPHY â€” text + research focus | quick-facts card
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .bio-layout {
   display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 56px; align-items: start;
   max-width: 1120px; margin: 0 auto;
@@ -1864,7 +1890,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
     </div>
   </nav>
 
-  <!-- ── 00. HERO SECTION ── -->
+  <!-- â”€â”€ 00. HERO SECTION â”€â”€ -->
   <section id="hero" style="position:relative;z-index:1">
     <div class="hero-bg"></div>
     <div class="hero-grid-bg"></div>
@@ -1896,32 +1922,32 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
         <div class="cx-row">
           <a class="cx-pill cx-cv" href="Kristy_Gourab_Sinha_CV.pdf" target="_blank" rel="noopener" title="Open CV (PDF)">
             <svg class="brand-ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="#E5252A" d="M6 1.5h8.6L20 6.9V20.5A2 2 0 0 1 18 22.5H6a2 2 0 0 1-2-2v-17a2 2 0 0 1 2-2z"/><path fill="#F7A9AB" d="M14.6 1.5V5a1.9 1.9 0 0 0 1.9 1.9H20z"/><text x="12" y="17.6" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="6.2" font-weight="700" text-anchor="middle">PDF</text></svg>
-            <span>CV ↗</span>
+            <span>CV â†—</span>
           </a>
 
           <a class="cx-pill" href="https://scholar.google.com/citations?user=m2Pxc40AAAAJ&hl=en" target="_blank" rel="noopener">
             <svg class="brand-ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M5.242 13.769 0 9.5 12 0l12 9.5-5.242 4.269C17.548 11.249 14.978 9.5 12 9.5c-2.977 0-5.548 1.748-6.758 4.269z"/><circle fill="#356AC3" cx="12" cy="17" r="7"/></svg>
-            <span>Google Scholar ↗</span>
+            <span>Google Scholar â†—</span>
           </a>
 
           <a class="cx-pill" href="https://orcid.org/0009-0006-4744-9026" target="_blank" rel="noopener" title="ORCID iD: 0009-0006-4744-9026">
             <svg class="brand-ic" viewBox="0 0 256 256" aria-hidden="true"><circle cx="128" cy="128" r="128" fill="#A6CE39"/><path fill="#fff" d="M86 186H71V79h15v107zm22-107h42c40 0 57 28 57 54 0 27-22 53-57 53H108V79zm15 93h25c35 0 43-27 43-40 0-21-14-39-44-39h-24v79zM89 57a10 10 0 1 1-20 0 10 10 0 0 1 20 0z"/></svg>
-            <span>ORCID ↗</span>
+            <span>ORCID â†—</span>
           </a>
 
           <a class="cx-pill" href="https://www.researchgate.net/profile/Kristy-Gourab-Sinha-2" target="_blank" rel="noopener">
             <svg class="brand-ic" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="4" fill="#00CCBB"/><text x="3.4" y="18.4" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="15.5" font-weight="700">R</text><text x="13.6" y="11.4" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="9.5" font-weight="700">G</text></svg>
-            <span>ResearchGate ↗</span>
+            <span>ResearchGate â†—</span>
           </a>
 
           <a class="cx-pill" href="https://www.linkedin.com/in/kristy-gourab/" target="_blank" rel="noopener">
             <svg class="brand-ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="21" rx="2" fill="#fff"/><path fill="#0A66C2" d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-            <span>LinkedIn ↗</span>
+            <span>LinkedIn â†—</span>
           </a>
 
           <a class="cx-pill" href="https://mist.ac.bd/department/nuclear_science_and_engineering/faculty-members/kristy-gourab-sinha" target="_blank" rel="noopener" title="MIST Faculty Profile">
             <svg class="brand-ic cx-fac-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 22h18"/><path d="M6 18v-7"/><path d="M10 18v-7"/><path d="M14 18v-7"/><path d="M18 18v-7"/><path d="M12 2 20 7H4z"/></svg>
-            <span>Faculty Profile ↗</span>
+            <span>Faculty Profile â†—</span>
           </a>
         </div>
       </div>
@@ -1929,16 +1955,16 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
       <!-- Right Column: 3D DFT Crystal Stage + Stat Row -->
       <div class="hero-right">
         <div class="crystal-hero-wrapper">
-          <div class="crystal-stage" id="crystal-stage" title="Schematic DFT visual · drag to rotate · tap to dose gas atoms">
+          <div class="crystal-stage" id="crystal-stage" title="Schematic DFT visual Â· drag to rotate Â· tap to dose gas atoms">
             <canvas id="crystal-canvas" role="img" aria-label="Schematic DFT (CASTEP-style) workflow: a simple cubic unit cell is built, repeated into a supercell, cleaved into a (001) slab with vacuum, relaxed until forces converge, then gas atoms adsorb onto hollow sites"></canvas>
             <div class="crystal-card-overlay">
               <div class="crystal-top">
                 <div class="crystal-pill">
                   <span class="single-pulse-dot"></span>
-                  <span>CASTEP · GGA-PBE</span>
+                  <span>CASTEP Â· GGA-PBE</span>
                 </div>
                 <div class="dft-md" aria-hidden="true">
-                  <span>AIMD · NVT</span>
+                  <span>AIMD Â· NVT</span>
                   <strong><span id="dft-temp">300</span> K</strong>
                   <span>t = <b id="dft-time">0.00</b> ps</span>
                 </div>
@@ -1986,7 +2012,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
     </a>
   </section>
 
-  <!-- ── 01. ABOUT / BIOGRAPHY ── -->
+  <!-- â”€â”€ 01. ABOUT / BIOGRAPHY â”€â”€ -->
   <section id="about" class="section section-alt" style="position:relative;z-index:1">
     <div class="section-inner">
       <div class="section-head reveal">
@@ -2043,7 +2069,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
     </div>
   </section>
 
-  <!-- ── 02. EXPERIENCE ── -->
+  <!-- â”€â”€ 02. EXPERIENCE â”€â”€ -->
   <section id="experience" class="section" style="position:relative;z-index:1">
     <div class="section-inner">
       <div class="section-head reveal">
@@ -2058,9 +2084,9 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
           <div class="exp-card">
             <div class="exp-header">
               <div class="exp-role">Research Assistant (RA)</div>
-              <span class="exp-period">Dec 2024 – Oct 2026</span>
+              <span class="exp-period">Dec 2024 â€“ Oct 2026</span>
             </div>
-            <div class="exp-org">Department of Nuclear Science and Engineering · Military Institute of Science and Technology (MIST)</div>
+            <div class="exp-org">Department of Nuclear Science and Engineering Â· Military Institute of Science and Technology (MIST)</div>
             <div class="exp-dept-line">Dhaka, Bangladesh</div>
             <div class="exp-desc">
               <ul style="padding-left:18px;margin-top:8px;line-height:1.75">
@@ -2080,7 +2106,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
     </div>
   </section>
 
-  <!-- ── 03. EDUCATION (CENTER-ALIGNED AS REQUESTED) ── -->
+  <!-- â”€â”€ 03. EDUCATION (CENTER-ALIGNED AS REQUESTED) â”€â”€ -->
   <section id="education" class="section section-alt" style="position:relative;z-index:1">
     <div class="section-inner">
       <div class="section-head reveal" style="text-align:center">
@@ -2093,8 +2119,8 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
         <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:24px;width:100%;margin-top:20px;justify-content:center">
           <!-- Degree 1 -->
           <div style="background:var(--white);border:1px solid var(--off3);border-radius:var(--radius);padding:26px 22px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;align-items:center;text-align:center;transition:all var(--transition)">
-            <span style="font-size:30px;margin-bottom:8px">🎓</span>
-            <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--blue);background:var(--blue-light);padding:3px 10px;border-radius:20px;margin-bottom:10px">Nov 2024 – Ongoing</span>
+            <span style="font-size:30px;margin-bottom:8px">ðŸŽ“</span>
+            <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--blue);background:var(--blue-light);padding:3px 10px;border-radius:20px;margin-bottom:10px">Nov 2024 â€“ Ongoing</span>
             <h3 style="font-size:17px;font-weight:800;color:var(--ink);margin-bottom:6px">M.Sc. in Materials Science</h3>
             <p style="font-size:13px;color:var(--ink3);margin-bottom:10px">Department of Materials and Metallurgical Engineering</p>
             <div style="font-size:13.5px;font-weight:600;color:var(--ink2)">Bangladesh University of Engineering and Technology (BUET)</div>
@@ -2103,7 +2129,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
 
           <!-- Degree 2 -->
           <div style="background:var(--white);border:1px solid var(--off3);border-radius:var(--radius);padding:26px 22px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;align-items:center;text-align:center;transition:all var(--transition)">
-            <span style="font-size:30px;margin-bottom:8px">⚛️</span>
+            <span style="font-size:30px;margin-bottom:8px">âš›ï¸</span>
             <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--teal);background:var(--teal-light);padding:3px 10px;border-radius:20px;margin-bottom:10px">Graduated 2024</span>
             <h3 style="font-size:17px;font-weight:800;color:var(--ink);margin-bottom:6px">B.Sc. in Nuclear Science &amp; Engineering</h3>
             <p style="font-size:13px;color:var(--ink3);margin-bottom:10px">Department of Nuclear Science and Engineering</p>
@@ -2113,7 +2139,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
 
           <!-- Degree 3 -->
           <div style="background:var(--white);border:1px solid var(--off3);border-radius:var(--radius);padding:26px 22px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;align-items:center;text-align:center;transition:all var(--transition)">
-            <span style="font-size:30px;margin-bottom:8px">🏛️</span>
+            <span style="font-size:30px;margin-bottom:8px">ðŸ›ï¸</span>
             <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--ink3);background:var(--off3);padding:3px 10px;border-radius:20px;margin-bottom:10px">2019</span>
             <h3 style="font-size:17px;font-weight:800;color:var(--ink);margin-bottom:6px">Higher Secondary Certificate (H.S.C.)</h3>
             <p style="font-size:13px;color:var(--ink3);margin-bottom:10px">Science Group</p>
@@ -2125,7 +2151,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
     </div>
   </section>
 
-  <!-- ── 04. CORE RESEARCH THEMES ── -->
+  <!-- â”€â”€ 04. CORE RESEARCH THEMES â”€â”€ -->
   <section id="research" class="section" style="position:relative;z-index:1">
     <div class="section-inner">
       <div class="section-head reveal">
@@ -2178,7 +2204,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
     </div>
   </section>
 
-  <!-- ── 05. PUBLICATIONS & PRESENTATIONS ── -->
+  <!-- â”€â”€ 05. PUBLICATIONS & PRESENTATIONS â”€â”€ -->
   <section id="publications" class="section section-alt" style="position:relative;z-index:1">
     <div class="section-inner">
       <div class="section-head reveal">
@@ -2213,7 +2239,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
           </div>
           <div class="pub-footer">
             <a href="https://doi.org/10.1016/j.jallcom.2025.183628" target="_blank" rel="noopener" class="pub-link-btn">
-              DOI: 10.1016/j.jallcom.2025.183628 ↗
+              DOI: 10.1016/j.jallcom.2025.183628 â†—
             </a>
             <button type="button" class="pub-link-btn" style="border:none;cursor:pointer" onclick="copyCitation(this)" data-citation='F. S. Siddique, K. G. Sinha, S. I. Safin, S. A. Islam, M. N. Hassan, M. A. Hasnat, S. Hossain, A. K. M. Rahman, M. Al-Mamun, "Exploring Dysprosium Doped Lithium Strontium Borate Based Phosphor for Dosimetry Application," Journal of Alloys and Compounds, 2025, 1041, 183628. DOI: 10.1016/j.jallcom.2025.183628'>
               Copy Citation
@@ -2231,13 +2257,13 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
             M. M. Rahman, <span style="font-weight:700;color:var(--blue);text-decoration:underline">K. G. Sinha</span>, M. A. R. Alif, M. S. Hassan, et al.
           </div>
           <div class="pub-venue">
-            <strong>BioResources</strong>, 2025, 21, 1001–1012.
+            <strong>BioResources</strong>, 2025, 21, 1001â€“1012.
           </div>
           <div class="pub-footer">
             <a href="https://doi.org/10.15376/biores.21.1.1001-1012" target="_blank" rel="noopener" class="pub-link-btn">
-              DOI: 10.15376/biores.21.1.1001-1012 ↗
+              DOI: 10.15376/biores.21.1.1001-1012 â†—
             </a>
-            <button type="button" class="pub-link-btn" style="border:none;cursor:pointer" onclick="copyCitation(this)" data-citation='M. M. Rahman, K. G. Sinha, M. A. R. Alif, M. S. Hassan, et al., "Development of Water-Repellent Jute Fabric as a Sustainable Solution for Bag Production," BioResources, 2025, 21, 1001–1012. DOI: 10.15376/biores.21.1.1001-1012'>
+            <button type="button" class="pub-link-btn" style="border:none;cursor:pointer" onclick="copyCitation(this)" data-citation='M. M. Rahman, K. G. Sinha, M. A. R. Alif, M. S. Hassan, et al., "Development of Water-Repellent Jute Fabric as a Sustainable Solution for Bag Production," BioResources, 2025, 21, 1001â€“1012. DOI: 10.15376/biores.21.1.1001-1012'>
               Copy Citation
             </button>
           </div>
@@ -2253,13 +2279,13 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
             M. U. Shafoyat, S. M. Al-Amin, B. Mogumdar, <span style="font-weight:700;color:var(--blue);text-decoration:underline">K. G. Sinha</span>, M. E. Hoque
           </div>
           <div class="pub-venue">
-            Chapter 16 in M. E. Hoque, C. M. Hussain (Eds.), <strong>Smart Self-Healing Polymer Nanocomposites: Processes, Performance and Applications</strong>, Woodhead Publishing Series in Composites Science and Engineering, Woodhead Publishing (Elsevier), 2027, pp. 361–397.
+            Chapter 16 in M. E. Hoque, C. M. Hussain (Eds.), <strong>Smart Self-Healing Polymer Nanocomposites: Processes, Performance and Applications</strong>, Woodhead Publishing Series in Composites Science and Engineering, Woodhead Publishing (Elsevier), 2027, pp. 361â€“397.
           </div>
           <div class="pub-footer">
             <a href="https://doi.org/10.1016/B978-0-443-40545-7.00013-8" target="_blank" rel="noopener" class="pub-link-btn">
-              DOI: 10.1016/B978-0-443-40545-7.00013-8 ↗
+              DOI: 10.1016/B978-0-443-40545-7.00013-8 â†—
             </a>
-            <button type="button" class="pub-link-btn" style="border:none;cursor:pointer" onclick="copyCitation(this)" data-citation='M. U. Shafoyat, S. M. Al-Amin, B. Mogumdar, K. G. Sinha, M. E. Hoque, "Consumer Electronics and Gadgets Applications of Self-Healing Polymer Nanocomposites," Chapter 16 in Smart Self-Healing Polymer Nanocomposites, Woodhead Publishing (Elsevier), 2027, pp. 361–397. DOI: 10.1016/B978-0-443-40545-7.00013-8'>
+            <button type="button" class="pub-link-btn" style="border:none;cursor:pointer" onclick="copyCitation(this)" data-citation='M. U. Shafoyat, S. M. Al-Amin, B. Mogumdar, K. G. Sinha, M. E. Hoque, "Consumer Electronics and Gadgets Applications of Self-Healing Polymer Nanocomposites," Chapter 16 in Smart Self-Healing Polymer Nanocomposites, Woodhead Publishing (Elsevier), 2027, pp. 361â€“397. DOI: 10.1016/B978-0-443-40545-7.00013-8'>
               Copy Citation
             </button>
           </div>
@@ -2275,13 +2301,13 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
             A. A. M. Anik, M. S. A. Moon, A. T. Chowdhury, <span style="font-weight:700;color:var(--blue);text-decoration:underline">K. G. Sinha</span>, S. I. Safin, F. S. Siddique, M. Z. H. Bhuiyan, T. Alam
           </div>
           <div class="pub-venue">
-            In <strong>Advances in Machinery, Materials Science and Engineering Application XII</strong>, Advances in Transdisciplinary Engineering, IOS Press, 2025, pp. 477–486.
+            In <strong>Advances in Machinery, Materials Science and Engineering Application XII</strong>, Advances in Transdisciplinary Engineering, IOS Press, 2025, pp. 477â€“486.
           </div>
           <div class="pub-footer">
             <a href="https://doi.org/10.3233/ATDE251018" target="_blank" rel="noopener" class="pub-link-btn">
-              DOI: 10.3233/ATDE251018 ↗
+              DOI: 10.3233/ATDE251018 â†—
             </a>
-            <button type="button" class="pub-link-btn" style="border:none;cursor:pointer" onclick="copyCitation(this)" data-citation='A. A. M. Anik, M. S. A. Moon, A. T. Chowdhury, K. G. Sinha, S. I. Safin, F. S. Siddique, M. Z. H. Bhuiyan, T. Alam, "Computational Cognitive Network-Based Radiological Mechanism Inspection Technology and Digitally Accessible High-Tech Investigation Robot for Radiological Ground Surveys, Nuclear Environment Inspection, and Radioactive Substance Screening," IOS Press, 2025, pp. 477–486. DOI: 10.3233/ATDE251018'>
+            <button type="button" class="pub-link-btn" style="border:none;cursor:pointer" onclick="copyCitation(this)" data-citation='A. A. M. Anik, M. S. A. Moon, A. T. Chowdhury, K. G. Sinha, S. I. Safin, F. S. Siddique, M. Z. H. Bhuiyan, T. Alam, "Computational Cognitive Network-Based Radiological Mechanism Inspection Technology and Digitally Accessible High-Tech Investigation Robot for Radiological Ground Surveys, Nuclear Environment Inspection, and Radioactive Substance Screening," IOS Press, 2025, pp. 477â€“486. DOI: 10.3233/ATDE251018'>
               Copy Citation
             </button>
           </div>
@@ -2301,7 +2327,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
           </div>
           <div class="pub-footer">
             <a href="https://doi.org/10.1063/5.0328306" target="_blank" rel="noopener" class="pub-link-btn">
-              DOI: 10.1063/5.0328306 ↗
+              DOI: 10.1063/5.0328306 â†—
             </a>
             <button type="button" class="pub-link-btn" style="border:none;cursor:pointer" onclick="copyCitation(this)" data-citation='S. Mahmud, M. R. Iqbal, M. S. Ishrak, K. G. Sinha, "A Computational Study of NACA 23018 Airfoil Using Single and Double Rotating Cylinders as a Flow Control Device," AIP Conference Proceedings, 2026, 3451, 120006. DOI: 10.1063/5.0328306'>
               Copy Citation
@@ -2323,7 +2349,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
           </div>
           <div class="pub-footer">
             <a href="https://doi.org/10.1063/5.0328309" target="_blank" rel="noopener" class="pub-link-btn">
-              DOI: 10.1063/5.0328309 ↗
+              DOI: 10.1063/5.0328309 â†—
             </a>
             <button type="button" class="pub-link-btn" style="border:none;cursor:pointer" onclick="copyCitation(this)" data-citation='S. Mahmud, M. R. Iqbal, M. S. Ishrak, K. G. Sinha, "Aerodynamic Performance of NACA 23018 Airfoil with Double Rotating Cylinders as Moving Surface Boundary-Layer Control (MSBC) Device at Multiple Reynolds Number: A Computational Study," AIP Conference Proceedings, 2026, 3451. DOI: 10.1063/5.0328309'>
               Copy Citation
@@ -2354,7 +2380,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
         <div class="pub-card" data-cat="presentation">
           <div class="pub-card-top">
             <div class="pub-title">An Enhanced YOLOv8 Framework for Real-Time Weapon Detection and Threat Assessment in Nuclear Power Plant Perimeter Security</div>
-            <span class="pub-type pt-pres">Paper Presentation · PECCII 2026</span>
+            <span class="pub-type pt-pres">Paper Presentation Â· PECCII 2026</span>
           </div>
           <div class="pub-venue">
             <strong>International Conference on Power, Electronics, Communications, Computing, and Intelligent Infrastructure</strong>, 2026.
@@ -2365,7 +2391,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
         <div class="pub-card" data-cat="presentation">
           <div class="pub-card-top">
             <div class="pub-title">A Convolutional Neural Network Approach for Steel Surface Defect Detection in Nuclear Facilities</div>
-            <span class="pub-type pt-pres">Paper Presentation · ISMEE 2024</span>
+            <span class="pub-type pt-pres">Paper Presentation Â· ISMEE 2024</span>
           </div>
           <div class="pub-venue">
             <strong>1st International Symposium on Materials, Energy, and Environment</strong>, Department of Chemistry, University of Chittagong, 2024.
@@ -2376,7 +2402,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
         <div class="pub-card" data-cat="presentation">
           <div class="pub-card-top">
             <div class="pub-title">Artificial Neural Network Based Nuclear Facility Inspection System and Computerized Exploration System for Radiological Ground Surveys</div>
-            <span class="pub-type pt-pres">Paper Presentation · ICEP 2022</span>
+            <span class="pub-type pt-pres">Paper Presentation Â· ICEP 2022</span>
           </div>
           <div class="pub-venue">
             <strong>4th International Conference on Energy and Power</strong>, MIST, Dhaka, 2022.
@@ -2387,7 +2413,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
     </div>
   </section>
 
-  <!-- ── 06. PROJECTS & THESIS (EXACTLY LIKE 3RD IMAGE SIR'S THEME) ── -->
+  <!-- â”€â”€ 06. PROJECTS & THESIS (EXACTLY LIKE 3RD IMAGE SIR'S THEME) â”€â”€ -->
   <section id="projects" class="section" style="position:relative;z-index:1">
     <div class="section-inner">
       <div class="section-head reveal">
@@ -2410,7 +2436,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
           <div class="sir-proj-subtag">B.Sc. Thesis &amp; Special Research Grant</div>
           <div class="sir-proj-divider">
             <div class="sir-proj-funding">
-              Ministry of Science and Technology, Government of the People's Republic of Bangladesh · 2023–2024 · Special Research Grant
+              Ministry of Science and Technology, Government of the People's Republic of Bangladesh Â· 2023â€“2024 Â· Special Research Grant
             </div>
           </div>
         </div>
@@ -2427,7 +2453,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
           <div class="sir-proj-subtag">MIST R&amp;D Wing Project (Co-PI)</div>
           <div class="sir-proj-divider">
             <div class="sir-proj-funding">
-              Centre for Army Research and Development (CARD), Military Institute of Science and Technology · 2026
+              Centre for Army Research and Development (CARD), Military Institute of Science and Technology Â· 2026
             </div>
           </div>
         </div>
@@ -2444,7 +2470,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
           <div class="sir-proj-subtag">Defence Materials Initiative (Co-PI)</div>
           <div class="sir-proj-divider">
             <div class="sir-proj-funding">
-              Centre for Army Research and Development (CARD), Military Institute of Science and Technology · 2025
+              Centre for Army Research and Development (CARD), Military Institute of Science and Technology Â· 2025
             </div>
           </div>
         </div>
@@ -2461,7 +2487,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
           <div class="sir-proj-subtag">Dosimetry Pilot Study</div>
           <div class="sir-proj-divider">
             <div class="sir-proj-funding">
-              Health Physics Division, Atomic Energy Centre Dhaka (AECD), Bangladesh Atomic Energy Commission · 2025
+              Health Physics Division, Atomic Energy Centre Dhaka (AECD), Bangladesh Atomic Energy Commission Â· 2025
             </div>
           </div>
         </div>
@@ -2478,7 +2504,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
           <div class="sir-proj-subtag">Sustainable Packaging Grant</div>
           <div class="sir-proj-divider">
             <div class="sir-proj-funding">
-              Centre for Army Research and Development (CARD), Military Institute of Science and Technology · 2024–2025
+              Centre for Army Research and Development (CARD), Military Institute of Science and Technology Â· 2024â€“2025
             </div>
           </div>
         </div>
@@ -2487,7 +2513,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
     </div>
   </section>
 
-  <!-- ── 07. SKILLS, TRAINING & LEADERSHIP (5TH IMAGE SIDEBAR & BOX THEME) ── -->
+  <!-- â”€â”€ 07. SKILLS, TRAINING & LEADERSHIP (5TH IMAGE SIDEBAR & BOX THEME) â”€â”€ -->
   <section id="skills" class="section section-alt" style="position:relative;z-index:1">
     <div class="section-inner">
       <div class="skills-sidebar-layout reveal">
@@ -2573,15 +2599,15 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
             <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px">
               <div style="border-left:3px solid var(--blue);padding-left:14px">
                 <div style="font-weight:700;font-size:13.5px;color:var(--ink)">Non-Destructive Testing (NDT) Division, Atomic Energy Centre, Dhaka (AECD)</div>
-                <div style="font-size:12px;color:var(--ink3)">Bangladesh Atomic Energy Commission · Shahbag, Dhaka · <em>2023</em></div>
+                <div style="font-size:12px;color:var(--ink3)">Bangladesh Atomic Energy Commission Â· Shahbag, Dhaka Â· <em>2023</em></div>
               </div>
               <div style="border-left:3px solid var(--blue);padding-left:14px">
                 <div style="font-weight:700;font-size:13.5px;color:var(--ink)">Centre for Research Reactor (CRR), Atomic Energy Research Establishment (AERE)</div>
-                <div style="font-size:12px;color:var(--ink3)">Bangladesh Atomic Energy Commission · Savar, Dhaka · <em>2023</em></div>
+                <div style="font-size:12px;color:var(--ink3)">Bangladesh Atomic Energy Commission Â· Savar, Dhaka Â· <em>2023</em></div>
               </div>
               <div style="border-left:3px solid var(--blue);padding-left:14px">
                 <div style="font-weight:700;font-size:13.5px;color:var(--ink)">Rooppur Nuclear Power Plant (RNPP)</div>
-                <div style="font-size:12px;color:var(--ink3)">Rooppur, Ishwardi, Pabna, Bangladesh · <em>2023</em></div>
+                <div style="font-size:12px;color:var(--ink3)">Rooppur, Ishwardi, Pabna, Bangladesh Â· <em>2023</em></div>
               </div>
             </div>
           </div>
@@ -2592,15 +2618,15 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
             <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px">
               <div style="border-left:3px solid var(--teal);padding-left:14px">
                 <div style="font-weight:700;font-size:13.5px;color:var(--ink)">Associate Member (A-29710)</div>
-                <div style="font-size:12px;color:var(--ink3)">Institution of Engineers, Bangladesh (IEB) · <em>Active Member</em></div>
+                <div style="font-size:12px;color:var(--ink3)">Institution of Engineers, Bangladesh (IEB) Â· <em>Active Member</em></div>
               </div>
               <div style="border-left:3px solid var(--teal);padding-left:14px">
-                <div style="font-weight:700;font-size:13.5px;color:var(--ink)">President · MIST Nuclear Engineering Club</div>
-                <div style="font-size:12px;color:var(--ink3)">Department of Nuclear Science and Engineering, MIST · <em>Mar 2023 – Mar 2024</em></div>
+                <div style="font-weight:700;font-size:13.5px;color:var(--ink)">President Â· MIST Nuclear Engineering Club</div>
+                <div style="font-size:12px;color:var(--ink3)">Department of Nuclear Science and Engineering, MIST Â· <em>Mar 2023 â€“ Mar 2024</em></div>
               </div>
               <div style="border-left:3px solid var(--teal);padding-left:14px">
-                <div style="font-weight:700;font-size:13.5px;color:var(--ink)">Vice President · Dhaka College Science Club</div>
-                <div style="font-size:12px;color:var(--ink3)">Dhaka College, Dhaka · <em>Jan 2018 – Jan 2019</em></div>
+                <div style="font-weight:700;font-size:13.5px;color:var(--ink)">Vice President Â· Dhaka College Science Club</div>
+                <div style="font-size:12px;color:var(--ink3)">Dhaka College, Dhaka Â· <em>Jan 2018 â€“ Jan 2019</em></div>
               </div>
             </div>
           </div>
@@ -2609,7 +2635,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
     </div>
   </section>
 
-  <!-- ── 08. AWARDS & HONOURS (ALL 11 HONORS) ── -->
+  <!-- â”€â”€ 08. AWARDS & HONOURS (ALL 11 HONORS) â”€â”€ -->
   <section id="awards" class="section" style="position:relative;z-index:1">
     <div class="section-inner">
       <div class="section-head reveal">
@@ -2621,7 +2647,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
       <div class="awards-grid reveal" style="max-width:1050px;margin:0 auto">
         <!-- Award 1 -->
         <div class="award-card">
-          <span class="award-icon">🏆</span>
+          <span class="award-icon">ðŸ†</span>
           <div class="award-year">Sep 2026</div>
           <div class="award-title">Winner (Top Ten Innovators)</div>
           <div class="award-org">Bangladesh Innovation Fair 2026</div>
@@ -2630,7 +2656,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
 
         <!-- Award 2 -->
         <div class="award-card">
-          <span class="award-icon">🚀</span>
+          <span class="award-icon">ðŸš€</span>
           <div class="award-year">2026</div>
           <div class="award-title">Finalist</div>
           <div class="award-org">TEKNOFEST 2026 (Turkey)</div>
@@ -2639,7 +2665,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
 
         <!-- Award 3 -->
         <div class="award-card">
-          <span class="award-icon">🥇</span>
+          <span class="award-icon">ðŸ¥‡</span>
           <div class="award-year">2026</div>
           <div class="award-title">Winner</div>
           <div class="award-org">Bangladesh ICT and Innovation Fair</div>
@@ -2648,7 +2674,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
 
         <!-- Award 4 -->
         <div class="award-card">
-          <span class="award-icon">🥈</span>
+          <span class="award-icon">ðŸ¥ˆ</span>
           <div class="award-year">May 2024</div>
           <div class="award-title">Runner-up</div>
           <div class="award-org">Nuclear Dilemma 2024</div>
@@ -2657,16 +2683,16 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
 
         <!-- Award 5 -->
         <div class="award-card">
-          <span class="award-icon">🎖️</span>
+          <span class="award-icon">ðŸŽ–ï¸</span>
           <div class="award-year">Dec 2022</div>
           <div class="award-title">1st Runner-up - Poster Presentation</div>
           <div class="award-org">4th International Conference on Energy and Power (ICEP 2022)</div>
-          <div class="award-desc">“Computerized High-Tech Exploration Robot for Radiological Ground Surveys, Nuclear Area Observation, Radioactive Material Detection and Handling,” MIST, Dhaka.</div>
+          <div class="award-desc">â€œComputerized High-Tech Exploration Robot for Radiological Ground Surveys, Nuclear Area Observation, Radioactive Material Detection and Handling,â€ MIST, Dhaka.</div>
         </div>
 
         <!-- Award 6 -->
         <div class="award-card">
-          <span class="award-icon">📜</span>
+          <span class="award-icon">ðŸ“œ</span>
           <div class="award-year">2021</div>
           <div class="award-title">Dean's List of Honor</div>
           <div class="award-org">Military Institute of Science and Technology (MIST)</div>
@@ -2675,7 +2701,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
 
         <!-- Award 7 -->
         <div class="award-card">
-          <span class="award-icon">⚡</span>
+          <span class="award-icon">âš¡</span>
           <div class="award-year">Mar 2021</div>
           <div class="award-title">Winner</div>
           <div class="award-org">Nuclear Sprint 2021</div>
@@ -2684,7 +2710,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
 
         <!-- Award 8 -->
         <div class="award-card">
-          <span class="award-icon">🥉</span>
+          <span class="award-icon">ðŸ¥‰</span>
           <div class="award-year">2018</div>
           <div class="award-title">3rd Place - Project Display (Mechanical)</div>
           <div class="award-org">6th National Science Exposition 2018</div>
@@ -2693,7 +2719,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
 
         <!-- Award 9 -->
         <div class="award-card">
-          <span class="award-icon">🌿</span>
+          <span class="award-icon">ðŸŒ¿</span>
           <div class="award-year">2018</div>
           <div class="award-title">Award - Eco-friendly Project Event</div>
           <div class="award-org">ACC National Carnival 2018</div>
@@ -2702,7 +2728,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
 
         <!-- Award 10 -->
         <div class="award-card">
-          <span class="award-icon">🔬</span>
+          <span class="award-icon">ðŸ”¬</span>
           <div class="award-year">2016</div>
           <div class="award-title">Award - Physical Project Event</div>
           <div class="award-org">Notre Dame Annual Science Festival 2016 &amp; 26th GKC</div>
@@ -2711,7 +2737,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
 
         <!-- Award 11 -->
         <div class="award-card">
-          <span class="award-icon">🧪</span>
+          <span class="award-icon">ðŸ§ª</span>
           <div class="award-year">2016</div>
           <div class="award-title">3rd Place - Chemistry Project Event</div>
           <div class="award-org">9th ISTARC Science and Technology Festival 2016</div>
@@ -2721,7 +2747,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
     </div>
   </section>
 
-  <!-- ── 09. ACADEMIC REFERENCES ── -->
+  <!-- â”€â”€ 09. ACADEMIC REFERENCES â”€â”€ -->
   <section id="references" class="section section-alt" style="position:relative;z-index:1">
     <div class="section-inner">
       <div class="section-head reveal">
@@ -2763,7 +2789,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
     </div>
   </section>
 
-  <!-- ── 10. GET IN TOUCH / CONTACT ── -->
+  <!-- â”€â”€ 10. GET IN TOUCH / CONTACT â”€â”€ -->
   <section id="contact" class="section" style="position:relative;z-index:1">
     <div class="section-inner">
       <div class="section-head reveal">
@@ -2778,7 +2804,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
           <div class="cc-body">
             <div class="contact-item">
               <div class="ci-label">Institutional Affiliation</div>
-              <div class="ci-val">BUET · MIST, Dhaka, Bangladesh</div>
+              <div class="ci-val">BUET Â· MIST, Dhaka, Bangladesh</div>
             </div>
             <div class="contact-item">
               <div class="ci-label">Department</div>
@@ -2793,10 +2819,10 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
             <div class="contact-item">
               <div class="ci-label">Academic Profiles</div>
               <div class="ci-val" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px">
-                <a href="https://scholar.google.com/citations?user=m2Pxc40AAAAJ&hl=en" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:none">Google Scholar ↗</a>
-                <a href="https://orcid.org/0009-0006-4744-9026" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:none">ORCID ↗</a>
-                <a href="https://www.researchgate.net/profile/Kristy-Gourab-Sinha-2" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:none">ResearchGate ↗</a>
-                <a href="https://www.linkedin.com/in/kristy-gourab/" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:none">LinkedIn ↗</a>
+                <a href="https://scholar.google.com/citations?user=m2Pxc40AAAAJ&hl=en" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:none">Google Scholar â†—</a>
+                <a href="https://orcid.org/0009-0006-4744-9026" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:none">ORCID â†—</a>
+                <a href="https://www.researchgate.net/profile/Kristy-Gourab-Sinha-2" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:none">ResearchGate â†—</a>
+                <a href="https://www.linkedin.com/in/kristy-gourab/" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:none">LinkedIn â†—</a>
               </div>
             </div>
           </div>
@@ -2847,7 +2873,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
   <footer style="background:var(--white);border-top:1px solid var(--off3);padding:32px 2rem;text-align:center;font-size:13px;color:var(--ink3);position:relative;z-index:1">
     <div style="max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
       <div style="display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left">
-        <span>© 2026 <strong>Kristy Gourab Sinha</strong>. All rights reserved.</span>
+        <span>Â© 2026 <strong>Kristy Gourab Sinha</strong>. All rights reserved.</span>
         <div style="font-size:11.5px;font-family:var(--mono);color:var(--ink3);display:flex;align-items:center;gap:6px">
           <span style="width:6px;height:6px;border-radius:50%;background:var(--teal)"></span>
           <span>Live Visitors: <strong id="footer-visitor-count" style="color:var(--ink)">Loading...</strong></span>
@@ -2863,9 +2889,20 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
     </div>
   </footer>
 
+  <!-- Floating section scroller: previous / next section, slow smooth glide -->
+  <nav class="sec-nav" id="sec-nav" aria-label="Move between sections">
+    <button type="button" class="sec-btn" id="sec-up" aria-label="Previous section" title="Previous section">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg>
+    </button>
+    <span class="sec-count" id="sec-count" aria-hidden="true">01/11</span>
+    <button type="button" class="sec-btn" id="sec-down" aria-label="Next section" title="Next section">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+  </nav>
+
   <!-- Toast Notification -->
   <div id="toast" class="toast-msg">
-    <span>✓</span>
+    <span>âœ“</span>
     <span id="toast-text">Citation copied to clipboard!</span>
   </div>
 
@@ -2873,7 +2910,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
   <!-- Three.js removed: using native Canvas 2D crystal -->
 
   <!-- Complete script.js -->
-  <script src="script.js?v=visitors-17"></script>
+  <script src="script.js?v=scroller-19"></script>
 
   <!-- Dynamic Functions -->
   <script>

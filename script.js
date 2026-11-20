@@ -790,6 +790,97 @@
     update();
   }
 
+  // 8c. Floating section scroller — ↑/↓ glide slowly to the previous/next section
+  function initSectionScroller() {
+    var up = document.getElementById('sec-up');
+    var down = document.getElementById('sec-down');
+    var count = document.getElementById('sec-count');
+    var secs = Array.prototype.slice.call(document.querySelectorAll('section[id]'))
+      .filter(function (s) { return s.offsetHeight > 0; });
+    if (!up || !down || !secs.length) return;
+
+    var root = document.documentElement;
+    var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    var nav = document.getElementById('nav');
+    var navH = function () { return nav ? nav.offsetHeight : 0; };
+    var pageTop = function (el) { return el.getBoundingClientRect().top + window.pageYOffset; };
+    var targetY = function (el) { return Math.max(0, pageTop(el) - navH() + 1); };
+    var atBottom = function () { return window.innerHeight + window.pageYOffset >= root.scrollHeight - 4; };
+    var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+    var label = function (s) {
+      if (s.id === 'hero') return 'Home';
+      var t = s.querySelector('.section-title');
+      return t ? t.textContent.replace(/\s+/g, ' ').trim() : s.id;
+    };
+
+    // custom eased glide (slower and gentler than the browser's smooth scroll)
+    var raf = 0;
+    function stop() {
+      if (raf) { cancelAnimationFrame(raf); raf = 0; }
+      root.style.scrollBehavior = '';
+    }
+    function glideTo(y) {
+      stop();
+      var start = window.pageYOffset, dist = y - start;
+      if (Math.abs(dist) < 2) return;
+      root.style.scrollBehavior = 'auto';
+      if (reduce) { window.scrollTo(0, y); root.style.scrollBehavior = ''; return; }
+      var dur = Math.min(1900, Math.max(1000, Math.abs(dist) * 0.85));
+      var t0 = null;
+      var ease = function (t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
+      function step(ts) {
+        if (t0 === null) t0 = ts;
+        var p = Math.min(1, (ts - t0) / dur);
+        window.scrollTo(0, start + dist * ease(p));
+        if (p < 1) raf = requestAnimationFrame(step);
+        else stop();
+      }
+      raf = requestAnimationFrame(step);
+    }
+    // the visitor takes over (wheel / touch / keys) → stop the glide
+    ['wheel', 'touchstart'].forEach(function (ev) { window.addEventListener(ev, stop, { passive: true }); });
+    window.addEventListener('keydown', function (e) {
+      if (/^(Arrow|Page|Home|End| )/.test(e.key)) stop();
+    });
+
+    function current() {
+      var y = window.pageYOffset + navH() + 8, idx = 0;
+      secs.forEach(function (s, i) { if (pageTop(s) <= y) idx = i; });
+      return idx;
+    }
+    function go(dir) {
+      var i = current(), target;
+      if (dir > 0) {
+        if (i >= secs.length - 1 || atBottom()) return;
+        target = secs[i + 1];
+      } else {
+        target = (window.pageYOffset - targetY(secs[i]) > 30) ? secs[i] : secs[Math.max(0, i - 1)];
+      }
+      glideTo(targetY(target));
+    }
+    up.addEventListener('click', function () { go(-1); });
+    down.addEventListener('click', function () { go(1); });
+
+    // the hero "Scroll" cue uses the same slow glide
+    var cue = document.querySelector('.scroll-cue');
+    var about = document.getElementById('about');
+    if (cue && about) cue.addEventListener('click', function (e) { e.preventDefault(); glideTo(targetY(about)); });
+
+    var pending = 0;
+    function refresh() {
+      pending = 0;
+      var i = current(), last = secs.length - 1;
+      if (count) count.textContent = pad(i + 1) + '/' + pad(secs.length);
+      up.disabled = window.pageYOffset < 4;
+      down.disabled = i >= last || atBottom();
+      up.title = up.disabled ? 'Top of page' : 'Back to: ' + label(window.pageYOffset - targetY(secs[i]) > 30 ? secs[i] : secs[Math.max(0, i - 1)]);
+      down.title = down.disabled ? 'End of page' : 'Next: ' + label(secs[i + 1]);
+    }
+    window.addEventListener('scroll', function () { if (!pending) pending = setTimeout(refresh, 60); }, { passive: true });
+    window.addEventListener('resize', refresh);
+    refresh();
+  }
+
   // 9. Responsive Contact Form (FormSubmit to Inbox)
   function initContactForm() {
     var form = document.getElementById('contact-form');
@@ -966,6 +1057,7 @@
   function initAllFeatures() {
     initVisitorCounter();
     initScrollCue();
+    initSectionScroller();
     initContactForm();
     initMagneticButtons();
     initScrollProgress();
