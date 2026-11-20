@@ -1679,6 +1679,23 @@ html[data-theme="dark"] #dft-info.ok { color: #34d399; }
 .dft-scf i.run { background: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.22); animation: scf-blink .6s steps(2) infinite; }
 @keyframes scf-blink { 50% { opacity: .35; } }
 
+/* compact top bar on laptop widths so "Get in Touch" always fits */
+@media (min-width: 701px) and (max-width: 1279px) {
+  #nav { padding: 0 1.1rem; gap: 10px; }
+  #nav > .nav-brand-container, #nav > div { flex: none; }
+  .nav-brand-sub { display: none; }
+  .nav-brand-name { white-space: nowrap; }
+  .nav-links {
+    flex: 1 1 auto; min-width: 0; overflow-x: auto; scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent);
+            mask-image: linear-gradient(90deg, #000 88%, transparent);
+  }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .nav-links a { padding: 6px 8px; font-size: 12px; white-space: nowrap; }
+  .visitor-counter-pill > span:nth-child(2) { display: none; }
+  .nav-cta { margin-left: 2px; padding: 7px 12px; }
+}
+
 /* ══════════════════════════════════════════════════════════
    HERO CONTACT LINKS — pill row with real brand logos
    ══════════════════════════════════════════════════════════ */
@@ -1799,8 +1816,8 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
         </span>
       </button>
 
-      <a href="Kristy_Gourab_Sinha_CV.pdf" target="_blank" rel="noopener" class="nav-cta">
-        CV ↗
+      <a href="#contact" class="nav-cta">
+        Get in Touch
       </a>
     </div>
   </nav>
@@ -1844,6 +1861,11 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
             <span>Copy Email</span>
           </button>
+
+          <a class="cx-pill cx-cv" href="Kristy_Gourab_Sinha_CV.pdf" target="_blank" rel="noopener" title="Open CV (PDF)">
+            <svg class="brand-ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="#E5252A" d="M6 1.5h8.6L20 6.9V20.5A2 2 0 0 1 18 22.5H6a2 2 0 0 1-2-2v-17a2 2 0 0 1 2-2z"/><path fill="#F7A9AB" d="M14.6 1.5V5a1.9 1.9 0 0 0 1.9 1.9H20z"/><text x="12" y="17.6" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="6.2" font-weight="700" text-anchor="middle">PDF</text></svg>
+            <span>CV ↗</span>
+          </a>
 
           <a class="cx-pill" href="https://scholar.google.com/citations?user=m2Pxc40AAAAJ&hl=en" target="_blank" rel="noopener">
             <svg class="brand-ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M5.242 13.769 0 9.5 12 0l12 9.5-5.242 4.269C17.548 11.249 14.978 9.5 12 9.5c-2.977 0-5.548 1.748-6.758 4.269z"/><circle fill="#356AC3" cx="12" cy="17" r="7"/></svg>
