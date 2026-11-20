@@ -1615,7 +1615,28 @@ html[data-theme="dark"] .crystal-hero-wrapper {
   box-shadow: 0 18px 50px -20px rgba(99,102,241,.5);
 }
 .crystal-hero-wrapper:hover { border-color: transparent; }
-.crystal-stage { height: 310px; background: #f6f8fb; border: 1px solid #e3e8ef; }
+.crystal-stage { height: 360px; background: #f6f8fb; border: 1px solid #e3e8ef; }
+@media (max-width: 640px) { .crystal-stage { height: 320px; } }
+.dft-steps { padding-bottom: 7px; }
+
+/* hero stats: one tidy strip of four instead of a 2×2 block */
+html[data-theme] .hero-right { gap: 14px; }
+html[data-theme] .hero-right .stat-row {
+  grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; overflow: hidden;
+  background: #ffffff; border: 1px solid #e3e8ef; border-radius: 16px; box-shadow: var(--shadow-sm);
+}
+html[data-theme] .hero-right .stat-card {
+  background: transparent; border: 0; border-left: 1px solid #eef1f5; border-radius: 0; box-shadow: none;
+  padding: 14px 6px 12px; transform: none;
+}
+html[data-theme] .hero-right .stat-card:first-child { border-left: 0; }
+html[data-theme] .hero-right .stat-card:hover { background: #f8fafc; transform: none; box-shadow: none; }
+.hero-right .stat-val { font-size: 24px; line-height: 1.1; }
+.hero-right .stat-lbl { display: block; margin-top: 5px; font-size: 9.5px; line-height: 1.3; letter-spacing: .03em; }
+html[data-theme="dark"] .hero-right .stat-row { background: #1c1e23; border-color: #30333b; box-shadow: none; }
+html[data-theme="dark"] .hero-right .stat-card { border-left-color: #2a2d35; }
+html[data-theme="dark"] .hero-right .stat-card:first-child { border-left: 0; }
+html[data-theme="dark"] .hero-right .stat-card:hover { background: #22252b; }
 html[data-theme="dark"] .crystal-stage { background: #0e1016; border-color: #262a35; }
 .crystal-card-overlay { inset: 10px; }
 .crystal-pill { font-size: 10px; padding: 4px 10px; }
@@ -1846,22 +1867,12 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
         <!-- Bio Paragraphs using exact 2nd pic font typography -->
         <div class="hero-bio" id="h-bio" style="margin-top:16px">
           <p>
-            Hi, I'm Kristy Gourab Sinha. I am a Nuclear Engineer and Materials Science Researcher, currently working as a Research Assistant in the Department of Nuclear Science and Engineering at the Military Institute of Science and Technology (MIST), Bangladesh. I completed my B.Sc. in Nuclear Science and Engineering from MIST in 2024 and am currently pursuing an M.Sc. in Materials Science at the Bangladesh University of Engineering and Technology (BUET).
+            Hi, I'm Kristy Gourab Sinha. I am a Nuclear Engineer and Materials Science Researcher, currently working as a Research Assistant in the Department of Nuclear Science and Engineering at the Military Institute of Science and Technology, Bangladesh. I completed my B.Sc. in Nuclear Science and Engineering from MIST in 2024 and am currently pursuing an M.Sc. in Materials Science at the Bangladesh University of Engineering and Technology, Bangladesh.
           </p>
         </div>
 
         <!-- Contact & profile links (pill row) -->
         <div class="cx-row">
-          <a class="cx-pill cx-mail" href="mailto:kristygourabsinhaa@gmail.com">
-            <svg class="brand-ic" viewBox="52 42 88 66" aria-hidden="true"><path fill="#4285f4" d="M58 108h14V74L52 59v43c0 3.32 2.69 6 6 6"/><path fill="#34a853" d="M120 108h14c3.32 0 6-2.69 6-6V59l-20 15"/><path fill="#fbbc04" d="M120 48v26l20-15v-8c0-7.42-8.47-11.65-14.4-7.2"/><path fill="#ea4335" d="M72 74V48l24 18 24-18v26L96 92"/><path fill="#c5221f" d="M52 51v8l20 15V48l-5.6-4.2c-5.94-4.45-14.4-.22-14.4 7.2"/></svg>
-            <span>kristygourabsinhaa@gmail.com</span>
-          </a>
-
-          <button type="button" class="cx-pill" onclick="copyEmail()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-            <span>Copy Email</span>
-          </button>
-
           <a class="cx-pill cx-cv" href="Kristy_Gourab_Sinha_CV.pdf" target="_blank" rel="noopener" title="Open CV (PDF)">
             <svg class="brand-ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="#E5252A" d="M6 1.5h8.6L20 6.9V20.5A2 2 0 0 1 18 22.5H6a2 2 0 0 1-2-2v-17a2 2 0 0 1 2-2z"/><path fill="#F7A9AB" d="M14.6 1.5V5a1.9 1.9 0 0 0 1.9 1.9H20z"/><text x="12" y="17.6" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="6.2" font-weight="700" text-anchor="middle">PDF</text></svg>
             <span>CV ↗</span>
@@ -1911,13 +1922,6 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
                   <span>t = <b id="dft-time">0.00</b> ps</span>
                 </div>
               </div>
-              <div class="crystal-legend">
-                <span><i class="lg-dot lg-host"></i>SC (001)</span>
-                <span><i class="lg-dot lg-gas"></i>Gas</span>
-                <span><i class="lg-dot lg-ads"></i>Ads.</span>
-                <span><i class="lg-dot lg-rho"></i>&Delta;&rho;</span>
-                <span class="crystal-theta" title="Fractional surface coverage of hollow sites">&theta; = <strong id="crystal-theta">0.50</strong></span>
-              </div>
             </div>
           </div>
 
@@ -1928,27 +1932,6 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
             <button type="button" class="dft-step" data-i="3">Relax &check;</button>
             <button type="button" class="dft-step" data-i="4">Adsorb</button>
             <i class="dft-step-bar" id="dft-step-bar" aria-hidden="true"></i>
-          </div>
-
-          <div class="dft-panels" aria-hidden="true">
-            <div class="dft-panel">
-              <div class="dft-panel-head"><span>PDOS</span><em>E &minus; E<sub>F</sub> (eV)</em></div>
-              <canvas id="dft-dos"></canvas>
-            </div>
-            <div class="dft-panel">
-              <div class="dft-panel-head"><span>Work function</span><em>&Phi; = <b id="dft-phi">4.70</b> eV</em></div>
-              <canvas id="dft-wf"></canvas>
-            </div>
-          </div>
-
-          <div class="dft-readout" aria-hidden="true">
-            <span class="dft-scf"><i id="dft-scf-dot"></i>SCF <b id="dft-scf-n">0</b> &middot; &Delta;E <b id="dft-scf-de">&mdash;</b> eV</span>
-            <span id="dft-info">Pm-3m &middot; a = 3.35 &Aring;</span>
-          </div>
-
-          <div style="display:flex;flex-direction:column;padding:2px 4px">
-            <div style="font-family:var(--display-sans);font-size:15px;font-weight:800;color:var(--ink)">Kristy Gourab Sinha</div>
-            <div style="font-size:12px;color:var(--ink3);font-weight:500;margin-top:2px">M.Sc. in Materials Science (BUET) · RA (MIST)</div>
           </div>
         </div>
 
