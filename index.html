@@ -1749,6 +1749,8 @@ html[data-theme="dark"] #dft-info.ok { color: #34d399; }
   transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, color .2s ease;
 }
 .cx-pill > svg:not(.brand-ic) { width: 17px; height: 17px; flex: none; }
+.cx-fac-ic { color: #2563eb; border-radius: 0; }
+html[data-theme="dark"] .cx-fac-ic { color: #7aa5ff; }
 .cx-pill:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--blue-mid); color: var(--ink); }
 .cx-pill:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 .cx-mail { font-weight: 700; color: #1d4ed8; background: #eff4ff; border-color: #c7d7fe; box-shadow: none; }
@@ -1918,7 +1920,7 @@ html[data-theme="dark"] .bio-facts { background: #1c1e23; border-color: #30333b;
           </a>
 
           <a class="cx-pill" href="https://mist.ac.bd/department/nuclear_science_and_engineering/faculty-members/kristy-gourab-sinha" target="_blank" rel="noopener" title="MIST Faculty Profile">
-            <img class="brand-ic brand-img" src="images/mist_logo.png" alt="" width="21" height="20">
+            <svg class="brand-ic cx-fac-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 22h18"/><path d="M6 18v-7"/><path d="M10 18v-7"/><path d="M14 18v-7"/><path d="M18 18v-7"/><path d="M12 2 20 7H4z"/></svg>
             <span>Faculty Profile ↗</span>
           </a>
         </div>
