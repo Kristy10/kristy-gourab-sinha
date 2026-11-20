@@ -3,14 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kristy Gourab Sinha — Materials Science &amp; Nuclear Engineering | BUET · MIST</title>
+  <title>Kristy Gourab Sinha - Materials Science &amp; Nuclear Engineering | BUET · MIST</title>
   <meta name="description" content="Academic &amp; research portfolio of Kristy Gourab Sinha - M.Sc. in Materials Science (BUET) and Research Assistant in Nuclear Science &amp; Engineering (MIST).">
   <meta name="author" content="Kristy Gourab Sinha">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="Kristy Gourab Sinha — BUET · MIST">
+  <meta property="og:title" content="Kristy Gourab Sinha - BUET · MIST">
   <meta property="og:description" content="M.Sc. Researcher in Materials Science at BUET and Research Assistant at MIST.">
   <meta property="og:type" content="website">
+
+  <!-- Theme init (runs before paint to avoid a flash of the wrong theme) -->
+  <script>
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('kgs-theme'); } catch (e) {}
+      if (t !== 'dark' && t !== 'light') {
+        t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+      }
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
 
   <!-- 4th Image Official BUET Favicon -->
   <link rel="icon" type="image/png" href="images/buet_official_logo.png">
@@ -81,8 +93,11 @@
   --shadow-lg: 0 12px 40px rgba(0,0,0,.55), 0 4px 12px rgba(0,0,0,.35);
 }
 [data-theme="dark"] #nav { background: rgba(15,17,23,0.96); backdrop-filter: blur(24px) saturate(200%); }
-[data-theme="dark"] .hero-bg { opacity:.04; }
-[data-theme="dark"] .hero-grid-bg { opacity:.04; }
+[data-theme="dark"] .hero-bg { opacity:.06; }
+[data-theme="dark"] .hero-grid-bg { opacity:.03; }
+[data-theme="dark"] body { background: var(--off); }
+[data-theme="dark"] .section-alt { background: var(--off2); }
+[data-theme="dark"] #hero { background: var(--white); }
 [data-theme="dark"] .pub-card, [data-theme="dark"] .service-card,
 [data-theme="dark"] .course-card, [data-theme="dark"] .thesis-card,
 [data-theme="dark"] .news-card, [data-theme="dark"] .proj-card,
@@ -1284,6 +1299,10 @@ body {
   background: radial-gradient(circle at 50% 50%, rgba(37, 99, 235, 0.16) 0%, rgba(13, 148, 136, 0.1) 60%, transparent 85%), #090e17;
   border-color: #243048;
 }
+[data-theme="dark"] .crystal-stage {
+  background: radial-gradient(ellipse at 50% 50%, #101828 0%, #0a0e18 100%);
+  border-color: rgba(91,142,245,0.25);
+}
 .crystal-stage:active {
   cursor: grabbing;
 }
@@ -1374,6 +1393,161 @@ body {
   transform: translateY(0);
 }
 
+
+/* ── THEME TOGGLE BUTTON ── */
+#theme-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px; padding: 0;
+  border-radius: 10px; cursor: pointer;
+  border: 1px solid var(--off3); background: var(--off);
+  color: var(--ink2);
+  transition: background .22s ease, border-color .22s ease, color .22s ease, transform .22s ease;
+}
+#theme-toggle:hover { border-color: var(--blue); color: var(--blue); }
+#theme-toggle:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+#theme-icon { display: inline-flex; width: 18px; height: 18px; }
+#theme-icon svg { width: 18px; height: 18px; }
+#theme-icon .ti-sun { display: none; }
+[data-theme="dark"] #theme-icon .ti-moon { display: none; }
+[data-theme="dark"] #theme-icon .ti-sun { display: block; color: #fbbf24; }
+
+/* ── PUBLICATION TYPE BADGES ── */
+.pt-journal { background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; }
+.pt-chapter { background:#fdf4ff; color:#a21caf; border:1px solid #f0abfc; }
+.pt-proc    { background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0; }
+.pt-pres    { background:#fffbeb; color:#b45309; border:1px solid #fde68a; }
+.nav-cta { white-space: nowrap; }
+
+/* ══════════════════════════════════════════════════════════
+   DARK MODE — final, authoritative palette (deep navy)
+   Kept last so it wins over the earlier partial dark rules.
+   ══════════════════════════════════════════════════════════ */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --white: #121b2e;   /* card / raised surface   */
+  --off:   #0a101d;   /* page background         */
+  --off2:  #172238;   /* subtle fill: chips, inputs */
+  --off3:  #26334d;   /* borders, dividers       */
+  --ink:   #eef2fa;
+  --ink2:  #c9d1e1;
+  --ink3:  #9aa6bd;
+  --ink4:  #68758f;
+  --blue:  #5b8ff9;
+  --blue-light: #14224a;
+  --blue-mid:   #3d6fe0;
+  --teal:  #2dd4bf;  --teal-light:  #0c2a2b;
+  --amber: #fbbf24;  --amber-light: #2a1f08;
+  --red:   #f87171;  --red-light:   #2b1214;
+  --green: #34d399;  --green-light: #0b2a1f;
+  --purple-light: #231839;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.45);
+  --shadow:    0 6px 22px rgba(0,0,0,.45), 0 2px 6px rgba(0,0,0,.3);
+  --shadow-lg: 0 16px 44px rgba(0,0,0,.55), 0 4px 12px rgba(0,0,0,.35);
+}
+html[data-theme="dark"], [data-theme="dark"] body { background: var(--off); color: var(--ink2); }
+[data-theme="dark"] #hero { background: radial-gradient(ellipse 70% 60% at 80% 20%, rgba(59,111,224,.10), transparent 70%), var(--off); }
+[data-theme="dark"] .section-alt { background: #0e1527; border-top: 1px solid rgba(255,255,255,.03); border-bottom: 1px solid rgba(255,255,255,.03); }
+[data-theme="dark"] #nav { background: rgba(10,16,29,.88); border-bottom: 1px solid var(--off3); }
+[data-theme="dark"] .section-title em, [data-theme="dark"] h1 em, [data-theme="dark"] h2 em { color: #7aa5ff; }
+
+/* cards: one consistent raised surface */
+[data-theme="dark"] .pub-card, [data-theme="dark"] .service-card,
+[data-theme="dark"] .course-card, [data-theme="dark"] .thesis-card,
+[data-theme="dark"] .news-card, [data-theme="dark"] .proj-card,
+[data-theme="dark"] .team-card, [data-theme="dark"] .mem-card,
+[data-theme="dark"] .exp-card, [data-theme="dark"] .award-card,
+[data-theme="dark"] .talk-card, [data-theme="dark"] .media-card,
+[data-theme="dark"] .research-card, [data-theme="dark"] .edu-card,
+[data-theme="dark"] .reviewer-card, [data-theme="dark"] .sir-proj-card,
+[data-theme="dark"] .skills-box-card, [data-theme="dark"] .contact-card,
+[data-theme="dark"] .hero-photo-card, [data-theme="dark"] .stat-row,
+[data-theme="dark"] .crystal-hero-wrapper {
+  background: var(--white);
+  border-color: var(--off3);
+  box-shadow: 0 1px 0 rgba(255,255,255,.03) inset, var(--shadow-sm);
+}
+[data-theme="dark"] .pub-card:hover, [data-theme="dark"] .exp-card:hover,
+[data-theme="dark"] .award-card:hover, [data-theme="dark"] .research-card:hover,
+[data-theme="dark"] .edu-card:hover, [data-theme="dark"] .sir-proj-card:hover,
+[data-theme="dark"] .reviewer-card:hover, [data-theme="dark"] .skills-box-card:hover {
+  border-color: #3a4f78;
+}
+[data-theme="dark"] .edu-node { background: var(--white); }
+
+/* chips & pills */
+[data-theme="dark"] .res-pill, [data-theme="dark"] .skill-pill-item { background: var(--off2); border-color: var(--off3); color: var(--ink2); }
+[data-theme="dark"] .res-pill:hover { background: #172554; border-color: #3b82f6; color: #bfd5ff; }
+[data-theme="dark"] .exp-period { background: #1d3b8a; color: #dbe6ff; }
+[data-theme="dark"] .exp-period.past { background: var(--off2); color: var(--ink3); }
+[data-theme="dark"] .exp-dot { background: var(--off); border-color: #4b7bec; }
+[data-theme="dark"] .exp-dot.current { background: #4b7bec; }
+
+/* publication badges */
+[data-theme="dark"] .pt-journal { background:#13224a; color:#9cc0ff; border-color:#284a94; }
+[data-theme="dark"] .pt-chapter { background:#2a1438; color:#e7a6f5; border-color:#5b2a72; }
+[data-theme="dark"] .pt-proc    { background:#0e2a1d; color:#7fe0a8; border-color:#1f5a3a; }
+[data-theme="dark"] .pt-pres    { background:#2b1f07; color:#fcd27a; border-color:#6b4a10; }
+
+/* project status */
+[data-theme="dark"] .status-completed { background:#1a2438; color:#a7b3c9; border-color:#2e3c58; }
+[data-theme="dark"] .status-active    { background:#13224a; color:#9cc0ff; border-color:#284a94; }
+
+/* buttons, links, forms */
+[data-theme="dark"] .nav-cta { background:#3b6fe8; color:#fff; }
+[data-theme="dark"] .nav-cta:hover { background:#4f80f5; box-shadow:0 4px 14px rgba(59,111,232,.4); }
+[data-theme="dark"] .field-input, [data-theme="dark"] .field-textarea, [data-theme="dark"] .field-select,
+[data-theme="dark"] input, [data-theme="dark"] textarea, [data-theme="dark"] select {
+  background: #0d1424; border-color: var(--off3); color: var(--ink);
+}
+[data-theme="dark"] input::placeholder, [data-theme="dark"] textarea::placeholder { color: var(--ink4); }
+[data-theme="dark"] input:focus, [data-theme="dark"] textarea:focus { border-color: var(--blue); outline: none; box-shadow: 0 0 0 3px rgba(91,143,249,.18); }
+[data-theme="dark"] footer { background: #080d18 !important; }
+[data-theme="dark"] ::selection { background: rgba(91,143,249,.35); color: #fff; }
+[data-theme="dark"] #theme-toggle { background: var(--off2); border-color: var(--off3); }
+
+/* ── HERO CRYSTAL: overlay, legend, coverage ── */
+.crystal-stage { height: 340px; }
+.crystal-top { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+.crystal-rotate-ic {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:28px; height:28px; border-radius:50%;
+  color: var(--ink3); background: rgba(255,255,255,.85);
+  border:1px solid rgba(226,232,240,.9); backdrop-filter: blur(8px);
+}
+.crystal-rotate-ic svg { width:13px; height:13px; }
+.crystal-legend {
+  align-self: stretch;
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px 10px;
+  font-family: var(--mono); font-size:10.5px; font-weight:600; color: var(--ink3);
+  background: rgba(255,255,255,.86); backdrop-filter: blur(10px);
+  border:1px solid rgba(226,232,240,.9); border-radius:12px; padding:6px 10px;
+}
+.crystal-legend > span { display:inline-flex; align-items:center; gap:5px; white-space:nowrap; }
+.lg-dot { width:9px; height:9px; border-radius:50%; display:inline-block; }
+.lg-host { background: radial-gradient(circle at 35% 30%, #e9f0ff, #3567d6 50%, #173581); }
+.lg-gas  { background: radial-gradient(circle at 35% 30%, #fff6dc, #f59e0b 50%, #b45309); }
+.lg-ads  { background: radial-gradient(circle at 35% 30%, #e2fbef, #10b981 50%, #047857); }
+.crystal-theta { color: var(--ink2); }
+.crystal-theta strong { color: #059669; font-variant-numeric: tabular-nums; }
+[data-theme="dark"] .crystal-stage {
+  background: radial-gradient(ellipse at 50% 40%, #14203a 0%, #0b1222 70%, #080d19 100%);
+  border-color: #22304d;
+}
+[data-theme="dark"] .crystal-pill,
+[data-theme="dark"] .crystal-rotate-ic,
+[data-theme="dark"] .crystal-legend { background: rgba(11,18,34,.82); border-color: #273552; }
+[data-theme="dark"] .crystal-pill { color:#9cc0ff; }
+[data-theme="dark"] .lg-host { background: radial-gradient(circle at 35% 30%, #eef4ff, #5b8ff9 50%, #1d3a8f); }
+[data-theme="dark"] .lg-gas  { background: radial-gradient(circle at 35% 30%, #fff8e3, #fbbf24 50%, #b45309); }
+[data-theme="dark"] .lg-ads  { background: radial-gradient(circle at 35% 30%, #eafff5, #34d399 50%, #047857); }
+[data-theme="dark"] .crystal-theta strong { color:#34d399; }
+
+/* ── small screens: keep the nav on one line ── */
+@media (max-width: 700px) {
+  .nav-brand-sub { display: none; }
+  .nav-brand-name { white-space: nowrap; font-size: 15px; }
+  .visitor-counter-pill > span:nth-child(2) { display: none; }
+}
   </style>
 </head>
 <body>
@@ -1417,8 +1591,11 @@ body {
         <strong id="visitor-count" style="color:var(--ink)">Loading...</strong>
       </div>
 
-      <button id="theme-toggle" class="btn-ghost" onclick="toggleTheme()" title="Toggle Light / Dark mode" style="padding:7px 11px;border-radius:var(--radius-sm);cursor:pointer;border:1px solid var(--off3);background:var(--off)">
-        <span id="theme-icon">🌙</span>
+      <button id="theme-toggle" type="button" aria-label="Switch between light and dark mode" title="Switch light / dark mode">
+        <span id="theme-icon" aria-hidden="true">
+          <svg class="ti-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="ti-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        </span>
       </button>
 
       <a href="Kristy_Gourab_Sinha_CV.pdf" target="_blank" rel="noopener" class="nav-cta">
@@ -1510,16 +1687,23 @@ body {
       <!-- Right Column: 3D DFT Crystal Stage + Stat Row -->
       <div class="hero-right">
         <div class="crystal-hero-wrapper">
-          <div class="crystal-stage" id="crystal-stage" title="Click &amp; drag to rotate crystal lattice">
-            <canvas id="crystal-canvas"></canvas>
+          <div class="crystal-stage" id="crystal-stage" title="Drag to rotate · tap to dose gas atoms">
+            <canvas id="crystal-canvas" role="img" aria-label="Animated BCC crystal: gas atoms adsorb onto hollow sites of the cubic lattice surface, hop between sites and desorb"></canvas>
             <div class="crystal-card-overlay">
-              <div class="crystal-pill">
-                <span class="single-pulse-dot"></span>
-                <span>DFT Lattice Simulation</span>
+              <div class="crystal-top">
+                <div class="crystal-pill">
+                  <span class="single-pulse-dot"></span>
+                  <span>BCC (100) · Adsorption</span>
+                </div>
+                <span class="crystal-rotate-ic" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.85.83 6.72 2.24L21 8"/><path d="M21 3v5h-5"/></svg>
+                </span>
               </div>
-              <div class="crystal-drag-hint">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.85.83 6.72 2.24L21 8"/><path d="M21 3v5h-5"/></svg>
-                <span>Drag to inspect · Click to pulse</span>
+              <div class="crystal-legend">
+                <span><i class="lg-dot lg-host"></i>Host</span>
+                <span><i class="lg-dot lg-gas"></i>Gas</span>
+                <span><i class="lg-dot lg-ads"></i>Adsorbed</span>
+                <span class="crystal-theta" title="Fractional surface coverage of hollow sites">&theta; = <strong id="crystal-theta">0.50</strong></span>
               </div>
             </div>
           </div>
@@ -1733,7 +1917,7 @@ body {
         <div class="pub-card" data-cat="journal">
           <div class="pub-card-top">
             <div class="pub-title">Exploring Dysprosium Doped Lithium Strontium Borate Based Phosphor for Dosimetry Application</div>
-            <span class="pub-type" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe">Journal Article</span>
+            <span class="pub-type pt-journal">Journal Article</span>
           </div>
           <div class="pub-authors">
             F. S. Siddique, <span style="font-weight:700;color:var(--blue);text-decoration:underline">K. G. Sinha</span>, S. I. Safin, S. A. Islam, M. N. Hassan, M. A. Hasnat, S. Hossain, A. K. M. Rahman, M. Al-Mamun
@@ -1755,7 +1939,7 @@ body {
         <div class="pub-card" data-cat="journal">
           <div class="pub-card-top">
             <div class="pub-title">Development of Water-Repellent Jute Fabric as a Sustainable Solution for Bag Production</div>
-            <span class="pub-type" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe">Journal Article</span>
+            <span class="pub-type pt-journal">Journal Article</span>
           </div>
           <div class="pub-authors">
             M. M. Rahman, <span style="font-weight:700;color:var(--blue);text-decoration:underline">K. G. Sinha</span>, M. A. R. Alif, M. S. Hassan, et al.
@@ -1777,7 +1961,7 @@ body {
         <div class="pub-card" data-cat="chapter">
           <div class="pub-card-top">
             <div class="pub-title">Consumer Electronics and Gadgets Applications of Self-Healing Polymer Nanocomposites</div>
-            <span class="pub-type" style="background:#fdf4ff;color:#a21caf;border:1px solid #f0abfc">Book Chapter</span>
+            <span class="pub-type pt-chapter">Book Chapter</span>
           </div>
           <div class="pub-authors">
             M. U. Shafoyat, S. M. Al-Amin, B. Mogumdar, <span style="font-weight:700;color:var(--blue);text-decoration:underline">K. G. Sinha</span>, M. E. Hoque
@@ -1799,7 +1983,7 @@ body {
         <div class="pub-card" data-cat="proceedings">
           <div class="pub-card-top">
             <div class="pub-title">Computational Cognitive Network-Based Radiological Mechanism Inspection Technology and Digitally Accessible High-Tech Investigation Robot for Radiological Ground Surveys, Nuclear Environment Inspection, and Radioactive Substance Screening</div>
-            <span class="pub-type" style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0">Proceedings</span>
+            <span class="pub-type pt-proc">Proceedings</span>
           </div>
           <div class="pub-authors">
             A. A. M. Anik, M. S. A. Moon, A. T. Chowdhury, <span style="font-weight:700;color:var(--blue);text-decoration:underline">K. G. Sinha</span>, S. I. Safin, F. S. Siddique, M. Z. H. Bhuiyan, T. Alam
@@ -1821,7 +2005,7 @@ body {
         <div class="pub-card" data-cat="proceedings">
           <div class="pub-card-top">
             <div class="pub-title">A Computational Study of NACA 23018 Airfoil Using Single and Double Rotating Cylinders as a Flow Control Device</div>
-            <span class="pub-type" style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0">Proceedings</span>
+            <span class="pub-type pt-proc">Proceedings</span>
           </div>
           <div class="pub-authors">
             S. Mahmud, M. R. Iqbal, M. S. Ishrak, <span style="font-weight:700;color:var(--blue);text-decoration:underline">K. G. Sinha</span>
@@ -1843,7 +2027,7 @@ body {
         <div class="pub-card" data-cat="proceedings">
           <div class="pub-card-top">
             <div class="pub-title">Aerodynamic Performance of NACA 23018 Airfoil with Double Rotating Cylinders as Moving Surface Boundary-Layer Control (MSBC) Device at Multiple Reynolds Number: A Computational Study</div>
-            <span class="pub-type" style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0">Proceedings</span>
+            <span class="pub-type pt-proc">Proceedings</span>
           </div>
           <div class="pub-authors">
             S. Mahmud, M. R. Iqbal, M. S. Ishrak, <span style="font-weight:700;color:var(--blue);text-decoration:underline">K. G. Sinha</span>
@@ -1865,7 +2049,7 @@ body {
         <div class="pub-card" data-cat="proceedings">
           <div class="pub-card-top">
             <div class="pub-title">An Enhanced YOLOv8 Framework for Real-Time Weapon Detection and Threat Assessment in Nuclear Power Plant Perimeter Security</div>
-            <span class="pub-type" style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0">Conference Paper</span>
+            <span class="pub-type pt-proc">Conference Paper</span>
           </div>
           <div class="pub-authors">
             M. M. R. Reyad, S. Islam, N. Zahin, M. T. R. Shaon, <span style="font-weight:700;color:var(--blue);text-decoration:underline">K. G. Sinha</span>, M. A. Hossain
@@ -1884,7 +2068,7 @@ body {
         <div class="pub-card" data-cat="presentation">
           <div class="pub-card-top">
             <div class="pub-title">An Enhanced YOLOv8 Framework for Real-Time Weapon Detection and Threat Assessment in Nuclear Power Plant Perimeter Security</div>
-            <span class="pub-type" style="background:#fffbeb;color:#b45309;border:1px solid #fde68a">Paper Presentation · PECCII 2026</span>
+            <span class="pub-type pt-pres">Paper Presentation · PECCII 2026</span>
           </div>
           <div class="pub-venue">
             <strong>International Conference on Power, Electronics, Communications, Computing, and Intelligent Infrastructure</strong>, 2026.
@@ -1895,7 +2079,7 @@ body {
         <div class="pub-card" data-cat="presentation">
           <div class="pub-card-top">
             <div class="pub-title">A Convolutional Neural Network Approach for Steel Surface Defect Detection in Nuclear Facilities</div>
-            <span class="pub-type" style="background:#fffbeb;color:#b45309;border:1px solid #fde68a">Paper Presentation · ISMEE 2024</span>
+            <span class="pub-type pt-pres">Paper Presentation · ISMEE 2024</span>
           </div>
           <div class="pub-venue">
             <strong>1st International Symposium on Materials, Energy, and Environment</strong>, Department of Chemistry, University of Chittagong, 2024.
@@ -1906,7 +2090,7 @@ body {
         <div class="pub-card" data-cat="presentation">
           <div class="pub-card-top">
             <div class="pub-title">Artificial Neural Network Based Nuclear Facility Inspection System and Computerized Exploration System for Radiological Ground Surveys</div>
-            <span class="pub-type" style="background:#fffbeb;color:#b45309;border:1px solid #fde68a">Paper Presentation · ICEP 2022</span>
+            <span class="pub-type pt-pres">Paper Presentation · ICEP 2022</span>
           </div>
           <div class="pub-venue">
             <strong>4th International Conference on Energy and Power</strong>, MIST, Dhaka, 2022.
@@ -2399,35 +2583,13 @@ body {
   </div>
 
   <!-- Three.js for 3D DFT Crystal -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- Three.js removed: using native Canvas 2D crystal -->
 
   <!-- Complete script.js -->
-  <script src="script.js?v=buet-final-v10"></script>
+  <script src="script.js?v=buet-final-v11"></script>
 
   <!-- Dynamic Functions -->
   <script>
-    function initTheme() {
-      const savedTheme = localStorage.getItem('kgs-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-      document.documentElement.setAttribute('data-theme', savedTheme);
-      updateThemeIcon(savedTheme);
-    }
-
-    function toggleTheme() {
-      const current = document.documentElement.getAttribute('data-theme') || 'light';
-      const next = current === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem('kgs-theme', next);
-      updateThemeIcon(next);
-    }
-
-    function updateThemeIcon(theme) {
-      const icon = document.getElementById('theme-icon');
-      if (icon) {
-        icon.textContent = theme === 'dark' ? '☀️' : '🌙';
-      }
-    }
-    initTheme();
-
     function showToast(msg) {
       const toast = document.getElementById('toast');
       const text = document.getElementById('toast-text');

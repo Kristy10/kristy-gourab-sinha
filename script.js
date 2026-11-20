@@ -5,24 +5,17 @@
 (function () {
   'use strict';
 
-  // 1. Theme Toggle (Light / Dark)
+  // 1. Theme Toggle (Light / Dark) — the ONLY click handler for #theme-toggle.
+  //    Initial theme is set by the small script in <head>; icons swap via CSS.
   const themeToggle = document.getElementById('theme-toggle');
   const root = document.documentElement;
 
-  const savedTheme = localStorage.getItem('kgs-theme');
-  if (savedTheme === 'dark' || savedTheme === 'light') {
-    root.setAttribute('data-theme', savedTheme);
-  }
-
-  if (themeToggle) {
+  if (themeToggle && !themeToggle.dataset.bound) {
+    themeToggle.dataset.bound = '1';
     themeToggle.addEventListener('click', () => {
-      const current = root.getAttribute('data-theme') || 'light';
-      const next = current === 'dark' ? 'light' : 'dark';
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
       root.setAttribute('data-theme', next);
-      localStorage.setItem('kgs-theme', next);
-      // sync icon
-      const icon = document.getElementById('theme-icon');
-      if (icon) icon.textContent = next === 'dark' ? '☀️' : '🌙';
+      try { localStorage.setItem('kgs-theme', next); } catch (e) {}
     });
   }
 
@@ -147,343 +140,327 @@
     emitStream: null
   };
 
+  // ═══════════════════════════════════════════════════════════════════
+  // Hero visual: dynamic BCC (100) crystal slab with gas-atom adsorption
+  //  - depth-sorted ball-and-stick rendering on Canvas 2D (HiDPI aware)
+  //  - gas atoms drift above the surface, land in 4-fold hollow sites,
+  //    bond to the four surface atoms, hop between sites and desorb
+  //  - drag to rotate, tap to dose gas; colours follow light/dark theme
+  // ═══════════════════════════════════════════════════════════════════
   function initCrystalAnimation() {
-    if (typeof THREE === 'undefined') {
-      console.warn('Three.js not loaded yet, retrying...');
-      setTimeout(initCrystalAnimation, 200);
-      return;
-    }
-
     const canvas = document.getElementById('crystal-canvas');
     const stage = document.getElementById('crystal-stage');
-    if (!canvas || !stage) return;
+    if (!canvas || !stage || !canvas.getContext) return;
+    const ctx = canvas.getContext('2d');
+    const thetaEl = document.getElementById('crystal-theta');
+    const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    const TAU = Math.PI * 2;
 
-    // Realtime Screen Coordinates for Crystal Bridge
-    function updateCrystalScreenPosition() {
-      const rect = stage.getBoundingClientRect();
-      crystalBridge.center.x = rect.left + rect.width / 2;
-      crystalBridge.center.y = rect.top + rect.height / 2;
-      crystalBridge.radius = Math.min(rect.width, rect.height) * 0.42;
+    // ── Canvas sizing ──
+    let W = 1, H = 1, A = 40; // A = pixels per lattice constant
+    function resize() {
+      const r = stage.getBoundingClientRect();
+      W = Math.max(1, r.width); H = Math.max(1, r.height);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(W * dpr);
+      canvas.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      A = Math.max(18, Math.min((W - 40) / 3.7, (H - 120) / 4.4));
     }
-    updateCrystalScreenPosition();
-    window.addEventListener('resize', updateCrystalScreenPosition);
-    window.addEventListener('scroll', updateCrystalScreenPosition, { passive: true });
+    resize();
+    if ('ResizeObserver' in window) new ResizeObserver(resize).observe(stage);
+    else window.addEventListener('resize', resize);
 
-    // Scene & Camera
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(40, stage.clientWidth / stage.clientHeight, 0.1, 100);
-    camera.position.z = 6.2;
+    // ── Geometry (world units = lattice constant a; y points up) ──
+    const N = 3, LAYERS = 3, H_ADS = 0.30, TOP = 1, HALF = (N - 1) / 2;
+    const corners = [], bodies = [], edges = [], sites = [];
+    const cIdx = (i, j, k) => (j * N + i) * N + k;
+    for (let j = 0; j < LAYERS; j++)
+      for (let i = 0; i < N; i++)
+        for (let k = 0; k < N; k++)
+          corners.push({ x: i - HALF, y: TOP - j, z: k - HALF, body: false });
+    for (let j = 0; j < LAYERS - 1; j++)
+      for (let i = 0; i < N - 1; i++)
+        for (let k = 0; k < N - 1; k++)
+          bodies.push({ x: i - HALF + 0.5, y: TOP - 0.5 - j, z: k - HALF + 0.5, body: true });
+    for (let j = 0; j < LAYERS; j++)
+      for (let i = 0; i < N; i++)
+        for (let k = 0; k < N; k++) {
+          if (i < N - 1) edges.push([cIdx(i, j, k), cIdx(i + 1, j, k)]);
+          if (k < N - 1) edges.push([cIdx(i, j, k), cIdx(i, j, k + 1)]);
+          if (j < LAYERS - 1) edges.push([cIdx(i, j, k), cIdx(i, j + 1, k)]);
+        }
+    for (let i = 0; i < N - 1; i++)
+      for (let k = 0; k < N - 1; k++)
+        sites.push({
+          i, k, x: i - HALF + 0.5, y: TOP + H_ADS, z: k - HALF + 0.5, occ: null, res: null,
+          nb: [cIdx(i, 0, k), cIdx(i + 1, 0, k), cIdx(i, 0, k + 1), cIdx(i + 1, 0, k + 1)]
+        });
+    const atoms = corners.concat(bodies);
 
-    // High performance WebGL Renderer
-    const renderer = new THREE.WebGLRenderer({
-      canvas: canvas,
-      alpha: true,
-      antialias: true,
-      powerPreference: 'high-performance'
-    });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    renderer.setSize(stage.clientWidth, stage.clientHeight);
+    // ── Camera ──
+    let yaw = 0.62, pitch = 0.6, yawVel = 0;
+    const AUTO = reduceMotion ? 0.05 : 0.22; // rad/s
+    const F = 10, TY = 0.72;
+    function project(x, y, z) {
+      const cy = Math.cos(yaw), sy = Math.sin(yaw);
+      const x1 = x * cy - z * sy, z1 = x * sy + z * cy;
+      const yy = y - TY;
+      const cp = Math.cos(pitch), sp = Math.sin(pitch);
+      const y2 = yy * cp + z1 * sp, z2 = -yy * sp + z1 * cp;
+      const s = A * F / (F + z2);
+      return { sx: W / 2 + x1 * s, sy: H / 2 - 10 - y2 * s, z: z2, s };
+    }
 
-    // Master Group
-    const masterGroup = new THREE.Group();
-    scene.add(masterGroup);
-
-    // Primary Faceted Crystal (Icosahedron - 20 Facets)
-    const icosaGeometry = new THREE.IcosahedronGeometry(1.85, 0);
-
-    const facetMaterial = new THREE.MeshPhysicalMaterial({
-      flatShading: true,
-      roughness: 0.15,
-      metalness: 0.1,
-      transmission: 0.65,
-      ior: 1.52,
-      transparent: true,
-      opacity: 0.85,
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.1
-    });
-
-    const crystalMesh = new THREE.Mesh(icosaGeometry, facetMaterial);
-    masterGroup.add(crystalMesh);
-
-    // Wireframe Crystallography Lattice Lines
-    const wireGeometry = new THREE.WireframeGeometry(icosaGeometry);
-    const wireMaterial = new THREE.LineBasicMaterial({
-      transparent: true,
-      opacity: 0.55,
-      linewidth: 1
-    });
-    const wireMesh = new THREE.LineSegments(wireGeometry, wireMaterial);
-    masterGroup.add(wireMesh);
-
-    // Vertex Nodes (Atomic Sites in Lattice)
-    const nodeGeometry = new THREE.SphereGeometry(0.065, 16, 16);
-    const nodeMaterial = new THREE.MeshBasicMaterial();
-    const nodeGroup = new THREE.Group();
-
-    const posAttr = icosaGeometry.attributes.position;
-    const vertexSet = [];
-    for (let i = 0; i < posAttr.count; i++) {
-      const v = new THREE.Vector3().fromBufferAttribute(posAttr, i);
-      const exists = vertexSet.some(function(existing) { return existing.distanceTo(v) < 0.05; });
-      if (!exists) {
-        vertexSet.push(v);
-        const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
-        node.position.copy(v);
-        nodeGroup.add(node);
+    // ── Theme palette ──
+    function hex(h) { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+    function mixc(a, b, t) { return 'rgb(' + a.map((v, i) => Math.round(v + (b[i] - v) * t)).join(',') + ')'; }
+    const PAL = {
+      light: {
+        host: ['#3567d6', '#e9f0ff', '#173581'], body: ['#6f93e6', '#ffffff', '#2a4ba6'],
+        gas: ['#f59e0b', '#fff6dc', '#b45309'], ads: ['#10b981', '#e2fbef', '#047857'],
+        edge: '37,70,160', edgeA: 0.42, site: '16,150,110', shadow: '15,30,80', glow: '16,185,129'
+      },
+      dark: {
+        host: ['#5b8ff9', '#eef4ff', '#1d3a8f'], body: ['#93b4ff', '#ffffff', '#3352b0'],
+        gas: ['#fbbf24', '#fff8e3', '#b45309'], ads: ['#34d399', '#eafff5', '#047857'],
+        edge: '150,180,255', edgeA: 0.34, site: '52,211,153', shadow: '0,0,0', glow: '52,211,153'
       }
+    };
+    for (const k in PAL) ['host', 'body', 'gas', 'ads'].forEach(n => { PAL[k][n + 'RGB'] = PAL[k][n].map(hex); });
+
+    // ── Adsorbates ──
+    const rnd = (a, b) => a + Math.random() * (b - a);
+    const GAS_BOX = { x: 1.05, yMin: 1.8, yMax: 2.55 };
+    const flashes = [];
+    function freeSites() { return sites.filter(s => !s.occ && !s.res); }
+    function makeGas() {
+      return {
+        x: rnd(-GAS_BOX.x, GAS_BOX.x), y: rnd(GAS_BOX.yMin, GAS_BOX.yMax), z: rnd(-GAS_BOX.x, GAS_BOX.x),
+        vx: rnd(-0.5, 0.5), vy: rnd(-0.2, 0.2), vz: rnd(-0.5, 0.5),
+        state: 'gas', timer: rnd(0.8, 3.5), mix: 0, site: null, t: 0, dur: 1, from: null, bond: 0, ph: rnd(0, TAU)
+      };
     }
-    masterGroup.add(nodeGroup);
-
-    // Inner Concentric Unit Cell (Octahedron Core)
-    const coreGeometry = new THREE.OctahedronGeometry(0.95, 0);
-    const coreMaterial = new THREE.MeshStandardMaterial({
-      flatShading: true,
-      roughness: 0.3,
-      metalness: 0.8,
-      transparent: true,
-      opacity: 0.68
-    });
-    const coreMesh = new THREE.Mesh(coreGeometry, coreMaterial);
-    const coreWire = new THREE.LineSegments(
-      new THREE.WireframeGeometry(coreGeometry),
-      new THREE.LineBasicMaterial({ transparent: true, opacity: 0.7 })
-    );
-    coreMesh.add(coreWire);
-    masterGroup.add(coreMesh);
-
-    // Ambient Quantum Particle Field
-    const particleCount = 42;
-    const particleGroup = new THREE.Group();
-    const particleGeom = new THREE.SphereGeometry(0.028, 8, 8);
-    const particleMaterial = new THREE.MeshBasicMaterial();
-    const particles = [];
-
-    for (let i = 0; i < particleCount; i++) {
-      const pMesh = new THREE.Mesh(particleGeom, particleMaterial);
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(Math.random() * 2 - 1);
-      const radius = 2.4 + Math.random() * 0.9;
-      const speed = 0.4 + Math.random() * 0.8;
-      const axis = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
-
-      pMesh.position.set(
-        radius * Math.sin(phi) * Math.cos(theta),
-        radius * Math.sin(phi) * Math.sin(theta),
-        radius * Math.cos(phi)
-      );
-
-      particleGroup.add(pMesh);
-      particles.push({ mesh: pMesh, radius: radius, theta: theta, speed: speed, axis: axis });
-    }
-    masterGroup.add(particleGroup);
-
-    // Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
-    scene.add(ambientLight);
-
-    const pointLight1 = new THREE.PointLight(0x5ce1b6, 2.5, 25);
-    pointLight1.position.set(3, 4, 4);
-    scene.add(pointLight1);
-
-    const pointLight2 = new THREE.PointLight(0x10b981, 1.8, 25);
-    pointLight2.position.set(-4, -3, -2);
-    scene.add(pointLight2);
-
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.45);
-    dirLight.position.set(0, 5, 3);
-    scene.add(dirLight);
-
-    // Dynamic Theme Color Synchronization
-    function updateColors() {
-      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-      if (isDark) {
-        facetMaterial.color.set(0x0e1715);
-        facetMaterial.emissive.set(0x052019);
-        facetMaterial.emissiveIntensity = 0.42;
-        wireMaterial.color.set(0x4eeda8);
-        wireMaterial.opacity = 0.65;
-        nodeMaterial.color.set(0x4eeda8);
-        coreMaterial.color.set(0x132822);
-        coreMaterial.emissive.set(0x4eeda8);
-        coreMaterial.emissiveIntensity = 0.28;
-        coreWire.material.color.set(0x4eeda8);
-        particleMaterial.color.set(0x4eeda8);
-        pointLight1.color.set(0x4eeda8);
-        pointLight2.color.set(0x38bdf8);
-      } else {
-        facetMaterial.color.set(0xe0f2fe);
-        facetMaterial.emissive.set(0x059669);
-        facetMaterial.emissiveIntensity = 0.12;
-        wireMaterial.color.set(0x059669);
-        wireMaterial.opacity = 0.45;
-        nodeMaterial.color.set(0x059669);
-        coreMaterial.color.set(0xd1fae5);
-        coreMaterial.emissive.set(0x059669);
-        coreMaterial.emissiveIntensity = 0.15;
-        coreWire.material.color.set(0x059669);
-        particleMaterial.color.set(0x059669);
-        pointLight1.color.set(0x059669);
-        pointLight2.color.set(0x0284c7);
-      }
-    }
-    updateColors();
-
-    const themeObserver = new MutationObserver(updateColors);
-    themeObserver.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['data-theme']
+    const mobiles = Array.from({ length: 5 }, makeGas);
+    // start with a few atoms already adsorbed
+    mobiles.slice(0, 2).forEach(m => {
+      const fs = freeSites(); const s = fs[Math.floor(Math.random() * fs.length)];
+      Object.assign(m, { state: 'ads', site: s, x: s.x, y: s.y, z: s.z, mix: 1, bond: 1, timer: rnd(2, 7) });
+      s.occ = m;
     });
 
-    // User Interaction (Drag / Tilt / Pulse)
-    let isDragging = false;
-    let prevPointer = { x: 0, y: 0 };
-    let dragStart = { x: 0, y: 0 };
-    const rotVelocity = { x: 0, y: 0 };
-    const mouseNorm = { x: 0, y: 0 };
-
-    let pulseScale = 1;
-    const targetScale = 1;
-    let lightFlash = 0;
-
-    function triggerPulse() {
-      pulseScale = 1.28;
-      lightFlash = 2.8;
-      rotVelocity.y += (Math.random() - 0.5) * 0.14;
-      rotVelocity.x += (Math.random() - 0.5) * 0.14;
-
-      // Trigger quantum burst into background particle flow
-      if (typeof crystalBridge.emitBurst === 'function') {
-        updateCrystalScreenPosition();
-        crystalBridge.emitBurst(crystalBridge.center.x, crystalBridge.center.y, 22, 3.8);
+    function startMove(m, site, state, dur) {
+      m.state = state; m.site = site; m.t = 0; m.dur = dur;
+      m.from = { x: m.x, y: m.y, z: m.z };
+      site.res = m;
+    }
+    function land(m, big) {
+      const s = m.site; s.res = null; s.occ = m;
+      m.state = 'ads'; m.x = s.x; m.y = s.y; m.z = s.z; m.timer = rnd(3.5, 8.5);
+      flashes.push({ x: s.x, z: s.z, t: 0, big });
+    }
+    function seek(m) {
+      const fs = freeSites(); if (!fs.length) { m.timer = rnd(0.6, 1.5); return; }
+      fs.sort((a, b) => ((a.x - m.x) ** 2 + (a.z - m.z) ** 2) - ((b.x - m.x) ** 2 + (b.z - m.z) ** 2));
+      const pick = fs[Math.random() < 0.7 ? 0 : Math.floor(Math.random() * fs.length)];
+      startMove(m, pick, 'approach', rnd(0.9, 1.4));
+    }
+    function update(m, dt) {
+      const target = (m.state === 'ads' || m.state === 'hop') ? 1 : 0;
+      m.mix += (target - m.mix) * Math.min(1, dt * 5);
+      m.bond += ((m.state === 'ads' ? 1 : 0) - m.bond) * Math.min(1, dt * 6);
+      m.ph += dt * 9;
+      if (m.state === 'gas') {
+        m.vx += rnd(-1, 1) * dt * 1.6; m.vy += rnd(-1, 1) * dt * 1.0; m.vz += rnd(-1, 1) * dt * 1.6;
+        const sp = Math.hypot(m.vx, m.vy, m.vz), max = 0.75;
+        if (sp > max) { m.vx *= max / sp; m.vy *= max / sp; m.vz *= max / sp; }
+        m.x += m.vx * dt; m.y += m.vy * dt; m.z += m.vz * dt;
+        if (Math.abs(m.x) > GAS_BOX.x) { m.x = Math.sign(m.x) * GAS_BOX.x; m.vx *= -1; }
+        if (Math.abs(m.z) > GAS_BOX.x) { m.z = Math.sign(m.z) * GAS_BOX.x; m.vz *= -1; }
+        if (m.y > GAS_BOX.yMax) { m.y = GAS_BOX.yMax; m.vy = -Math.abs(m.vy); }
+        if (m.y < GAS_BOX.yMin) { m.vy += dt * 3; }
+        m.timer -= dt;
+        if (m.timer <= 0) seek(m);
+      } else if (m.state === 'approach' || m.state === 'hop') {
+        m.t += dt / m.dur;
+        const u = Math.min(1, m.t), s = m.site, f = m.from;
+        if (m.state === 'approach') {
+          const e = Math.pow(u, 1.7); // accelerates toward the surface
+          const c = { x: s.x, y: Math.max(f.y, s.y + 0.9), z: s.z };
+          const a = (1 - e) * (1 - e), b = 2 * (1 - e) * e, d = e * e;
+          m.x = a * f.x + b * c.x + d * s.x; m.y = a * f.y + b * c.y + d * s.y; m.z = a * f.z + b * c.z + d * s.z;
+        } else {
+          const e = u * u * (3 - 2 * u);
+          m.x = f.x + (s.x - f.x) * e; m.z = f.z + (s.z - f.z) * e; m.y = s.y + Math.sin(Math.PI * e) * 0.32;
+        }
+        if (u >= 1) land(m, m.state === 'approach');
+      } else if (m.state === 'ads') {
+        m.y = m.site.y + Math.sin(m.ph) * 0.018;
+        m.timer -= dt;
+        if (m.timer <= 0) {
+          // desorb back into the gas phase
+          m.site.occ = null; m.site = null;
+          m.state = 'gas'; m.vy = rnd(0.9, 1.3); m.vx = rnd(-0.4, 0.4); m.vz = rnd(-0.4, 0.4);
+          m.timer = rnd(2.2, 5);
+        } else if (Math.random() < dt * 0.1) {
+          // surface diffusion: hop to a neighbouring empty hollow
+          const nbs = sites.filter(s => !s.occ && !s.res && Math.abs(s.i - m.site.i) + Math.abs(s.k - m.site.k) === 1);
+          if (nbs.length) {
+            const to = nbs[Math.floor(Math.random() * nbs.length)];
+            m.site.occ = null; startMove(m, to, 'hop', 0.6);
+          }
+        }
       }
     }
+    function dose() {
+      mobiles.forEach(m => { if (m.state === 'gas') m.timer = rnd(0, 0.35); });
+    }
 
-    stage.addEventListener('pointerdown', function(e) {
-      isDragging = true;
-      prevPointer = { x: e.clientX, y: e.clientY };
-      dragStart = { x: e.clientX, y: e.clientY };
-      if (stage.setPointerCapture) stage.setPointerCapture(e.pointerId);
+    // ── Drawing helpers ──
+    function sphere(p, rU, pal, alpha) {
+      const r = rU * p.s; if (r < 0.5) return;
+      const g = ctx.createRadialGradient(p.sx - r * 0.38, p.sy - r * 0.42, r * 0.06, p.sx, p.sy, r);
+      g.addColorStop(0, pal[1]); g.addColorStop(0.42, pal[0]); g.addColorStop(1, pal[2]);
+      ctx.globalAlpha = alpha;
+      ctx.beginPath(); ctx.arc(p.sx, p.sy, r, 0, TAU); ctx.fillStyle = g; ctx.fill();
+    }
+    function ring(x, y, z, R, stroke, lw, dash) {
+      ctx.beginPath();
+      for (let n = 0; n <= 24; n++) {
+        const t = n / 24 * TAU, q = project(x + Math.cos(t) * R, y, z + Math.sin(t) * R);
+        n ? ctx.lineTo(q.sx, q.sy) : ctx.moveTo(q.sx, q.sy);
+      }
+      ctx.setLineDash(dash || []); ctx.strokeStyle = stroke; ctx.lineWidth = lw; ctx.stroke(); ctx.setLineDash([]);
+    }
+    function fade(z) { return Math.max(0.42, Math.min(1, 0.74 - z * 0.2)); }
+
+    // ── Render ──
+    let lastTheta = -1;
+    function render() {
+      const P = PAL[document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'];
+      ctx.clearRect(0, 0, W, H);
+      const pa = atoms.map(a => project(a.x, a.y, a.z));
+      const list = [];
+
+      edges.forEach(([u, v]) => {
+        const p = pa[u], q = pa[v];
+        list.push({ z: (p.z + q.z) / 2, d: () => {
+          ctx.globalAlpha = fade((p.z + q.z) / 2);
+          ctx.strokeStyle = 'rgba(' + P.edge + ',' + P.edgeA + ')';
+          ctx.lineWidth = Math.max(1, 0.045 * (p.s + q.s) / 2);
+          ctx.beginPath(); ctx.moveTo(p.sx, p.sy); ctx.lineTo(q.sx, q.sy); ctx.stroke();
+        } });
+      });
+      atoms.forEach((a, i) => {
+        const p = pa[i];
+        list.push({ z: p.z, d: () => sphere(p, a.body ? 0.17 : 0.21, a.body ? P.body : P.host, fade(p.z)) });
+      });
+      sites.forEach(s => {
+        if (s.occ) return;
+        const c = project(s.x, TOP + 0.02, s.z);
+        const hot = !!s.res;
+        list.push({ z: c.z + 0.05, d: () => {
+          ctx.globalAlpha = fade(c.z);
+          ring(s.x, TOP + 0.02, s.z, 0.22, 'rgba(' + P.site + ',' + (hot ? 0.95 : 0.5) + ')', hot ? 1.6 : 1, hot ? [] : [3, 3]);
+        } });
+      });
+      flashes.forEach(f => {
+        const c = project(f.x, TOP + 0.02, f.z);
+        list.push({ z: c.z + 0.04, d: () => {
+          const k = f.t; ctx.globalAlpha = (1 - k) * 0.9;
+          ring(f.x, TOP + 0.02, f.z, 0.15 + k * (f.big ? 0.55 : 0.35), 'rgba(' + P.site + ',1)', 1.8, []);
+        } });
+      });
+      mobiles.forEach(m => {
+        const p = project(m.x, m.y, m.z);
+        const col = [0, 1, 2].map(n => mixc(P.gasRGB[n], P.adsRGB[n], m.mix));
+        // shadow on the surface while airborne
+        if (m.state !== 'ads' && Math.abs(m.x) < HALF + 0.1 && Math.abs(m.z) < HALF + 0.1) {
+          const h = Math.max(0, m.y - TOP), c = project(m.x, TOP + 0.01, m.z);
+          list.push({ z: c.z + 0.03, d: () => {
+            ctx.globalAlpha = Math.max(0, 0.3 - h * 0.1);
+            ctx.beginPath();
+            ctx.ellipse(c.sx, c.sy, 0.16 * c.s, 0.16 * c.s * Math.max(0.25, Math.sin(pitch)), 0, 0, TAU);
+            ctx.fillStyle = 'rgb(' + P.shadow + ')'; ctx.fill();
+          } });
+        }
+        // drop line toward the target site
+        if (m.state === 'approach') {
+          const t = project(m.site.x, m.site.y, m.site.z);
+          list.push({ z: (p.z + t.z) / 2 - 0.5, d: () => {
+            ctx.globalAlpha = 0.55; ctx.setLineDash([2, 4]);
+            ctx.strokeStyle = 'rgba(' + P.site + ',0.8)'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(p.sx, p.sy); ctx.lineTo(t.sx, t.sy); ctx.stroke(); ctx.setLineDash([]);
+          } });
+        }
+        // chemisorption bonds to the four surface atoms
+        if (m.bond > 0.02 && m.site) {
+          m.site.nb.forEach(ix => {
+            const q = pa[ix];
+            list.push({ z: (p.z + q.z) / 2 - 0.02, d: () => {
+              ctx.globalAlpha = m.bond * 0.85;
+              ctx.strokeStyle = 'rgba(' + P.site + ',0.9)';
+              ctx.lineWidth = Math.max(1, 0.04 * p.s);
+              ctx.beginPath(); ctx.moveTo(p.sx, p.sy); ctx.lineTo(q.sx, q.sy); ctx.stroke();
+            } });
+          });
+        }
+        list.push({ z: p.z - 0.01, d: () => {
+          if (m.mix > 0.5) { // soft glow when adsorbed
+            const r = 0.4 * p.s, g = ctx.createRadialGradient(p.sx, p.sy, 0, p.sx, p.sy, r);
+            g.addColorStop(0, 'rgba(' + P.glow + ',' + (0.35 * m.mix) + ')'); g.addColorStop(1, 'rgba(' + P.glow + ',0)');
+            ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.sx, p.sy, r, 0, TAU); ctx.fill();
+          }
+          sphere(p, 0.16, col, Math.max(0.8, fade(p.z)));
+        } });
+      });
+
+      list.sort((a, b) => b.z - a.z);
+      for (let n = 0; n < list.length; n++) list[n].d();
+      ctx.globalAlpha = 1;
+
+      const occ = sites.filter(s => s.occ).length;
+      if (thetaEl && occ !== lastTheta) { lastTheta = occ; thetaEl.textContent = (occ / sites.length).toFixed(2); }
+    }
+
+    // ── Interaction: drag to rotate, tap to dose ──
+    let dragging = false, moved = 0, lx = 0, ly = 0;
+    stage.addEventListener('pointerdown', e => {
+      dragging = true; moved = 0; lx = e.clientX; ly = e.clientY;
+      try { stage.setPointerCapture(e.pointerId); } catch (err) {}
     });
-
-    window.addEventListener('pointermove', function(e) {
-      const rect = stage.getBoundingClientRect();
-      const relX = (e.clientX - rect.left) / (rect.width || 1);
-      const relY = (e.clientY - rect.top) / (rect.height || 1);
-      mouseNorm.x = (relX - 0.5) * 2;
-      mouseNorm.y = (relY - 0.5) * 2;
-
-      if (isDragging) {
-        const dx = e.clientX - prevPointer.x;
-        const dy = e.clientY - prevPointer.y;
-        rotVelocity.y += dx * 0.005;
-        rotVelocity.x += dy * 0.005;
-        prevPointer = { x: e.clientX, y: e.clientY };
-      }
+    stage.addEventListener('pointermove', e => {
+      if (!dragging) return;
+      const dx = e.clientX - lx, dy = e.clientY - ly; lx = e.clientX; ly = e.clientY;
+      moved += Math.abs(dx) + Math.abs(dy);
+      yaw += dx * 0.01; yawVel = dx * 0.6;
+      pitch = Math.max(0.28, Math.min(1.05, pitch + dy * 0.006));
     });
+    function endDrag() { if (dragging && moved < 6) dose(); dragging = false; }
+    stage.addEventListener('pointerup', endDrag);
+    stage.addEventListener('pointercancel', () => { dragging = false; });
 
-    function endDrag(e) {
-      if (!isDragging) return;
-      isDragging = false;
-      const dist = Math.hypot(e.clientX - dragStart.x, e.clientY - dragStart.y);
-      if (dist < 6) {
-        triggerPulse();
-      }
+    // ── Loop (paused when off-screen or tab hidden) ──
+    let visible = true, last = 0, raf = 0;
+    function frame(now) {
+      raf = 0;
+      const dt = Math.min(0.05, last ? (now - last) / 1000 : 0.016); last = now;
+      if (!dragging) { yawVel += (AUTO - yawVel) * Math.min(1, dt * 1.5); yaw += yawVel * dt; }
+      mobiles.forEach(m => update(m, dt));
+      for (let n = flashes.length - 1; n >= 0; n--) { flashes[n].t += dt / 0.8; if (flashes[n].t >= 1) flashes.splice(n, 1); }
+      render();
+      if (visible && !document.hidden) raf = requestAnimationFrame(frame);
     }
-
-    window.addEventListener('pointerup', endDrag);
-    window.addEventListener('pointercancel', endDrag);
-
-    // Responsive Canvas Resize
-    function onResize() {
-      const w = stage.clientWidth;
-      const h = stage.clientHeight;
-      if (w === 0 || h === 0) return;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
-      updateCrystalScreenPosition();
+    function kick() { if (!raf && visible && !document.hidden) { last = 0; raf = requestAnimationFrame(frame); } }
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(es => { visible = es[0].isIntersecting; kick(); }).observe(stage);
     }
-    window.addEventListener('resize', onResize);
-
-    const clock = new THREE.Clock();
-
-    // 60FPS Animation Loop
-    function animate() {
-      requestAnimationFrame(animate);
-
-      const elapsed = clock.getElapsedTime();
-
-      // Inertia & Continuous gentle ambient rotation
-      masterGroup.rotation.y += rotVelocity.y + 0.0045;
-      masterGroup.rotation.x += rotVelocity.x + 0.002;
-
-      const spinSpeed = Math.hypot(rotVelocity.x, rotVelocity.y);
-      crystalBridge.spinIntensity = spinSpeed;
-      crystalBridge.isInteracting = isDragging;
-
-      // When crystal rotates, emit synchronized radiant quantum sparks from crystal perimeter
-      if ((isDragging || spinSpeed > 0.006) && typeof crystalBridge.emitStream === 'function') {
-        const angle = masterGroup.rotation.y + (Math.random() - 0.5) * 1.8;
-        const rad = crystalBridge.radius * (0.65 + Math.random() * 0.35);
-        const sx = crystalBridge.center.x + Math.cos(angle) * rad;
-        const sy = crystalBridge.center.y + Math.sin(angle) * rad;
-        const speed = 2.0 + spinSpeed * 65;
-        const vx = Math.cos(angle) * speed + (rotVelocity.y * 120);
-        const vy = Math.sin(angle) * speed - (rotVelocity.x * 120);
-        crystalBridge.emitStream(sx, sy, vx, vy, isDragging ? 1.0 : 0.7);
-      }
-
-      rotVelocity.x *= 0.94;
-      rotVelocity.y *= 0.94;
-
-      // Inner Core Counter-Rotation
-      coreMesh.rotation.y -= 0.012;
-      coreMesh.rotation.z += 0.008;
-
-      // Subtle parallax tilt towards cursor
-      const targetTiltX = mouseNorm.y * 0.22;
-      const targetTiltY = mouseNorm.x * 0.28;
-      masterGroup.position.x += (targetTiltY - masterGroup.position.x) * 0.05;
-
-      // Harmonic floating oscillation
-      masterGroup.position.y = Math.sin(elapsed * 1.5) * 0.12 - (targetTiltX * 0.4);
-
-      // Light highlight follower
-      pointLight1.position.x = 3 + mouseNorm.x * 2.5;
-      pointLight1.position.y = 4 - mouseNorm.y * 2.5;
-
-      // Elastic Spring Pulse on Click
-      pulseScale += (targetScale - pulseScale) * 0.08;
-      masterGroup.scale.set(pulseScale, pulseScale, pulseScale);
-
-      // Light flash and spin-reactive glow
-      if (lightFlash > 0) {
-        pointLight1.intensity = 2.5 + lightFlash;
-        lightFlash *= 0.9;
-        if (lightFlash < 0.02) lightFlash = 0;
-      } else if (spinSpeed > 0.008) {
-        pointLight1.intensity = 2.5 + Math.min(spinSpeed * 40, 2.0);
-      }
-
-      // Orbital Particle Swarm
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-        p.mesh.position.applyAxisAngle(p.axis, p.speed * 0.008);
-      }
-
-      renderer.render(scene, camera);
-    }
-
-    animate();
+    document.addEventListener('visibilitychange', kick);
+    yawVel = AUTO;
+    kick();
   }
 
-  // Initialize Crystal Animation
-  if (document.readyState === 'loading') {
-    window.addEventListener('DOMContentLoaded', initCrystalAnimation);
-  } else {
-    initCrystalAnimation();
-  }
+  initCrystalAnimation();
 
   // 7. Full-Website Dynamic Particle Flow System (Fluid Streamlines, Vortex Dynamics & Crystal Bridge)
   function initGlobalParticleFlow() {
